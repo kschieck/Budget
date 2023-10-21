@@ -1,0 +1,9 @@
+<?php
+
+// Database connection config
+$servername = "localhost";
+$username = "u609148805_web";
+$password = "2/t3Bw3#udYjN7X";
+$dbname = "u609148805_budget";
+
+?>
