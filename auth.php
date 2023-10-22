@@ -8,8 +8,13 @@ function displayLoginForm() {
 
 if (!isset($_SESSION["budget_auth"])) {
 
+    $auth_username = isset($_SERVER['PHP_AUTH_USER'])? $_SERVER['PHP_AUTH_USER'] :
+        (isset($_POST["username"])? $_POST["username"] : "");
+    $auth_password = isset($_SERVER['PHP_AUTH_PW'])? $_SERVER['PHP_AUTH_PW'] :
+        (isset($_POST["password"])? $_POST["password"] : "");
+
     // Check for password headers
-    if (!isset($_SERVER['PHP_AUTH_USER'])) {
+    if (!$auth_username) {
         header('WWW-Authenticate: Basic realm="StratfordTreasureHunt"');
         header('HTTP/1.0 401 Unauthorized');
         displayLoginForm();
@@ -22,14 +27,14 @@ if (!isset($_SESSION["budget_auth"])) {
     ];
 
     // Check for correct username
-    if (!isset($users[$_SERVER['PHP_AUTH_USER']])) {
+    if (!isset($users[$auth_username])) {
         header('HTTP/1.0 401 Unauthorized');
         echo 'Access Denied';
         exit;
     }
 
-    $hashed_password = $users[$_SERVER['PHP_AUTH_USER']];
-    $user_supplied_password = $_SERVER['PHP_AUTH_PW'];
+    $hashed_password = $users[$auth_username];
+    $user_supplied_password = $auth_password;
 
     // Check if password hashes match
     if ($hashed_password !== crypt($user_supplied_password, $hashed_password)) {
