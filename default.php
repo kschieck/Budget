@@ -51,14 +51,18 @@ h1 {
 }
 
 table * td {
-    padding-left: 5px;
-    padding-right: 5px;
+    padding: 2px 5px 2px 5px;
+}
+
+table * th {
+    padding: 2px 5px 2px 5px;
 }
 
 #amount_head {
     display: flex;
     flex-wrap: nowrap;
 }
+
 td {
   border-bottom: 1px solid #ddd;
 }
@@ -83,16 +87,25 @@ td {
     width: 100px;
 }
 
+#tx_table thead, #tx_table tbody {
+    display: block;
+}
+
+#tx_table tbody {
+    max-height: 245px;
+    overflow-y: scroll;
+}
+
 </style>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 </head>
 <body>
     <h1><?=$amountDollars?></h1>
 
-    <table id="tx_table">
+    <table id="tx_table" cellspacing="0">
         <thead>
             <tr>
-                <th></th>
+                <th style="color: white">Date</th>
                 <th id="amount_head">$&nbsp;<input type="number" id="tx_amount" placeholder="amount"></input></th>
                 <th><input type="text" id="tx_desc" placeholder="description"></input></th>
                 <th><button id="tx_add" onclick="submitAddTransaction()">+</button>
@@ -107,7 +120,7 @@ td {
     </table>
 
     <h1>Goals</h1>
-    <table id="goal_table">
+    <table id="goal_table" cellspacing="0">
         <thead>
             <tr>
                 <th><input type="text" id="goal_name" placeholder="name" class="med_input"></input></th>
