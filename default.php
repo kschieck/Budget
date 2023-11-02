@@ -111,7 +111,6 @@ td {
                 <th><button id="tx_add" onclick="submitAddTransaction()">+</button>
             </tr>
         </thead>
-        <!-- TODO make scrollable -->
         <tbody>
             <?php
                 renderTransactions();

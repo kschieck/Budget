@@ -43,7 +43,7 @@ if (!isset($_SESSION["budget_auth"])) {
         exit;
     }
 
-    $_SESSION["budget_auth"] = $_SERVER['PHP_AUTH_USER'];
+    $_SESSION["budget_auth"] = $auth_username;
 }
 
 
