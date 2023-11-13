@@ -151,7 +151,7 @@ function loadTransactions($limit) {
 function loadTransactionsDate($dateString) {
     $sql = "SELECT DATE_SUB(date_added, INTERVAL 4 HOUR) as date_added, amount, `description`
             FROM `transactions`
-            WHERE date_added > ? ORDER BY id DESC";
+            WHERE DATE_SUB(date_added, INTERVAL 4 HOUR) > ? ORDER BY id DESC";
     return select($sql, "s", [$dateString]);
 }
 

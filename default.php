@@ -328,6 +328,10 @@ function daysInMonth() {
     return new Date(date.getYear(), date.getMonth()+1, 0).getDate();
 }
 
+function dayOfTheMonth() {
+    return new Date().getDate();
+}
+
 var days = daysInMonth();
 
 function calcChartData() {
@@ -352,6 +356,11 @@ function calcChartData() {
         values[day-1] = last;
     });
 
+    // Fill out chart to today
+    while (values.length > 0 && values.length < dayOfTheMonth()) {
+        values.push(values[values.length - 1]);
+    }
+
     return values;
 }
 
@@ -363,7 +372,7 @@ function renderChart(canvas, maxX, minY, maxY, values) {
     var height = canvas.height;
     var width = canvas.width;
 
-    var xWidth = (width - 1) / maxX;
+    var xWidth = width / (maxX - 1);
     var y0 = height * (1 - (-minY) / (maxY - minY)); // Y value of 0
 
     // Get context
