@@ -364,9 +364,23 @@ function calcChartData() {
     return values;
 }
 
+function calcMaxValue() {
+    var txAmounts = <?=renderTransactionData()?>;
+
+    var totalPositive = 0;
+    txAmounts.forEach((elem) => {
+        var amount = elem[1];
+        if (amount < 0) {
+            totalPositive -= amount;
+        }
+    });
+
+    return totalPositive;
+}
+
 var dayValues = calcChartData();
 var minValue = Math.min(0, ...dayValues);
-var maxValue = Math.max(0, ...dayValues);
+var maxValue = calcMaxValue();
 
 function renderChart(canvas, maxX, minY, maxY, values) {
     var height = canvas.height;
@@ -405,7 +419,7 @@ function renderChart(canvas, maxX, minY, maxY, values) {
     ctx.beginPath();
     ctx.fillStyle = "#ffb3b3";
     ctx.moveTo(0, 0); // top left
-    var lastY = 0;
+    lastY = 0;
     for (var i = 0; i < values.length; i++) {
         var x = xWidth * i;
         var y = height * (1 - (values[i] - minY) / (maxY - minY));
@@ -432,7 +446,6 @@ function renderChart(canvas, maxX, minY, maxY, values) {
         var x = xWidth * i;
         var y = height * (1 - (values[i] - minY) / (maxY - minY));
         ctx.lineTo(x, y);
-        //ctx.arc(x, y, 2, 0, 2 * Math.PI);
     }
     ctx.stroke();
     
@@ -457,6 +470,13 @@ function renderChart(canvas, maxX, minY, maxY, values) {
         ctx.lineTo(width, height); // bottom left
         ctx.stroke(); // Draw the line
     }
+
+    // Draw amount
+    ctx.font = "18px sans-serif";
+    ctx.fillStyle = "#000";
+    ctx.lineWidth = 1;
+    var text = "$" + Math.floor(maxY / 100).toLocaleString("en-US");
+    ctx.fillText(text, 5, 15, width);
 }
 
 renderChart(document.getElementById("chart"), days, minValue, maxValue, dayValues);
