@@ -3,8 +3,16 @@ require_once(__DIR__."/dao.php");
 
 include __DIR__."/auth.php";
 
+$dateOffset = "-4 hours";
+
 function moneyFormat($dollars) {
-    $fmt = new NumberFormatter('en_US', NumberFormatter::CURRENCY );
+    $fmt = new NumberFormatter('en_US', NumberFormatter::CURRENCY);
+    return $fmt->formatCurrency($dollars, 'USD');
+}
+
+function dollarFormat($dollars) {
+    $fmt = new NumberFormatter('en_US', NumberFormatter::CURRENCY);
+    $fmt->setAttribute(NumberFormatter::FRACTION_DIGITS, 0);
     return $fmt->formatCurrency($dollars, 'USD');
 }
 
@@ -14,8 +22,9 @@ $totalTxSpend = "";
 $totalTxEarn = "";
 
 function loadTransactionsArray() {
+    global $dateOffset;
     $transactions = [];
-    $transactionsItr = loadTransactionsDate(date('Y-m-01') . " 00:00:00");
+    $transactionsItr = loadTransactionsDate(date('Y-m-01 00:00:00', strtotime($dateOffset)));
     while ($tx = $transactionsItr->fetch_assoc()) {
         $transactions[] = $tx;
     }
@@ -27,11 +36,16 @@ $transactions = loadTransactionsArray();
 function renderTransactions() {
     global $transactions;
     foreach ($transactions as &$tx) {
-        echo "<tr>";
-            echo "<td>" . substr(explode(" ", $tx["date_added"])[0], 5) . "</td>";
-            echo "<td><b>" . moneyFormat($tx["amount"] / 100.0) . "</b></td>";
-            echo "<td>" . $tx["description"] . "</td>";
-        echo "</tr>";
+
+        $id = $tx["id"];
+        $description = $tx["description"];
+        $amountString = $tx["amount"] >= 0 ? 
+            moneyFormat($tx["amount"] / 100.0) : 
+            "(" . moneyFormat(-$tx["amount"] / 100.0) . ")";
+        $dateString = substr(explode(" ", $tx["date_added"])[0], 5);
+        $active = $tx["active"]? "true" : "false";
+
+        echo "renderTransaction($id, \"$dateString\", \"$amountString\", \"$description\", $active);";
     }
 }
 
@@ -41,8 +55,12 @@ function renderTransactionData() {
         array_map(fn($tx) => 
             [
                 intval(explode("-", explode(" ", $tx["date_added"])[0])[2]),
-                $tx["amount"]
-            ], $transactions)
+                $tx["active"]? $tx["amount"] : 0
+            ], 
+            array_values(array_filter($transactions, function($val) {
+                return $val["active"];
+            }))
+        )
     );
 }
 
@@ -53,6 +71,9 @@ function loadSpendEarn() {
     $spend = 0;
     $earn = 0;
     foreach ($transactions as &$tx) {
+        if (!$tx["active"]) {
+            continue;
+        }
         if ($tx["amount"] > 0) {
             $spend += $tx["amount"];
         } else {
@@ -71,8 +92,8 @@ function renderGoals() {
     while ($goal = $goals->fetch_assoc()) {
         $id = $goal["id"];
         $name = $goal["name"];
-        $amount = moneyFormat($goal["amount"] / 100.0);
-        $total = moneyFormat($goal["total"] / 100.0);
+        $amount = dollarFormat($goal["amount"] / 100.0);
+        $total = dollarFormat($goal["total"] / 100.0);
         echo "renderGoal($id, \"$name\", \"$amount\", \"$total\");";
     }
 }
@@ -163,6 +184,18 @@ td, .soft_underline {
     display: none !important;
 }
 
+.small_cell {
+    max-width: 200px;
+}
+
+.space_right {
+    margin-right: 5px;
+}
+
+.small_button {
+    padding: 0px 5px;
+}
+
 </style>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 </head>
@@ -181,11 +214,7 @@ td, .soft_underline {
                 <th><button id="tx_add" onclick="submitAddTransaction()">+</button>
             </tr>
         </thead>
-        <tbody>
-            <?php
-                renderTransactions();
-            ?>
-        </tbody>
+        <tbody id="tx_render_slot"></tbody>
     </table>
 
     <h1>Goals</h1>
@@ -199,12 +228,14 @@ td, .soft_underline {
         </thead>
         <tbody id="goal_render_slot"></tbody>
     </table>
+
+    <!--<button onclick="test">test</button> goal-hide.php id=goalid -->
 </body>
 
 <script>
 
 function renderTxAmounts() {
-    document.getElementById("total_spend").innerHTML = "<?=$totalTxSpend?> spent";
+    document.getElementById("total_spend").textContent = "<?=$totalTxSpend?> spent";
 }
 
 function postData(url = "", data = {}) {
@@ -276,22 +307,28 @@ function submitAddGoalTransaction(goalId, amountElement) {
     });
 }
 
+function goalClicked(id) {
+    console.log("clicked goal " + id);
+}
+
 function renderGoal(id, name, amount, total) {
     var tr = document.createElement("tr");
 
     var tdName = document.createElement("td");
-    tdName.innerHTML = name;
+    tdName.textContent = name;
+    tdName.classList.add("small_cell");
+    tdName.addEventListener("click", goalClicked.bind(this, id));
     tr.appendChild(tdName);
 
     var tdAmount = document.createElement("td");
-    tdAmount.innerHTML = amount + " / " + total;
+    tdAmount.textContent = amount + " / " + total;
     tr.appendChild(tdAmount);
 
     var tdAddAmount = document.createElement("td");
     tr.appendChild(tdAddAmount);
 
     var span = document.createElement("span");
-    span.innerHTML = "$";
+    span.textContent = "$";
     tdAddAmount.appendChild(span);
 
     var inputAddAmount = document.createElement("input");
@@ -302,7 +339,7 @@ function renderGoal(id, name, amount, total) {
     tdAddAmount.appendChild(inputAddAmount);
 
     var buttonAddAmount = document.createElement("button");
-    buttonAddAmount.innerHTML = "+";
+    buttonAddAmount.textContent = "+";
     buttonAddAmount.onclick = (event) => {
         var goalTxAmount = document.getElementById("goal_" + id + "_add_amount");
         submitAddGoalTransaction(id, goalTxAmount);
@@ -310,6 +347,71 @@ function renderGoal(id, name, amount, total) {
     tdAddAmount.appendChild(buttonAddAmount);
     
     document.getElementById("goal_render_slot").appendChild(tr);
+
+    return tr;
+}
+
+function toggleVisibilityTxDelete(txDeleteButton) {
+    if (txDeleteButton.classList.contains("hidden")) {
+        txDeleteButton.classList.remove("hidden");
+    } else {
+        txDeleteButton.classList.add("hidden");
+    }
+}
+
+function transactionClicked(deleteButton) {
+    toggleVisibilityTxDelete(deleteButton)
+}
+
+function deleteTransaction(id) {
+    postData("./transaction-hide.php", {id}).then((data) => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert("failed to delete.");
+        }
+    });
+}
+
+function renderTransaction(id, date, amountString, description, active) {
+    if (!active) {
+        return null;
+    }
+
+    var tr = document.createElement("tr");
+
+    var tdDate = document.createElement("td");
+    tdDate.textContent = date;
+    tr.appendChild(tdDate);
+
+    var tdAmount = document.createElement("td");
+    tdAmount.textContent = amountString;
+    tr.appendChild(tdAmount);
+
+    var tdDescription = document.createElement("td");
+    tdDescription.classList.add("small_cell");
+    tr.appendChild(tdDescription);
+
+    var divDescription = document.createElement("div");
+    divDescription.textContent = description;
+    divDescription.style = "display: inline-block;";
+
+    var deleteButton = document.createElement("button");
+    deleteButton.addEventListener("click", deleteTransaction.bind(this, id));
+    toggleVisibilityTxDelete(deleteButton);
+    deleteButton.textContent = "x";
+    deleteButton.classList.add("space_right");
+    deleteButton.classList.add("small_button");
+
+    tdDescription.appendChild(deleteButton);
+    tdDescription.appendChild(divDescription);
+
+    // Handle click
+    divDescription.addEventListener("click", transactionClicked.bind(this, deleteButton));
+
+    document.getElementById("tx_render_slot").appendChild(tr);
+
+    return tr;
 }
 
 renderTxAmounts();
@@ -317,6 +419,9 @@ renderTxAmounts();
 <?php
     // Echo renderGoal for each goal
     renderGoals();
+
+    // Echo renderTransaction for each transaction
+    renderTransactions();
 ?>
 
 </script>
@@ -359,6 +464,11 @@ function calcChartData() {
     // Fill out chart to today
     while (values.length > 0 && values.length < dayOfTheMonth()) {
         values.push(values[values.length - 1]);
+    }
+
+    // Add value at day 0 to render line on first day
+    if (values.length == 1) {
+        values.splice(0, 0, values[0]);
     }
 
     return values;

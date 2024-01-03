@@ -139,17 +139,8 @@ function loadAmount() {
     return 0;
 }
 
-function loadTransactions($limit) {
-    $limit = intval($limit);
-    if ($limit <= 0) {
-        return [];
-    }
-    $sql = "SELECT DATE_SUB(date_added, INTERVAL 4 HOUR) as date_added, amount, `description` FROM `transactions` ORDER BY id DESC LIMIT $limit";
-    return select($sql, "", []);
-}
-
 function loadTransactionsDate($dateString) {
-    $sql = "SELECT DATE_SUB(date_added, INTERVAL 4 HOUR) as date_added, amount, `description`
+    $sql = "SELECT id, DATE_SUB(date_added, INTERVAL 4 HOUR) as date_added, amount, `description`, `active`
             FROM `transactions`
             WHERE DATE_SUB(date_added, INTERVAL 4 HOUR) > ? ORDER BY id DESC";
     return select($sql, "s", [$dateString]);
@@ -160,7 +151,7 @@ function loadGoals($limit) {
     if ($limit <= 0) {
         return [];
     }
-    $sql = "SELECT id, DATE_SUB(date_added, INTERVAL 4 HOUR) as date_added, total, amount, `name` FROM `goals` ORDER BY id DESC LIMIT $limit";
+    $sql = "SELECT id, DATE_SUB(date_added, INTERVAL 4 HOUR) as date_added, total, amount, `name` FROM `goals` WHERE `active` = 1 ORDER BY id DESC LIMIT $limit";
     return select($sql, "", []);
 }
 
@@ -192,6 +183,42 @@ function addTransaction($user, $amount, $description) {
     return true;
 }
 
+function disableTransaction($user, $transactionId) {
+    // Load transaction, get amount and reverse it while setting inactive
+
+    $loadResult = select("SELECT `amount` FROM `transactions` WHERE `user` = ? AND `id` = ? AND `active` = 1", "si", [$user, $transactionId]);
+    if (!($transaction = $loadResult->fetch_assoc())) {
+        return false;
+    }
+
+    $amount = $transaction["amount"];
+
+    $conn = getConnection();
+    $conn->begin_transaction();
+    try {
+        $conn->autocommit(false);
+
+        $updateAmountStmt = prepStatement($conn,
+            "UPDATE amount SET amount = amount + ? LIMIT 1", "i", [$amount]);
+
+        $updateTxStmt = prepStatement($conn, 
+            "UPDATE `transactions` SET `active` = 0 WHERE id = ?", "i", [$transactionId]);
+
+        $updateAmountStmt->execute();
+        $updateTxStmt->execute();
+        $conn->commit();
+        return true;
+    } catch (mysqli_sql_exception $exception) {
+        error_log("Failed to add transaction: " . $exception->getMessage());
+        $conn->rollback();
+        throw $exception;
+    }
+
+    $conn->close();
+
+    return false;
+}
+
 function addGoal($user, $name, $total, $amount) {
     return insert("INSERT INTO `goals` (user, `name`, `total`, `amount`) VALUES (?,?,?,?)", "ssii", [substr($user, 0, 32), substr($name, 0, 64), $total, $amount]);
 }
@@ -202,7 +229,8 @@ function addGoalTransaction($user, $goalId, $amount) {
     if (!$goalRow) {
         return false;
     }
-    $description = $goalRow["name"];
+    $verb = $amount > 0? "contribution" : "subtraction";
+    $description = "Goal $verb: " . $goalRow["name"];
 
     $conn = getConnection();
     $conn->begin_transaction();
@@ -232,6 +260,10 @@ function addGoalTransaction($user, $goalId, $amount) {
     $conn->close();
 
     return true;
+}
+
+function disableGoal($user, $goalId) {
+    return query("UPDATE `goals` SET `active` = 0 WHERE goal_id = ? LIMIT 1", "i", [$goalId]);
 }
 
 ?>
