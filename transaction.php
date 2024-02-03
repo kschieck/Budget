@@ -23,6 +23,11 @@ if ($amount === 0) {
     exit(1);
 }
 
+if (strlen($description) == 0) {
+    echo json_encode(["success" => false]);
+    exit(1);
+}
+
 try {
     addTransaction($_SESSION["budget_auth"], $amount, $description);
     echo json_encode(["success" => true]);

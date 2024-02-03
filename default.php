@@ -5,6 +5,18 @@ include __DIR__."/auth.php";
 
 $dateOffset = "-4 hours";
 
+// If past param is specified, show previous months
+$adjustedDate = false;
+if ($_GET["past"]) {
+    $monthAdjust = intval($_GET["past"]);
+    if ($monthAdjust > 0) {
+        $dateOffset .= " -$monthAdjust months";
+        $adjustedDate = true;
+    }
+}
+
+$clientDate = date('Y-m-d H:i:s', strtotime($dateOffset));
+
 function moneyFormat($dollars) {
     $fmt = new NumberFormatter('en_US', NumberFormatter::CURRENCY);
     return $fmt->formatCurrency($dollars, 'USD');
@@ -24,7 +36,9 @@ $totalTxEarn = "";
 function loadTransactionsArray() {
     global $dateOffset;
     $transactions = [];
-    $transactionsItr = loadTransactionsDate(date('Y-m-01 00:00:00', strtotime($dateOffset)));
+    $transactionsItr = loadTransactionsStartEndDate(
+        date('Y-m-01 00:00:00', strtotime($dateOffset)),
+        date('Y-m-t 23:59:59', strtotime($dateOffset)));
     while ($tx = $transactionsItr->fetch_assoc()) {
         $transactions[] = $tx;
     }
@@ -94,7 +108,8 @@ function renderGoals() {
         $name = $goal["name"];
         $amount = dollarFormat($goal["amount"] / 100.0);
         $total = dollarFormat($goal["total"] / 100.0);
-        echo "renderGoal($id, \"$name\", \"$amount\", \"$total\");";
+        $ratio = $goal["amount"] / $goal["total"];
+        echo "renderGoal($id, \"$name\", \"$amount\", \"$total\", $ratio);";
     }
 }
 
@@ -164,8 +179,14 @@ td, .soft_underline {
     margin-top: 20px;
 }
 
-#current_amount {
+.no_bottom_space {
     margin-bottom: 0px;
+}
+
+.center_spaced {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
 }
 
 #total_spend {
@@ -196,18 +217,53 @@ td, .soft_underline {
     padding: 0px 5px;
 }
 
+
+.goal_progress {
+  height: 1.5em;
+  width: 100%;
+  background-color: #eee;
+  position: relative;
+  border-radius: 4px;
+}
+.goal_progress:before {
+  content: attr(data-label);
+  font-size: 1em;
+  position: absolute;
+  text-align: center;
+  top: 0.15em;
+  left: 0;
+  right: 0;
+}
+.goal_progress .value {
+  background-color: #bbe0ff;
+  display: inline-block;
+  height: 100%;
+  border-radius: 4px;
+}
+
 </style>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 </head>
 <body>
-    <h1 id="current_amount"><?=$amountDollars?></h1>
+    <div id="totals">
+        <h1 class="no_bottom_space center_spaced">
+            <button onclick="previousMonth()">&lt;</button>
+            <span id="current_amount"><?=$amountDollars?></span>
+            <button onclick="nextMonth()">&gt;</button>
+        </h1>
+        <div id="total_spend"></div>
+    </div>
+    <div id="month_display" class="center_spaced hidden">
+        <button onclick="previousMonth()">&lt;</button>
+        <h1 id="month"></h1>
+        <button onclick="nextMonth()">&gt;</button>
+    </div>
 
-    <div id="total_spend"></div>
     <canvas id="chart" class="hidden" width="300" height="100"></canvas>
 
     <table id="tx_table" cellspacing="0">
         <thead>
-            <tr>
+            <tr id="tx_add_form">
                 <th style="color: white">Date</th>
                 <th id="amount_head">$&nbsp;<input type="number" id="tx_amount" placeholder="amount"></input></th>
                 <th><input type="text" id="tx_desc" placeholder="description"></input></th>
@@ -217,19 +273,19 @@ td, .soft_underline {
         <tbody id="tx_render_slot"></tbody>
     </table>
 
-    <h1>Goals</h1>
-    <table id="goal_table" cellspacing="0">
-        <thead>
-            <tr>
-                <th><input type="text" id="goal_name" placeholder="name" class="med_input"></input></th>
-                <th><input type="number" id="goal_total" placeholder="total" class="long_input"></input></th>
-                <th><button id="goal_add" onclick="submitAddGoal()">+</button></th>
-            </tr>
-        </thead>
-        <tbody id="goal_render_slot"></tbody>
-    </table>
-
-    <!--<button onclick="test">test</button> goal-hide.php id=goalid -->
+    <div id="goals">
+        <h1>Goals</h1>
+        <table id="goal_table" cellspacing="0">
+            <thead>
+                <tr>
+                    <th><input type="text" id="goal_name" placeholder="name" class="med_input"></input></th>
+                    <th><input type="number" id="goal_total" placeholder="total" class="long_input"></input></th>
+                    <th><button id="goal_add" onclick="submitAddGoal()">+</button></th>
+                </tr>
+            </thead>
+            <tbody id="goal_render_slot"></tbody>   
+        </table>
+    </div>
 </body>
 
 <script>
@@ -311,7 +367,7 @@ function goalClicked(id) {
     console.log("clicked goal " + id);
 }
 
-function renderGoal(id, name, amount, total) {
+function renderGoal(id, name, amount, total, ratio) {
     var tr = document.createElement("tr");
 
     var tdName = document.createElement("td");
@@ -321,8 +377,23 @@ function renderGoal(id, name, amount, total) {
     tr.appendChild(tdName);
 
     var tdAmount = document.createElement("td");
-    tdAmount.textContent = amount + " / " + total;
     tr.appendChild(tdAmount);
+
+    var divAmount = document.createElement("div");
+    divAmount.style="height: 0px; font-size: 1em; padding: 0px 10px;";
+    divAmount.textContent = amount + " / " + total;
+    tdAmount.appendChild(divAmount);
+
+    var divProgress = document.createElement("div");
+    divProgress.classList.add("goal_progress");
+    divProgress.setAttribute("data-label", amount + " / " + total);
+    divProgress.setAttribute("Complete", true);
+    tdAmount.appendChild(divProgress);
+
+    var spanValue = document.createElement("span");
+    spanValue.classList.add("value");
+    spanValue.style.width = (ratio * 100) + "%";
+    divProgress.appendChild(spanValue);
 
     var tdAddAmount = document.createElement("td");
     tr.appendChild(tdAddAmount);
@@ -429,12 +500,15 @@ renderTxAmounts();
 <script>
 
 function daysInMonth() {
-    var date = new Date();
-    return new Date(date.getYear(), date.getMonth()+1, 0).getDate();
+    return <?php echo date("t", strtotime($clientDate)); ?>;
 }
 
 function dayOfTheMonth() {
-    return new Date().getDate();
+    return <?php echo date("d", strtotime($clientDate)); ?>;
+}
+
+function monthNumber() {
+    return <?php echo date("m", strtotime($clientDate)); ?>;
 }
 
 var days = daysInMonth();
@@ -501,6 +575,18 @@ function renderChart(canvas, maxX, minY, maxY, values) {
 
     // Get context
     const ctx = canvas.getContext("2d");
+
+    if (values.length > 0) {
+        ctx.beginPath();
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = "#AAA";
+        var x = 0;
+        var y = height * (1 - (values[0] - minY) / (maxY - minY));
+        ctx.moveTo(x, y);
+        ctx.lineTo(width, y0);
+        ctx.stroke();
+    }
+    ctx.strokeStyle = "#000";
 
     // Shape fill (above)
     ctx.beginPath();
@@ -591,14 +677,68 @@ function renderChart(canvas, maxX, minY, maxY, values) {
 
 renderChart(document.getElementById("chart"), days, minValue, maxValue, dayValues);
 
-document.getElementById("current_amount").addEventListener("click", function(event) {
+function toggleChartDisplay() {
     var chart = document.getElementById("chart");
     if (chart.classList.contains("hidden")) {
         chart.classList.remove("hidden");
     } else {
         chart.classList.add("hidden");
     }
-});
+}
+
+// Quick functions for removing unnecessary elements in read-only mode
+function hideGoals() {
+    document.getElementById("goals").remove();
+}
+function hideTxAddForm() {
+    document.getElementById("tx_add_form").remove();
+}
+function hideTotals() {
+    document.getElementById("totals").remove();
+}
+function showDateTitle() {
+    const monthNames = ["January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"];
+    document.getElementById("month").textContent = monthNames[monthNumber() - 1];
+}
+function toggleMonthDisplay() {
+    var monthDisplay = document.getElementById("month_display");
+    if (monthDisplay.classList.contains("hidden")) {
+        monthDisplay.classList.remove("hidden");
+    } else {
+        monthDisplay.classList.add("hidden");
+    }
+}
+function previousMonth() {
+    const params = new URLSearchParams(document.location.search);
+    var past = parseInt(params.get("past")) || 0;
+    params.set("past", Math.max(past + 1, 0));
+    window.location.search = params.toString();
+}
+function nextMonth() {
+    const params = new URLSearchParams(document.location.search);
+    var past = parseInt(params.get("past")) || 0;
+    if (past > 0) {
+        params.set("past", past - 1);
+        window.location.search = params.toString();
+    }
+}
+
+document.getElementById("current_amount").addEventListener("click", toggleChartDisplay);
+
+<?php
+
+// Read-only mode when viewing past months
+if ($adjustedDate) {
+    echo "toggleChartDisplay();\n";
+    echo "hideGoals();\n";
+    echo "hideTxAddForm();\n";
+    echo "hideTotals();\n";
+    echo "showDateTitle();\n";
+    echo "toggleMonthDisplay();\n";
+}
+
+?>
 
 </script>
 </html>
