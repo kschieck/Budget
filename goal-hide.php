@@ -18,8 +18,8 @@ $_POST = json_decode(file_get_contents("php://input"), true);
 $id = $_POST["id"];
 
 try {
-    disableGoal($_SESSION["budget_auth"], $id);
-    echo json_encode(["success" => true]); // TODO base on disableGoal result
+    $success = disableGoal($_SESSION["budget_auth"], $id);
+    echo json_encode(["success" => $success]);
 } catch (Error $e) {
     echo json_encode(["success" => false]);
 }

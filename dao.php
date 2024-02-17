@@ -270,7 +270,7 @@ function addGoalTransaction($user, $goalId, $amount) {
 }
 
 function disableGoal($user, $goalId) {
-    return query("UPDATE `goals` SET `active` = 0 WHERE goal_id = ? LIMIT 1", "i", [$goalId]);
+    return query("UPDATE `goals` SET `active` = 0 WHERE id = ? LIMIT 1", "i", [$goalId]);
 }
 
 ?>

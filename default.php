@@ -45,7 +45,17 @@ function loadTransactionsArray() {
     return $transactions;
 }
 
+function loadGoalsArray() {
+    $goalsResult = loadGoals(100);
+    $goals = [];
+    while ($goal = $goalsResult->fetch_assoc()) {
+        $goals[] = $goal;
+    }
+    return $goals;
+}
+
 $transactions = loadTransactionsArray();
+$goals = loadGoalsArray();
 
 function renderTransactions() {
     global $transactions;
@@ -101,9 +111,8 @@ function loadSpendEarn() {
 loadSpendEarn();
 
 function renderGoals() {
-    $goals = loadGoals(100);
-    
-    while ($goal = $goals->fetch_assoc()) {
+    global $goals;
+    foreach ($goals as &$goal) {
         $id = $goal["id"];
         $name = $goal["name"];
         $amount = dollarFormat($goal["amount"] / 100.0);
@@ -111,6 +120,22 @@ function renderGoals() {
         $ratio = $goal["amount"] / $goal["total"];
         echo "renderGoal($id, \"$name\", \"$amount\", \"$total\", $ratio);";
     }
+}
+
+function getGoalsTotals() {
+    global $goals;
+    $amount = 0;
+    $total = 0;
+    foreach ($goals as &$goal) {
+        $amount += $goal["amount"];
+        $total += $goal["total"];
+    }
+    return [
+        dollarFormat($amount / 100.0),
+        dollarFormat($total / 100.0),
+        $amount / max($total, 1),
+        count($goals)
+    ];
 }
 
 ?>
@@ -121,12 +146,20 @@ function renderGoals() {
 table {
     margin: auto;
 }
-#tx_amount {
-    width: 60px;
+#tx_amount, #tx_desc {
+    width: 100%;
 }
+
+#tx_title, #goal_title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 h1 {
     margin-top: 30px;
     text-align: center;
+    margin-bottom: 0px;
 }
 
 table * td {
@@ -146,24 +179,8 @@ td, .soft_underline {
   border-bottom: 1px solid #ddd;
 }
 
-#tx_desc {
-    width: 100%;
-}
-
-#goal_add {
-    float: left;
-}
-
 .short_input {
     width: 60px;
-}
-
-.med_input {
-    width: 80px;
-}
-
-.long_input {
-    width: 100px;
 }
 
 #tx_table thead, #tx_table tbody {
@@ -217,7 +234,6 @@ td, .soft_underline {
     padding: 0px 5px;
 }
 
-
 .goal_progress {
   height: 1.5em;
   width: 100%;
@@ -241,15 +257,61 @@ td, .soft_underline {
   border-radius: 4px;
 }
 
+.form_title {
+    margin-top: 0px;
+}
+
+.goal_display_total > td {
+    border-bottom: none;
+}
+
 </style>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 </head>
 <body>
+
+    <dialog id="add_transaction">
+        <form method="dialog" novalidate>
+            <h3 class="form_title">Add Transaction</h3>
+            <input type="number" id="tx_amount" placeholder="amount"></input>
+            <br /><br />
+            <input id="tx_desc" list="tx_names" placeholder="description">
+            <datalist id="tx_names"></datalist>
+            <br /><br />
+            <button style="float: left" onclick="saveTransaction(event)">Save</button>
+            <button style="float: right" value="cancel">Cancel</button>
+        </form>
+    </dialog>
+
+    <dialog id="add_goal">
+        <form method="dialog" novalidate>
+            <h3 class="form_title">Add Goal</h3>
+            <input type="text" id="goal_name" placeholder="name"></input>
+            <br /><br />
+            <input type="number" id="goal_total" placeholder="total"></input>
+            <br /><br />
+            <button style="float: left" onclick="saveGoal(event)">Save</button>
+            <button style="float: right" value="cancel">Cancel</button>
+        </form>
+    </dialog>
+
+    <dialog id="add_goal_tx">
+        <form method="dialog">
+            <h3 class="form_title">Add Goal Transaction</h3>
+            <input type="number" id="add_goal_amount" placeholder="amount"></input>
+            <br /><br />
+            <input type="text" disabled value="Goal contribution"></input>
+            <br /><br />
+            <button style="float: left" onclick="saveGoalTransaction(event)">Save</button>
+            <button style="float: right" id="add_goal_tx_cancel" value="cancel">Cancel</button>
+        </form>
+    </dialog>
+
     <div id="totals">
         <h1 class="no_bottom_space center_spaced">
             <button onclick="previousMonth()">&lt;</button>
             <span id="current_amount"><?=$amountDollars?></span>
-            <button onclick="nextMonth()">&gt;</button>
+            <button id="next_month_button" onclick="nextMonth()">&gt;</button>
         </h1>
         <div id="total_spend"></div>
     </div>
@@ -261,28 +323,20 @@ td, .soft_underline {
 
     <canvas id="chart" class="hidden" width="300" height="100"></canvas>
 
+    <h1 id="tx_title">
+        Transactions&nbsp;
+        <button id="tx_showform" onclick="showAddTransactionForm()">+</button>
+    </h1>
     <table id="tx_table" cellspacing="0">
-        <thead>
-            <tr id="tx_add_form">
-                <th style="color: white">Date</th>
-                <th id="amount_head">$&nbsp;<input type="number" id="tx_amount" placeholder="amount"></input></th>
-                <th><input type="text" id="tx_desc" placeholder="description"></input></th>
-                <th><button id="tx_add" onclick="submitAddTransaction()">+</button>
-            </tr>
-        </thead>
         <tbody id="tx_render_slot"></tbody>
     </table>
 
     <div id="goals">
-        <h1>Goals</h1>
+        <h1 id="goal_title">
+            Goals&nbsp;
+            <button onclick="showAddGoalForm()">+</button>
+        </h1>
         <table id="goal_table" cellspacing="0">
-            <thead>
-                <tr>
-                    <th><input type="text" id="goal_name" placeholder="name" class="med_input"></input></th>
-                    <th><input type="number" id="goal_total" placeholder="total" class="long_input"></input></th>
-                    <th><button id="goal_add" onclick="submitAddGoal()">+</button></th>
-                </tr>
-            </thead>
             <tbody id="goal_render_slot"></tbody>   
         </table>
     </div>
@@ -290,9 +344,50 @@ td, .soft_underline {
 
 <script>
 
-function renderTxAmounts() {
-    document.getElementById("total_spend").textContent = "<?=$totalTxSpend?> spent";
-}
+var data = <?php echo json_encode($transactions); ?>;
+var datalist = document.getElementById("tx_names");
+var dataSet = new Set(data.map(d => d.description));
+dataSet.forEach((elem) => {
+    var option = document.createElement("option");
+    option.value = elem;
+    datalist.appendChild(option);
+});
+
+var addTransactionDialog = document.getElementById("add_transaction");
+addTransactionDialog.addEventListener("close", (e) => {
+    var rv = addTransactionDialog.returnValue;
+    if (rv != "cancel") {
+        var transactionData = JSON.parse(rv);
+        submitAddTransaction(transactionData.amount, transactionData.description);
+    }
+});
+
+var addGoalDialog = document.getElementById("add_goal");
+addGoalDialog.addEventListener("close", (e) => {
+    var rv = addGoalDialog.returnValue;
+    if (rv != "cancel") {
+        var goalData = JSON.parse(rv);
+        submitAddGoal(goalData.name, goalData.total);
+    }
+});
+
+var lastGoalId;
+var addGoalAmountDialog = document.getElementById("add_goal_tx");
+addGoalAmountDialog.addEventListener("close", (e) => {
+    var rv = addGoalAmountDialog.returnValue;
+    if (rv != "cancel") {
+        var goalTxData = JSON.parse(rv);
+        submitAddGoalTransaction(goalTxData.id, goalTxData.amount);
+    }
+});
+var addGoalAmountCancelButton = document.getElementById("add_goal_tx_cancel");
+addGoalAmountCancelButton.addEventListener("click", (e) => {
+    // Reset the form because we could open this dialog again for a different goal.
+    e.target.form.reset();
+});
+
+// Render total amount
+document.getElementById("total_spend").textContent = "<?=$totalTxSpend?> spent";
 
 function postData(url = "", data = {}) {
     // Default options are marked with *
@@ -310,139 +405,97 @@ function postData(url = "", data = {}) {
     }).then((r) => r.json()); // parses JSON response into native JavaScript objects
 }
 
-function submitAddTransaction() {
+
+function showAddTransactionForm() {
+    addTransactionDialog.showModal();
+}
+
+function showAddGoalForm() {
+    addGoalDialog.showModal();
+}
+
+function showAddGoalAmountForm(id) {
+    lastGoalId = id;
+    addGoalAmountDialog.showModal();
+}
+
+
+function saveTransaction(event) {
+    event.preventDefault();
+
     var amount = document.getElementById("tx_amount").value;
     var description = document.getElementById("tx_desc").value;
 
-    // Clear form
-    document.getElementById("tx_amount").value = "";
-    document.getElementById("tx_desc").value = "";
+    // Don't close the form if it fails (basic) validation
+    if (amount.length == 0 || description.length == 0) {
+        return;
+    }
 
+    event.target.form.reset();
+    event.target.closest("dialog").close(JSON.stringify({ amount, description }));
+}
+
+function saveGoal(event) {
+    event.preventDefault();
+    
+    var name = document.getElementById("goal_name").value;
+    var total = document.getElementById("goal_total").value;
+
+    // Don't close the form if it fails (basic) validation
+    if (name.length == 0 || total.length == 0) {
+        return;
+    }
+
+    event.target.form.reset();
+    event.target.closest("dialog").close(JSON.stringify({ name, total }));
+}
+
+function saveGoalTransaction(event) {
+    event.preventDefault();
+
+    var goalAmount = document.getElementById("add_goal_amount").value;
+    var goalId = lastGoalId;
+
+    if (goalAmount.length == 0) {
+        return;
+    }
+
+    event.target.form.reset();
+    event.target.closest("dialog").close(JSON.stringify({id: goalId, amount: goalAmount}));
+}
+
+
+function submitAddTransaction(amount, description) {
     postData("./transaction.php", {amount, description}).then((data) => {
         if (data.success) {
             location.reload();
         } else {
             alert("failed to save.");
-            document.getElementById("tx_amount").value = amount;
-            document.getElementById("tx_desc").value = description;
         }
     });
 }
 
-function submitAddGoal() {
-    var name = document.getElementById("goal_name").value;
-    var total = document.getElementById("goal_total").value;
-
-    // Clear form
-    document.getElementById("goal_name").value = "";
-    document.getElementById("goal_total").value = "";
-
+function submitAddGoal(name, total) {
     postData("./goal.php", {name, total}).then((data) => {
         if (data.success) {
             location.reload();
         } else {
             alert("failed to save.");
-            document.getElementById("goal_name").value = name;
-            document.getElementById("goal_total").value = total;
         }
     });
 }
 
-function submitAddGoalTransaction(goalId, amountElement) {
-    var amount = amountElement.value;
-
-    amountElement.value = "";
+function submitAddGoalTransaction(goalId, amount) {
 
     postData("./goal-transaction.php", {goalId, amount}).then((data) => {
         if (data.success) {
             location.reload();
         } else {
             alert("failed to save.");
-            amountElement.value = amount;
         }
     });
 }
 
-function goalClicked(id) {
-    console.log("clicked goal " + id);
-}
-
-function renderGoal(id, name, amount, total, ratio) {
-    var tr = document.createElement("tr");
-
-    var tdName = document.createElement("td");
-    tdName.textContent = name;
-    tdName.classList.add("small_cell");
-    tdName.addEventListener("click", goalClicked.bind(this, id));
-    tr.appendChild(tdName);
-
-    var tdAmount = document.createElement("td");
-    tr.appendChild(tdAmount);
-
-    var divAmount = document.createElement("div");
-    divAmount.style="height: 0px; font-size: 1em; padding: 0px 10px;";
-    divAmount.textContent = amount + " / " + total;
-    tdAmount.appendChild(divAmount);
-
-    var divProgress = document.createElement("div");
-    divProgress.classList.add("goal_progress");
-    divProgress.setAttribute("data-label", amount + " / " + total);
-    divProgress.setAttribute("Complete", true);
-    tdAmount.appendChild(divProgress);
-
-    var spanValue = document.createElement("span");
-    spanValue.classList.add("value");
-    spanValue.style.width = (ratio * 100) + "%";
-    divProgress.appendChild(spanValue);
-
-    var tdAddAmount = document.createElement("td");
-    tr.appendChild(tdAddAmount);
-
-    var span = document.createElement("span");
-    span.textContent = "$";
-    tdAddAmount.appendChild(span);
-
-    var inputAddAmount = document.createElement("input");
-    inputAddAmount.placeholder = "amount";
-    inputAddAmount.type = "number";
-    inputAddAmount.classList.add("short_input");
-    inputAddAmount.id = "goal_" + id + "_add_amount";
-    tdAddAmount.appendChild(inputAddAmount);
-
-    var buttonAddAmount = document.createElement("button");
-    buttonAddAmount.textContent = "+";
-    buttonAddAmount.onclick = (event) => {
-        var goalTxAmount = document.getElementById("goal_" + id + "_add_amount");
-        submitAddGoalTransaction(id, goalTxAmount);
-    };
-    tdAddAmount.appendChild(buttonAddAmount);
-    
-    document.getElementById("goal_render_slot").appendChild(tr);
-
-    return tr;
-}
-
-function toggleVisibilityTxDelete(txDeleteButton) {
-    if (txDeleteButton.classList.contains("hidden")) {
-        txDeleteButton.classList.remove("hidden");
-    } else {
-        txDeleteButton.classList.add("hidden");
-    }
-}
-
-function transactionClicked(deleteButton) {
-    toggleVisibilityTxDelete(deleteButton)
-}
-
-function deleteTransaction(id) {
-    postData("./transaction-hide.php", {id}).then((data) => {
-        if (data.success) {
-            location.reload();
-        } else {
-            alert("failed to delete.");
-        }
-    });
-}
 
 function renderTransaction(id, date, amountString, description, active) {
     if (!active) {
@@ -485,11 +538,152 @@ function renderTransaction(id, date, amountString, description, active) {
     return tr;
 }
 
-renderTxAmounts();
+function renderGoal(id, name, amount, total, ratio) {
+    var tr = document.createElement("tr");
+
+    var tdName = document.createElement("td");
+    tr.appendChild(tdName);
+
+    var divName = document.createElement("div");
+    divName.textContent = name;
+    divName.classList.add("small_cell");
+    divName.style = "display: inline-block;";
+
+    var deleteButton = document.createElement("button");
+    deleteButton.addEventListener("click", deleteGoal.bind(this, id));
+    toggleVisibilityGoalDelete(deleteButton);
+    deleteButton.textContent = "x";
+    deleteButton.classList.add("space_right");
+    deleteButton.classList.add("small_button");
+
+    tdName.appendChild(deleteButton);
+    tdName.appendChild(divName);
+
+    var tdAmount = document.createElement("td");
+    tr.appendChild(tdAmount);
+
+    var divAmount = document.createElement("div");
+    divAmount.style="height: 0px; font-size: 1em; padding: 0px 10px;";
+    divAmount.textContent = amount + " / " + total;
+    tdAmount.appendChild(divAmount);
+
+    var divProgress = document.createElement("div");
+    divProgress.classList.add("goal_progress");
+    divProgress.setAttribute("data-label", amount + " / " + total);
+    divProgress.setAttribute("Complete", true);
+    tdAmount.appendChild(divProgress);
+
+    var spanValue = document.createElement("span");
+    spanValue.classList.add("value");
+    spanValue.style.width = Math.min((ratio * 100), 100) + "%";
+    divProgress.appendChild(spanValue);
+
+    var tdAddAmount = document.createElement("td");
+    tr.appendChild(tdAddAmount);
+
+    var buttonAddAmount = document.createElement("button");
+    buttonAddAmount.textContent = "+";
+    buttonAddAmount.onclick = showAddGoalAmountForm.bind(this, id);
+    tdAddAmount.appendChild(buttonAddAmount);
+    
+    // Handle click
+    divName.addEventListener("click", goalClicked.bind(this, deleteButton));
+
+    document.getElementById("goal_render_slot").appendChild(tr);
+
+    return tr;
+}
+
+function renderGoalTotal(amount, total, ratio) {
+    var tr = document.createElement("tr");
+    tr.classList.add("goal_display_total");
+
+    var tdName = document.createElement("td");
+    tr.appendChild(tdName);
+
+    var tdAmount = document.createElement("td");
+    tr.appendChild(tdAmount);
+
+    var divAmount = document.createElement("div");
+    divAmount.style="height: 0px; font-size: 1em; padding: 0px 10px;";
+    divAmount.textContent = amount + " / " + total;
+    tdAmount.appendChild(divAmount);
+
+    var divProgress = document.createElement("div");
+    divProgress.classList.add("goal_progress");
+    divProgress.setAttribute("data-label", amount + " / " + total);
+    divProgress.setAttribute("Complete", true);
+    tdAmount.appendChild(divProgress);
+
+    var spanValue = document.createElement("span");
+    spanValue.classList.add("value");
+    spanValue.style.width = Math.min((ratio * 100), 100) + "%";
+    divProgress.appendChild(spanValue);
+
+    var tdAddAmount = document.createElement("td");
+    tr.appendChild(tdAddAmount);
+
+    document.getElementById("goal_render_slot").appendChild(tr);
+
+    return tr;
+}
+
+function transactionClicked(deleteButton) {
+    toggleVisibilityTxDelete(deleteButton);
+}
+
+function goalClicked(goalDeleteButton) {
+    toggleVisibilityGoalDelete(goalDeleteButton);
+}
+
+
+function toggleVisibilityTxDelete(txDeleteButton) {
+    if (txDeleteButton.classList.contains("hidden")) {
+        txDeleteButton.classList.remove("hidden");
+    } else {
+        txDeleteButton.classList.add("hidden");
+    }
+}
+
+function toggleVisibilityGoalDelete(goalDeleteButton) {
+    if (goalDeleteButton.classList.contains("hidden")) {
+        goalDeleteButton.classList.remove("hidden");
+    } else {
+        goalDeleteButton.classList.add("hidden");
+    }
+}
+
+
+function deleteTransaction(id) {
+    postData("./transaction-hide.php", {id}).then((data) => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert("failed to delete.");
+        }
+    });
+}
+
+function deleteGoal(id) {
+    postData("./goal-hide.php", {id}).then((data) => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert("failed to delete.");
+        }
+    });
+}
 
 <?php
     // Echo renderGoal for each goal
     renderGoals();
+    $goalTotals = getGoalsTotals();
+    if ($goalTotals[3] >= 0) {
+        $amountString = $goalTotals[0];
+        $totalString = $goalTotals[1];
+        $ratio = $goalTotals[2];
+        echo "renderGoalTotal(\"$amountString\", \"$totalString\", $ratio);";
+    }
 
     // Echo renderTransaction for each transaction
     renderTransactions();
@@ -685,13 +879,13 @@ function toggleChartDisplay() {
         chart.classList.add("hidden");
     }
 }
+</script>
+
+<script type="text/javascript">
 
 // Quick functions for removing unnecessary elements in read-only mode
 function hideGoals() {
     document.getElementById("goals").remove();
-}
-function hideTxAddForm() {
-    document.getElementById("tx_add_form").remove();
 }
 function hideTotals() {
     document.getElementById("totals").remove();
@@ -709,19 +903,33 @@ function toggleMonthDisplay() {
         monthDisplay.classList.add("hidden");
     }
 }
-function previousMonth() {
+function hideAddTransaction() {
+    var element = document.getElementById("tx_showform");
+    element.classList.add("hidden");
+}
+
+// date browsing functions
+function getPastValue() {
     const params = new URLSearchParams(document.location.search);
     var past = parseInt(params.get("past")) || 0;
+    return past;
+}
+function previousMonth() {
+    var past = getPastValue();
+    const params = new URLSearchParams(document.location.search);
     params.set("past", Math.max(past + 1, 0));
     window.location.search = params.toString();
 }
 function nextMonth() {
-    const params = new URLSearchParams(document.location.search);
-    var past = parseInt(params.get("past")) || 0;
+    var past = getPastValue();
     if (past > 0) {
+        const params = new URLSearchParams(document.location.search);
         params.set("past", past - 1);
         window.location.search = params.toString();
     }
+}
+if (getPastValue() <= 0) {
+    document.getElementById("next_month_button").style.visibility = "hidden";
 }
 
 document.getElementById("current_amount").addEventListener("click", toggleChartDisplay);
@@ -732,13 +940,14 @@ document.getElementById("current_amount").addEventListener("click", toggleChartD
 if ($adjustedDate) {
     echo "toggleChartDisplay();\n";
     echo "hideGoals();\n";
-    echo "hideTxAddForm();\n";
     echo "hideTotals();\n";
     echo "showDateTitle();\n";
     echo "toggleMonthDisplay();\n";
+    echo "hideAddTransaction();\n";
 }
 
 ?>
 
 </script>
+
 </html>
