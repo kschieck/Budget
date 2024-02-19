@@ -387,7 +387,11 @@ addGoalAmountCancelButton.addEventListener("click", (e) => {
 });
 
 // Render total amount
-document.getElementById("total_spend").textContent = "<?=$totalTxSpend?> spent";
+document.getElementById("total_spend").textContent = "<?=$totalTxSpend?> spent, " + daysLeftInTheMonth() + " days left";
+
+function daysLeftInTheMonth() {
+    return <?php echo date("t", strtotime($clientDate)) . " + 1 - " . date("d", strtotime($clientDate)); ?>;
+}
 
 function postData(url = "", data = {}) {
     // Default options are marked with *
