@@ -132,7 +132,6 @@ function prepStatement($conn, $sql, $types, $params) {
 function loadAmount() {
     $sql = "SELECT amount FROM amount LIMIT 1";
     $result = select($sql, "", []);
-    $returnResult = null;
     if($row = $result->fetch_assoc()) {
         return $row["amount"];
     }
@@ -271,6 +270,20 @@ function addGoalTransaction($user, $goalId, $amount) {
 
 function disableGoal($user, $goalId) {
     return query("UPDATE `goals` SET `active` = 0 WHERE id = ? LIMIT 1", "i", [$goalId]);
+}
+
+function setUserToken($user, $token) {
+    $sql = "INSERT INTO user_tokens (`user`, `token`) VALUES (?,?) ON DUPLICATE KEY UPDATE `token` = ?";
+    return query($sql, "sss", [$user, $token, $token]);
+}
+
+function getUserToken($user) {
+    $sql = "SELECT token FROM user_tokens WHERE user = ? LIMIT 1";
+    $result = select($sql, "s", [$user]);
+    if ($row = $result->fetch_assoc()) {
+        return $row["token"];
+    }
+    return "";
 }
 
 ?>

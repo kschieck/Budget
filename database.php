@@ -7,6 +7,8 @@ CREATE TABLE `goals` ( `id` INT NOT NULL AUTO_INCREMENT , `user` VARCHAR(32) NOT
 ALTER TABLE `transactions` ADD UNIQUE `date_added` (`date_added`);
 ALTER TABLE `goals` ADD `active` TINYINT(1) NOT NULL DEFAULT '1' AFTER `amount`;
 ALTER TABLE `transactions` ADD `active` TINYINT(1) NOT NULL DEFAULT '1' AFTER `description`;
+CREATE TABLE `user_tokens` ( `id` INT NOT NULL AUTO_INCREMENT , `user` VARCHAR(32) NOT NULL , `token` VARCHAR(172) NOT NULL COMMENT 'base64 encoding of user token' , PRIMARY KEY (`id`));
+ALTER TABLE `user_tokens` ADD UNIQUE `unique_user` (`user`);
 */
 
 ?>

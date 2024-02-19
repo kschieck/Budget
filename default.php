@@ -7,7 +7,7 @@ $dateOffset = "-4 hours";
 
 // If past param is specified, show previous months
 $adjustedDate = false;
-if ($_GET["past"]) {
+if (isset($_GET["past"]) && $_GET["past"]) {
     $monthAdjust = intval($_GET["past"]);
     if ($monthAdjust > 0) {
         $dateOffset .= " -$monthAdjust months";
@@ -705,8 +705,6 @@ function monthNumber() {
     return <?php echo date("m", strtotime($clientDate)); ?>;
 }
 
-var days = daysInMonth();
-
 function calcChartData() {
     var txAmounts = <?=renderTransactionData()?>;
     txAmounts.sort(function(a, b) {
@@ -869,7 +867,7 @@ function renderChart(canvas, maxX, minY, maxY, values) {
     ctx.fillText(text, 5, 15, width);
 }
 
-renderChart(document.getElementById("chart"), days, minValue, maxValue, dayValues);
+renderChart(document.getElementById("chart"), daysInMonth(), minValue, maxValue, dayValues);
 
 function toggleChartDisplay() {
     var chart = document.getElementById("chart");
