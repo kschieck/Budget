@@ -272,18 +272,45 @@ function disableGoal($user, $goalId) {
     return query("UPDATE `goals` SET `active` = 0 WHERE id = ? LIMIT 1", "i", [$goalId]);
 }
 
-function setUserToken($user, $token) {
-    $sql = "INSERT INTO user_tokens (`user`, `token`) VALUES (?,?) ON DUPLICATE KEY UPDATE `token` = ?";
-    return query($sql, "sss", [$user, $token, $token]);
+function setUserToken($user, $token, $daysValid) {
+    $sql = "INSERT INTO user_tokens (`user`, `token`, `expires_at`) VALUES (?,?,DATE_ADD(NOW(), INTERVAL ? DAY))";
+    return query($sql, "ssi", [$user, $token, $daysValid]);
 }
 
-function getUserToken($user) {
-    $sql = "SELECT token FROM user_tokens WHERE user = ? LIMIT 1";
+function getUserTokens($user) {
+    $sql = "SELECT `token` FROM `user_tokens` WHERE `user` = ? AND `expires_at` > NOW()";
     $result = select($sql, "s", [$user]);
-    if ($row = $result->fetch_assoc()) {
-        return $row["token"];
+    $tokens = [];
+    while($row = $result->fetch_assoc()) {
+        $tokens[] = $row["token"];
     }
-    return "";
+    return $tokens;
+}
+
+function getMonthlyTotals($startDate) {
+
+    // Get all active transactions that are not described as goal transactions (a bit of a hack)
+    $sql = "SELECT SUM(amount) as total, SUM(GREATEST(0, amount)) as spent, SUM(LEAST(0, amount)) as earned,
+            EXTRACT(YEAR_MONTH FROM (DATE_SUB(date_added, INTERVAL 4 HOUR))) as `year_month`
+            FROM `transactions`
+            WHERE DATE_SUB(date_added, INTERVAL 4 HOUR) > ? AND `active` = 1
+            AND `description` NOT LIKE \"Goal Contribution: %\"
+            AND `description` NOT LIKE \"Goal Subtraction: %\"
+            GROUP BY `year_month`";
+
+    return select($sql, "s", [$startDate]);
+}
+
+function getDailyTotals($startDate) {
+
+    $sql = "SELECT SUM(amount) as total,
+            DATE(DATE_SUB(date_added, INTERVAL 4 HOUR)) as `date`,
+            DATEDIFF(DATE(DATE_SUB(date_added, INTERVAL 4 HOUR)), DATE(?)) as `datediff`
+            FROM `transactions`
+            WHERE DATE_SUB(date_added, INTERVAL 4 HOUR) > ? AND `active` = 1
+            GROUP BY `date`";
+
+    return select($sql, "ss", [$startDate, $startDate]);
 }
 
 ?>

@@ -1,14 +1,43 @@
 <?php
 
 /*
-CREATE TABLE `amount` ( `amount` INT NOT NULL );
-CREATE TABLE `transactions` ( `id` INT NOT NULL AUTO_INCREMENT , `user` VARCHAR(32) NOT NULL , `amount` INT NOT NULL , `description` VARCHAR(64) NOT NULL , `date_added` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`))
-CREATE TABLE `goals` ( `id` INT NOT NULL AUTO_INCREMENT , `user` VARCHAR(32) NOT NULL , `name` VARCHAR(64) NOT NULL , `total` INT NOT NULL , `amount` INT NOT NULL , `date_added` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`))
-ALTER TABLE `transactions` ADD UNIQUE `date_added` (`date_added`);
-ALTER TABLE `goals` ADD `active` TINYINT(1) NOT NULL DEFAULT '1' AFTER `amount`;
-ALTER TABLE `transactions` ADD `active` TINYINT(1) NOT NULL DEFAULT '1' AFTER `description`;
-CREATE TABLE `user_tokens` ( `id` INT NOT NULL AUTO_INCREMENT , `user` VARCHAR(32) NOT NULL , `token` VARCHAR(172) NOT NULL COMMENT 'base64 encoding of user token' , PRIMARY KEY (`id`));
-ALTER TABLE `user_tokens` ADD UNIQUE `unique_user` (`user`);
+CREATE TABLE `amount` (
+    `amount` int(11) NOT NULL
+);
+
+CREATE TABLE `goals` (
+    `id` int(11) NOT NULL,
+    `user` varchar(32) NOT NULL,
+    `name` varchar(64) NOT NULL,
+    `total` int(11) NOT NULL,
+    `amount` int(11) NOT NULL,
+    `active` tinyint(1) NOT NULL DEFAULT 1,
+    `date_added` datetime NOT NULL DEFAULT current_timestamp()
+);
+ALTER TABLE `goals` ADD PRIMARY KEY (`id`);
+
+CREATE TABLE `transactions` (
+    `id` int(11) NOT NULL,
+    `user` varchar(32) NOT NULL,
+    `amount` int(11) NOT NULL,
+    `description` varchar(64) NOT NULL,
+    `active` tinyint(1) NOT NULL DEFAULT 1,
+    `date_added` datetime NOT NULL DEFAULT current_timestamp()
+);
+ALTER TABLE `transactions`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `date_added` (`date_added`);
+
+CREATE TABLE `user_tokens` (
+    `id` int(11) NOT NULL,
+    `user` varchar(32) NOT NULL,
+    `token` varchar(172) NOT NULL COMMENT 'base64 encoding of user token',
+    `expires_at` datetime NOT NULL
+);
+ALTER TABLE `user_tokens`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user` (`user`);
+
 */
 
 ?>

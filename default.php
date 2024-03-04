@@ -300,7 +300,7 @@ td, .soft_underline {
             <h3 class="form_title">Add Goal Transaction</h3>
             <input type="number" id="add_goal_amount" placeholder="amount"></input>
             <br /><br />
-            <input type="text" disabled value="Goal contribution"></input>
+            <input type="text" disabled value="Goal contribution/subtraction"></input>
             <br /><br />
             <button style="float: left" onclick="saveGoalTransaction(event)">Save</button>
             <button style="float: right" id="add_goal_tx_cancel" value="cancel">Cancel</button>
@@ -321,7 +321,12 @@ td, .soft_underline {
         <button onclick="nextMonth()">&gt;</button>
     </div>
 
-    <canvas id="chart" class="hidden" width="300" height="100"></canvas>
+    <div id="analysis" class="hidden" style="text-align: center">
+        <canvas id="chart" width="300" height="100"></canvas><br />
+        <a href="/budget/chart/bar.php">Monthly</a>
+        &nbsp;/&nbsp;
+        <a href="/budget/chart/flow.php">Flow</a>
+    </div>
 
     <h1 id="tx_title">
         Transactions&nbsp;
@@ -873,8 +878,8 @@ function renderChart(canvas, maxX, minY, maxY, values) {
 
 renderChart(document.getElementById("chart"), daysInMonth(), minValue, maxValue, dayValues);
 
-function toggleChartDisplay() {
-    var chart = document.getElementById("chart");
+function toggleAnalysisDisplay() {
+    var chart = document.getElementById("analysis");
     if (chart.classList.contains("hidden")) {
         chart.classList.remove("hidden");
     } else {
@@ -934,18 +939,20 @@ if (getPastValue() <= 0) {
     document.getElementById("next_month_button").style.visibility = "hidden";
 }
 
-document.getElementById("current_amount").addEventListener("click", toggleChartDisplay);
+document.getElementById("current_amount").addEventListener("click", toggleAnalysisDisplay);
 
 <?php
 
 // Read-only mode when viewing past months
 if ($adjustedDate) {
-    echo "toggleChartDisplay();\n";
+    echo "toggleAnalysisDisplay();\n";
     echo "hideGoals();\n";
     echo "hideTotals();\n";
     echo "showDateTitle();\n";
     echo "toggleMonthDisplay();\n";
     echo "hideAddTransaction();\n";
+} else if (isset($_GET["analysis"])) {
+    echo "toggleAnalysisDisplay();\n";
 }
 
 ?>
