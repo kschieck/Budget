@@ -295,6 +295,18 @@ td, .soft_underline {
         </form>
     </dialog>
 
+    <dialog id="edit_goal">
+        <form method="dialog" novalidate>
+            <h3 class="form_title">Edit goal</h3>
+            <input type="text" id="edit_goal_name" disabled placeholder="name"></input>
+            <br /><br />
+            <input type="number" id="edit_goal_total" placeholder="total"></input>
+            <br /><br />
+            <button style="float: left" onclick="saveGoalTotal(event)">Save</button>
+            <button style="float: right" id="edit_goal_cancel" value="cancel">Cancel</button>
+        </form>
+    </dialog>
+
     <dialog id="add_goal_tx">
         <form method="dialog">
             <h3 class="form_title">Add Goal Transaction</h3>
@@ -391,6 +403,20 @@ addGoalAmountCancelButton.addEventListener("click", (e) => {
     e.target.form.reset();
 });
 
+var editGoalDialog = document.getElementById("edit_goal");
+editGoalDialog.addEventListener("close", (e) => {
+    var rv = editGoalDialog.returnValue;
+    if (rv != "cancel") {
+        var goalData = JSON.parse(rv);
+        submitEditGoal(goalData.id, goalData.total);
+    }
+});
+var editGoalCancelButton = document.getElementById("edit_goal_cancel");
+editGoalCancelButton.addEventListener("click", (e) => {
+    // Reset the form because we could open this dialog again for a different goal.
+    e.target.form.reset();
+});
+
 // Render total amount
 document.getElementById("total_spend").textContent = "<?=$totalTxSpend?> spent, " + daysLeftInTheMonth() + " days left";
 
@@ -426,6 +452,14 @@ function showAddGoalForm() {
 function showAddGoalAmountForm(id) {
     lastGoalId = id;
     addGoalAmountDialog.showModal();
+}
+
+function showEditGoalForm(id, title, total) {
+    document.getElementById("edit_goal_name").value = title;
+    document.getElementById("edit_goal_total").value = total.replaceAll("$", "").replaceAll(",", "");
+
+    lastGoalId = id;
+    editGoalDialog.showModal();
 }
 
 
@@ -473,6 +507,20 @@ function saveGoalTransaction(event) {
     event.target.closest("dialog").close(JSON.stringify({id: goalId, amount: goalAmount}));
 }
 
+function saveGoalTotal(event) {
+    event.preventDefault();
+
+    var goalTotal = document.getElementById("edit_goal_total").value;
+    var goalId = lastGoalId;
+
+    if (goalTotal.length == 0) {
+        return;
+    }
+
+    event.target.form.reset();
+    event.target.closest("dialog").close(JSON.stringify({id: goalId, total: goalTotal}));
+}
+
 
 function submitAddTransaction(amount, description) {
     postData("./transaction.php", {amount, description}).then((data) => {
@@ -497,6 +545,16 @@ function submitAddGoal(name, total) {
 function submitAddGoalTransaction(goalId, amount) {
 
     postData("./goal-transaction.php", {goalId, amount}).then((data) => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert("failed to save.");
+        }
+    });
+}
+
+function submitEditGoal(goalId, amount) {
+    postData("./goal-edit.php", {goalId, amount}).then((data) => {
         if (data.success) {
             location.reload();
         } else {
@@ -569,6 +627,7 @@ function renderGoal(id, name, amount, total, ratio) {
     tdName.appendChild(divName);
 
     var tdAmount = document.createElement("td");
+    tdAmount.addEventListener("click", showEditGoalForm.bind(this, id, name, total));
     tr.appendChild(tdAmount);
 
     var divAmount = document.createElement("div");
