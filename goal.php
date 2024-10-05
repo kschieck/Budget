@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] !== "POST") {
 
 $_POST = json_decode(file_get_contents("php://input"), true);
 
-$name = $_POST["name"];
+$name = trim($_POST["name"]);
 $total = intval(floatval($_POST["total"]) * 100); // convert to cents.
 
 if ($total === 0) {

@@ -26,7 +26,7 @@ CREATE TABLE `transactions` (
 );
 ALTER TABLE `transactions`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `date_added` (`date_added`);
+  ADD KEY `date_added` (`date_added`);
 
 CREATE TABLE `user_tokens` (
     `id` int(11) NOT NULL,

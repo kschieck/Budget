@@ -39,6 +39,7 @@ function loadMonthlyTotals($startDate) {
 <!-- Create a div where the graph will take place -->
 <div id="my_dataviz"></div>
 
+
 <script>
 window.onload = function() {
     window.scrollTo({ left: document.body.scrollWidth, behavior: 'smooth' });
@@ -58,12 +59,22 @@ var data = rawData.map(d => {
     return {Name: month + " " + year, Spent: spent / 100, Earned: earned / 100, Order: d.year_month};
 });
 
+// Function to create the path for a triangle
+function trianglePath(x, y, size) {
+  const height = size * Math.sqrt(3) / 2;  // Calculate the height of the equilateral triangle
+  return `M ${x},${y - height / 2} ` +   // Move to the top vertex
+         `L ${x - size / 2},${y + height / 2} ` +  // Bottom-left vertex
+         `L ${x + size / 2},${y + height / 2} ` +  // Bottom-right vertex
+         `Z`;  // Close the path (back to the starting point)
+}
+
+
 function drawGraph(data) {
 
     var maxValue = Math.max.apply(null, data.map(d => d.Spent));
 
     // set the dimensions and margins of the graph
-    var margin = {top: 30, right: 60, bottom: 70, left: 60},
+    var margin = {top: 10, right: 60, bottom: 70, left: 60},
         width = (data.length * 100) - margin.left - margin.right,
         height = 400 - margin.top - margin.bottom;
 
@@ -76,7 +87,6 @@ function drawGraph(data) {
         .attr("transform",
             "translate(" + margin.left + "," + margin.top + ")");
 
-    // sort data
     data.sort(function(b, a) {
         return b.Order - a.Order;
     });
@@ -103,82 +113,46 @@ function drawGraph(data) {
         .attr("transform", "translate(" + width + " ,0)")
         .call(d3.axisRight(y));
 
-    var data1 = data.filter(d => d.Spent < d.Earned);
-    var data2 = data.filter(d => d.Earned < d.Spent);
+    // Add the line
+    svg.append("path")
+      .datum(data)
+      .attr("fill", "none")
+      .attr("stroke", "red")
+      .attr("stroke-width", 2)
+      .attr("d", d3.line()
+        .x(function(d) { return x(d.Name) + x.bandwidth()/2 })
+        .y(function(d) { return y(d.Spent) })
+        );
 
-    let dollar = new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-        maximumFractionDigits: 0,
-        minimumFractionDigits: 0
-    });
+    // Add the line
+    svg.append("path")
+      .datum(data)
+      .attr("fill", "none")
+      .attr("stroke", "green")
+      .attr("stroke-width", 2)
+      .attr("d", d3.line()
+        .x(function(d) { return x(d.Name) + x.bandwidth()/2 })
+        .y(function(d) { return y(d.Earned) })
+        );
 
-    var blue = "#2c96c6";
-    var red = "#e85539";
-    var green = "#6cb537";
-    var white = "#FFF";
-    var black = "#000";
+    // Add circles at each Earned data point
+    svg.selectAll("circle")
+    .data(data)
+    .enter()
+    .append("circle")
+    .attr("cx", function(d) { return x(d.Name) + x.bandwidth()/2 }) // X coordinate for circle
+    .attr("cy", function(d) { return y(d.Earned) })                 // Y coordinate for circle
+    .attr("r", 4)                                                   // Radius of the circle
+    .attr("fill", "green");   
 
-    svg.selectAll("mybar")
-        .data(data)
-        .enter()
-        .append("rect")
-            .attr("x", function(d) { return x(d.Name); })
-            .attr("y", function(d) { return y(d.Spent); })
-            .attr("width", x.bandwidth())
-            .attr("height", function(d) { return height - y(d.Spent); })
-            .attr("fill", red);
-
-    svg.selectAll("mybar")
-        .data(data)
-        .enter()
-        .append("rect")
-            .attr("x", function(d) { return x(d.Name); })
-            .attr("y", function(d) { return y(d.Earned); })
-            .attr("width", x.bandwidth())
-            .attr("height", function(d) { return height - y(d.Earned); })
-            .attr("fill", blue);
-
-    svg.selectAll("mybar")
-        .data(data1)
-        .enter()
-        .append("rect")
-            .attr("x", function(d) { return x(d.Name); })
-            .attr("y", function(d) { return y(d.Earned - d.Spent); })
-            .attr("width", x.bandwidth())
-            .attr("height", function(d) { return height - y(d.Earned - d.Spent); })
-            .attr("fill", green);
-
-    // Text label (earned)
-    svg.selectAll("mybar")
-        .data(data)
-        .enter()
-        .append("text")
-        .attr("y", d => y(d.Earned) + 15)
-        .attr("x", function(d){ return x(d.Name) + x.bandwidth()/2})
-        .attr('text-anchor', 'middle')
-        .text(d => dollar.format(d.Earned))
-        .attr("fill", white);
-
-    svg.selectAll("mybar")
-        .data(data2)
-        .enter()
-        .append("text")
-        .attr("y", d => y(d.Spent) - 3)
-        .attr("x", function(d){ return x(d.Name) + x.bandwidth()/2})
-        .attr('text-anchor', 'middle')
-        .text(d => dollar.format(d.Spent))
-        .attr("fill", black);
-
-    svg.selectAll("mybar")
-        .data(data1)
-        .enter()
-        .append("text")
-        .attr("y", d => y(d.Earned - d.Spent) - 3)
-        .attr("x", function(d){ return x(d.Name) + x.bandwidth()/2})
-        .attr('text-anchor', 'middle')
-        .text(d => dollar.format(d.Earned - d.Spent))
-        .attr("fill", white);
+    // Add circles at each Spent data point
+    svg.selectAll("path.triangle")
+    .data(data)
+    .enter()
+    .append("path")
+    .attr("class", "triangle")
+    .attr("d", function(d) { return trianglePath(x(d.Name) + x.bandwidth()/2, y(d.Spent), 10); }) // Create triangle path
+    .attr("fill", "red");  // Set the fill color
 
 }
 

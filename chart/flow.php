@@ -50,10 +50,17 @@ function renderTransactions() {
 
 <html>
 <head>
+<style>
+.top_left_fixed {
+    position: fixed;
+    top: 5px;
+    left: 5px;
+}
+</style>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 </head>
 <body>
-<a href="/budget?analysis=1">Back</a>
+<a class="top_left_fixed" href="/budget?analysis=1">Back</a>
 
 <div id="chart_slot"></div>
 

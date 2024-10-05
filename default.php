@@ -45,6 +45,10 @@ function loadTransactionsArray() {
     return $transactions;
 }
 
+function getUsers($transactions) {
+    return array_values(array_unique(array_map(function ($transaction) { return $transaction["user"]; }, $transactions)));
+}
+
 function loadGoalsArray() {
     $goalsResult = loadGoals(100);
     $goals = [];
@@ -55,6 +59,7 @@ function loadGoalsArray() {
 }
 
 $transactions = loadTransactionsArray();
+$users = getUsers($transactions);
 $goals = loadGoalsArray();
 
 function renderTransactions() {
@@ -63,13 +68,15 @@ function renderTransactions() {
 
         $id = $tx["id"];
         $description = $tx["description"];
-        $amountString = $tx["amount"] >= 0 ? 
-            moneyFormat($tx["amount"] / 100.0) : 
-            "(" . moneyFormat(-$tx["amount"] / 100.0) . ")";
+        $amount = $tx["amount"];
+        $amountString = $amount >= 0 ? 
+            moneyFormat($amount / 100.0) : 
+            "(" . moneyFormat(-$amount / 100.0) . ")";
         $dateString = substr(explode(" ", $tx["date_added"])[0], 5);
         $active = $tx["active"]? "true" : "false";
+        $user = $tx["user"];
 
-        echo "renderTransaction($id, \"$dateString\", \"$amountString\", \"$description\", $active);";
+        echo "renderTransaction($id, \"$dateString\", $amount / 100, \"$amountString\", \"$description\", $active, \"$user\");";
     }
 }
 
@@ -137,7 +144,6 @@ function getGoalsTotals() {
         count($goals)
     ];
 }
-
 ?>
 
 <html>
@@ -156,7 +162,7 @@ table {
     align-items: center;
 }
 
-h1 {
+h1, h2, h3, h4 {
     margin-top: 30px;
     text-align: center;
     margin-bottom: 0px;
@@ -257,7 +263,7 @@ td, .soft_underline {
   border-radius: 4px;
 }
 
-.form_title {
+.form_title, .sub_title {
     margin-top: 0px;
 }
 
@@ -279,6 +285,19 @@ td, .soft_underline {
             <datalist id="tx_names"></datalist>
             <br /><br />
             <button style="float: left" onclick="saveTransaction(event)">Save</button>
+            <button style="float: right" value="cancel">Cancel</button>
+        </form>
+    </dialog>
+
+    <dialog id="edit_transaction">
+        <form method="dialog" novalidate>
+            <h3 class="form_title">Add Transaction</h3>
+            <input type="number" id="edit_tx_amount" placeholder="amount"></input>
+            <br /><br />
+            <input id="edit_tx_desc" list="edit_tx_names" placeholder="description">
+            <datalist id="edit_tx_names"></datalist>
+            <br /><br />
+            <button style="float: left" onclick="saveTransactionEdit(event)">Save</button>
             <button style="float: right" value="cancel">Cancel</button>
         </form>
     </dialog>
@@ -338,6 +357,11 @@ td, .soft_underline {
         <a href="/budget/chart/bar.php">Monthly</a>
         &nbsp;/&nbsp;
         <a href="/budget/chart/flow.php">Flow</a>
+        &nbsp;/&nbsp;
+        <a href="/budget/chart/line.php">Line</a>
+        <br />
+        <br />
+        <a href="./start-month.php">New Month Tool</a>
     </div>
 
     <h1 id="tx_title">
@@ -357,17 +381,28 @@ td, .soft_underline {
             <tbody id="goal_render_slot"></tbody>   
         </table>
     </div>
+
+    <div id="filters">
+        <h1>Filters</h1>
+        <h3 class="sub_title">Show Transactions By:</h3>
+        <table>
+            <tbody id="filter_user_slot">
+            </tbody>
+        </table>
+    </div>
 </body>
 
 <script>
 
 var data = <?php echo json_encode($transactions); ?>;
 var datalist = document.getElementById("tx_names");
+var datalistEdit = document.getElementById("edit_tx_names");
 var dataSet = new Set(data.map(d => d.description));
 dataSet.forEach((elem) => {
     var option = document.createElement("option");
     option.value = elem;
     datalist.appendChild(option);
+    datalistEdit.appendChild(option);
 });
 
 var addTransactionDialog = document.getElementById("add_transaction");
@@ -376,6 +411,16 @@ addTransactionDialog.addEventListener("close", (e) => {
     if (rv != "cancel") {
         var transactionData = JSON.parse(rv);
         submitAddTransaction(transactionData.amount, transactionData.description);
+    }
+});
+
+var lastTransactionId;
+var editTransactionDialog = document.getElementById("edit_transaction");
+editTransactionDialog.addEventListener("close", (e) => {
+    var rv = editTransactionDialog.returnValue;
+    if (rv != "cancel") {
+        var transactionData = JSON.parse(rv);
+        submitEditTransaction(transactionData.transactionId, transactionData.amount, transactionData.description);
     }
 });
 
@@ -440,9 +485,16 @@ function postData(url = "", data = {}) {
     }).then((r) => r.json()); // parses JSON response into native JavaScript objects
 }
 
-
 function showAddTransactionForm() {
     addTransactionDialog.showModal();
+}
+
+function showEditTransactionForm(id, amount, description) {
+    document.getElementById("edit_tx_amount").value = amount;
+    document.getElementById("edit_tx_desc").value = description;
+    lastTransactionId = id;
+
+    editTransactionDialog.showModal();
 }
 
 function showAddGoalForm() {
@@ -457,11 +509,10 @@ function showAddGoalAmountForm(id) {
 function showEditGoalForm(id, title, total) {
     document.getElementById("edit_goal_name").value = title;
     document.getElementById("edit_goal_total").value = total.replaceAll("$", "").replaceAll(",", "");
-
     lastGoalId = id;
+    
     editGoalDialog.showModal();
 }
-
 
 function saveTransaction(event) {
     event.preventDefault();
@@ -476,6 +527,22 @@ function saveTransaction(event) {
 
     event.target.form.reset();
     event.target.closest("dialog").close(JSON.stringify({ amount, description }));
+}
+
+function saveTransactionEdit(event) {
+    event.preventDefault();
+
+    var transactionId = lastTransactionId;
+    var amount = document.getElementById("edit_tx_amount").value;
+    var description = document.getElementById("edit_tx_desc").value;
+
+    // Don't close the form if it fails (basic) validation
+    if (amount.length == 0 || description.length == 0) {
+        return;
+    }
+
+    event.target.form.reset();
+    event.target.closest("dialog").close(JSON.stringify({ transactionId, amount, description }));
 }
 
 function saveGoal(event) {
@@ -521,9 +588,18 @@ function saveGoalTotal(event) {
     event.target.closest("dialog").close(JSON.stringify({id: goalId, total: goalTotal}));
 }
 
-
 function submitAddTransaction(amount, description) {
     postData("./transaction.php", {amount, description}).then((data) => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert("failed to save.");
+        }
+    });
+}
+
+function submitEditTransaction(transactionId, amount, description) {
+    postData("./transaction-edit.php", {transactionId, amount, description}).then((data) => {
         if (data.success) {
             location.reload();
         } else {
@@ -563,9 +639,12 @@ function submitEditGoal(goalId, amount) {
     });
 }
 
-
-function renderTransaction(id, date, amountString, description, active) {
+function renderTransaction(id, date, amount, amountString, description, active, user) {
     if (!active) {
+        return null;
+    }
+
+    if (IsUserFiltered(user)) {
         return null;
     }
 
@@ -599,6 +678,7 @@ function renderTransaction(id, date, amountString, description, active) {
 
     // Handle click
     divDescription.addEventListener("click", transactionClicked.bind(this, deleteButton));
+    divDescription.addEventListener("click", showEditTransactionForm.bind(this, id, amount, description));
 
     document.getElementById("tx_render_slot").appendChild(tr);
 
@@ -704,7 +784,6 @@ function goalClicked(goalDeleteButton) {
     toggleVisibilityGoalDelete(goalDeleteButton);
 }
 
-
 function toggleVisibilityTxDelete(txDeleteButton) {
     if (txDeleteButton.classList.contains("hidden")) {
         txDeleteButton.classList.remove("hidden");
@@ -720,7 +799,6 @@ function toggleVisibilityGoalDelete(goalDeleteButton) {
         goalDeleteButton.classList.add("hidden");
     }
 }
-
 
 function deleteTransaction(id) {
     postData("./transaction-hide.php", {id}).then((data) => {
@@ -757,8 +835,52 @@ function deleteGoal(id) {
     renderTransactions();
 ?>
 
+var users = <?php echo json_encode($users); ?>;
+
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+function IsUserFiltered(user) {
+    const userSaveData = localStorage.getItem("budget_filter_" + user);
+    return userSaveData != '1' && userSaveData != null;
+}
+function SetUserFilterState(user, state) {
+    localStorage.setItem("budget_filter_" + user, state ? 1 : 0);
+}
+
+function initializeFilterList(users) {
+
+    var slot = document.getElementById("filter_user_slot");
+
+    users.forEach((user) => {
+        var tr = document.createElement("tr");
+        var td = document.createElement("td");
+        var checkbox = document.createElement("input");
+        var td2 = document.createElement("td");
+
+        checkbox.type = "checkbox";
+        checkbox.checked = !IsUserFiltered(user);
+        var userName = user;
+        checkbox.addEventListener('change', (event) => {
+            SetUserFilterState(userName, event.currentTarget.checked);
+            location.reload();
+        });
+
+        td2.textContent = capitalizeFirstLetter(user);
+
+        td.appendChild(checkbox);
+        tr.appendChild(td);
+        tr.appendChild(td2);
+
+        slot.appendChild(tr);
+    });
+}
+initializeFilterList(users);
+
 </script>
 
+<!-- Chart Renderer Script -->
 <script>
 
 function daysInMonth() {

@@ -118,10 +118,8 @@ if (!isset($_SESSION["budget_auth"])) {
             exit;
         }
 
-        $users = [
-            "kyle" => '$2y$10$plYgIk.tr5Ut.Sxh70lcYOe1Foao5u5CHjHcdtyXfC5RH3c9XQ6o6',
-            "lexie" => '$2y$10$54c2K9UN79Ov2sIgykvJL.F.8AtwxoSb3bzSp4SePGM8ULpHpOjkS'
-        ];
+        global $authusers;
+        $users = $authusers;
 
         // Check for correct username
         if (!isset($users[$auth_username])) {
