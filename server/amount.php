@@ -8,18 +8,13 @@ if (!isset($_SESSION["budget_auth"])) {
     exit(1);
 }
 
-if ($_SERVER['REQUEST_METHOD'] !== "POST") {
+if ($_SERVER['REQUEST_METHOD'] !== "GET") {
     echo json_encode(["success" => false]);
     exit(1);
 }
 
-$_POST = json_decode(file_get_contents("php://input"), true);
-
-$id = $_POST["id"];
-
 try {
-    $success = disableGoal($_SESSION["budget_auth"], $id);
-    echo json_encode(["success" => $success]);
+    echo json_encode(["success" => true, "amount" => loadAmount()]);
 } catch (Error $e) {
     echo json_encode(["success" => false]);
 }

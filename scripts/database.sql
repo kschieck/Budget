@@ -1,6 +1,4 @@
-<?php
 
-/*
 CREATE TABLE `amount` (
     `amount` int(11) NOT NULL
 );
@@ -37,7 +35,3 @@ CREATE TABLE `user_tokens` (
 ALTER TABLE `user_tokens`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user` (`user`);
-
-*/
-
-?>

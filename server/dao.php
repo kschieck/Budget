@@ -213,7 +213,6 @@ function addTransactions($user, $transactions) {
 
         $updateAmountStmt = prepStatement($conn,
             "UPDATE amount SET amount = amount - ? LIMIT 1", "i", [$amountSum]);
-            error_log($amountSum);
 
         if (!$updateAmountStmt->execute()) {
             error_log("Failed to execute update statement");
@@ -316,7 +315,7 @@ function disableTransaction($user, $transactionId) {
         $conn->commit();
         return true;
     } catch (mysqli_sql_exception $exception) {
-        error_log("Failed to add transaction: " . $exception->getMessage());
+        error_log("Failed to disable transaction: " . $exception->getMessage());
         $conn->rollback();
         throw $exception;
     }

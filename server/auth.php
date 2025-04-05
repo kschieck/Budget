@@ -89,23 +89,12 @@ function rememberMe() {
     }
 }
 
-function displayLoginForm() {
-    include __DIR__."/login-form.php";
-}
-
-function outputLocalStorageCode($token, $days) {
-    $expireTime = date('Y-m-d H:i:s', strtotime("+ $days"));
-    echo "<script>
-        localStorage.setItem('rememberme', '$token');
-        localStorage.setItem('rememberme_expire', '$expireTime');
-    </script>";
-}
-
 if (!isset($_SESSION["budget_auth"])) {
 
     rememberMe();
     if (!IsUserLoggedIn()) {
 
+        $_POST = json_decode(file_get_contents("php://input"), true);
         $auth_username = isset($_SERVER['PHP_AUTH_USER'])? $_SERVER['PHP_AUTH_USER'] :
             (isset($_POST["username"])? $_POST["username"] : "");
         $auth_password = isset($_SERVER['PHP_AUTH_PW'])? $_SERVER['PHP_AUTH_PW'] :
@@ -114,18 +103,24 @@ if (!isset($_SESSION["budget_auth"])) {
         // Check for password headers
         if (!$auth_username) {
             header('HTTP/1.0 401 Unauthorized');
-            displayLoginForm();
+            error_log("3");
+            echo json_encode([
+                "success" => false
+            ]);
             exit;
         }
 
+        // Load users (from config for now)
         global $authusers;
         $users = $authusers;
 
         // Check for correct username
         if (!isset($users[$auth_username])) {
             header('HTTP/1.0 401 Unauthorized');
-            echo 'Access Denied';
-            displayLoginForm();
+            error_log("2");
+            echo json_encode([
+                "success" => false
+            ]);
             exit;
         }
 
@@ -135,15 +130,25 @@ if (!isset($_SESSION["budget_auth"])) {
         // Check if password hashes match
         if ($hashed_password !== crypt($user_supplied_password, $hashed_password)) {
             header('HTTP/1.0 401 Unauthorized');
-            echo "Access Denied";
-            displayLoginForm();
+            error_log("1");
+            echo json_encode([
+                "success" => false
+            ]);
             exit;
         }
 
         logUserIn($auth_username);
         $cookieData = onLogin($auth_username);
-        outputLocalStorageCode($cookieData["cookie"], $cookieData["days"]);
+        echo json_encode([
+            "success" => true,
+            "cookie" => $cookieData["cookie"],
+            "expire" => date('Y-m-d H:i:s', strtotime("+".$cookieData["days"]." days"))
+        ]);
     }
+} else {
+    echo json_encode([
+        "success" => true
+    ]);
 }
 
 

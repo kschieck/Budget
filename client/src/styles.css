@@ -1,0 +1,132 @@
+table {
+  margin: auto;
+}
+
+#tx_amount,
+#tx_desc {
+  width: 100%;
+}
+
+#tx_title,
+#goal_title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin-top: 30px;
+  text-align: center;
+  margin-bottom: 0px;
+}
+
+table * td {
+  padding: 2px 5px 2px 5px;
+}
+
+table * th {
+  padding: 2px 5px 2px 5px;
+}
+
+#amount_head {
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+td,
+.soft_underline {
+  border-bottom: 1px solid #ddd;
+}
+
+.short_input {
+  width: 60px;
+}
+
+#tx_table thead,
+#tx_table tbody {
+  display: block;
+}
+
+#tx_table tbody {
+  max-height: 245px;
+  overflow-y: scroll;
+}
+
+#tx_table {
+  margin-top: 20px;
+}
+
+.no_bottom_space {
+  margin-bottom: 0px;
+}
+
+.center_spaced {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+#total_spend {
+  font-size: .80em;
+  margin: auto;
+  text-align: center;
+}
+
+#chart {
+  margin: auto;
+  margin-top: 20px;
+  display: block;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.small_cell {
+  max-width: 200px;
+}
+
+.space_right {
+  margin-right: 5px;
+}
+
+.small_button {
+  padding: 0px 5px;
+}
+
+.goal_progress {
+  height: 1.5em;
+  width: 100%;
+  background-color: #eee;
+  position: relative;
+  border-radius: 4px;
+}
+
+.goal_progress:before {
+  content: attr(data-label);
+  font-size: 1em;
+  position: absolute;
+  text-align: center;
+  top: 0.15em;
+  left: 0;
+  right: 0;
+}
+
+.goal_progress .value {
+  background-color: #bbe0ff;
+  display: inline-block;
+  height: 100%;
+  border-radius: 4px;
+}
+
+.form_title,
+.sub_title {
+  margin-top: 0px;
+}
+
+.goal_display_total>td {
+  border-bottom: none;
+}
