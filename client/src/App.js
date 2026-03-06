@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import TransactionsSection, {
     AddEditTransactionDialog,
 } from "./Transactions.js";
-import { toDollars, toDollarsNoCents, getCookieValue } from "./Utils.js";
+import { toDollars, toDollarsNoCents } from "./Utils.js";
 import GoalsSection, {
     AddEditGoalDialog,
     AddGoalTransactionDialog,
@@ -121,7 +121,6 @@ function BudgetApp() {
     function loadGoals() {
         API.loadGoals()
             .then((json) => {
-                debugger;
                 if (json.success) {
                     setGoals(json.goals);
                 }
@@ -424,63 +423,45 @@ function BudgetApp() {
 
 export default function App() {
     const [loggingIn, setLoggingIn] = useState(false);
-    const [authSuccess, setAuthSuccess] = useState(false);
+    // null = auth check in progress, true = authenticated, false = not authenticated
+    const [authSuccess, setAuthSuccess] = useState(null);
 
-    function localStoreToken(token, expire) {
-        localStorage.setItem("rememberme", token);
-        localStorage.setItem("rememberme_expire", expire);
-    }
-
-    function loadLoadToken() {
-        let expireTime = localStorage.getItem("rememberme_expire");
-        console.log("expire time", expireTime);
-        return localStorage.getItem("rememberme");
-    }
-
-    function reloadAuth() {
-        let cookieValue = getCookieValue("rememberme");
-        if (cookieValue) {
-            setLoggingIn(true);
-            API.AuthWithCookie()
-                .then((result) => setAuthSuccess(result.success))
-                .catch((e) => console.error(e))
-                .finally(() => setLoggingIn(false));
-
-            return;
-        }
-        console.log("No cookie to auth with, next trying local storage token.");
-
-        const token = loadLoadToken();
-        if (token) {
-            setLoggingIn(true);
-            API.AuthWithToken(token)
-                .then((result) => setAuthSuccess(result.success))
-                .catch((e) => console.error(e))
-                .finally(() => setLoggingIn(false));
-            return;
-        }
-        console.log("No token found in local storage.");
-    }
-
-    // Attempt to login
-    useEffect(reloadAuth, []);
+    useEffect(() => {
+        // Try cookie auth first (browser sends HttpOnly cookie automatically).
+        // If that fails, fall back to a localStorage token for browsers that
+        // don't persist cookies (iOS PWA mode, in-app browsers, etc.).
+        API.AuthWithCookie()
+            .then((result) => {
+                if (result.success) {
+                    setAuthSuccess(true);
+                    return;
+                }
+                const token = localStorage.getItem("rememberme");
+                if (token) {
+                    return API.AuthWithToken(token)
+                        .then((result) => setAuthSuccess(result.success))
+                        .catch(() => setAuthSuccess(false));
+                }
+                setAuthSuccess(false);
+            })
+            .catch(() => setAuthSuccess(false));
+    }, []);
 
     function onTryLogin(username, password) {
         setLoggingIn(true);
         API.AuthWithUserPass(username, password)
             .then((result) => {
-                setAuthSuccess(result.success);
-                if (result.success) {
-                    if (
-                        result.hasOwnProperty("token") &&
-                        result.hasOwnProperty("expire")
-                    ) {
-                        localStoreToken(result.token, result.expire);
-                    }
+                if (result.success && result.token) {
+                    localStorage.setItem("rememberme", result.token);
                 }
+                setAuthSuccess(result.success);
             })
-            .catch((e) => console.error(e))
+            .catch(() => setAuthSuccess(false))
             .finally(() => setLoggingIn(false));
+    }
+
+    if (authSuccess === null) {
+        return null;
     }
 
     if (!authSuccess) {

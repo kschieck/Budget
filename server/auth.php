@@ -25,10 +25,6 @@ function storeTokenForUser($userName, $token, $days) {
     return false;
 }
 
-function getUserTokenFromSession() {
-    return isset($_SESSION["budget_auth_token"])? $_SESSION["budget_auth_token"] : null;
-}
-
 function fetchTokensByUserName($userName) {
     return getUserTokens($userName);
 }
@@ -47,41 +43,44 @@ function onLogin($user) {
     $token = GenerateRandomToken(); // generate a token, should be 128 - 256 bit
     $base64Token = base64_encode($token);
     storeTokenForUser($user, $base64Token, $cookieDurationDays);
-    $cookie = "$user:$token";
-    $mac = hash_hmac('sha256', $cookie, $secretkey);
-    $cookie .= ':' . $mac;
-    setcookie('rememberme', $cookie, time() + (86400 * $cookieDurationDays));
-    return [
-        "cookie" => base64_encode($cookie),
-        "days" => $cookieDurationDays
-    ];
+    $cookieValue = "$user:$base64Token";
+    $mac = hash_hmac('sha256', $cookieValue, $secretkey);
+    $cookieValue .= ':' . $mac;
+    setcookie('rememberme', $cookieValue, [
+        'expires'  => time() + (86400 * $cookieDurationDays),
+        'path'     => '/',
+        'secure'   => true,
+        'httponly' => true,
+        'samesite' => 'Strict',
+    ]);
+    // Return base64-encoded token for localStorage fallback on clients where cookies are unavailable
+    return base64_encode($cookieValue);
 }
 
 function rememberMe() {
     global $secretkey;
     $cookie = isset($_COOKIE['rememberme']) ? $_COOKIE['rememberme'] : '';
 
-    // If there's no cookie, check for post data
+    // If there's no HTTP cookie, check for a localStorage token in the POST body
     if (!$cookie && $_SERVER['REQUEST_METHOD'] === "POST") {
-        $postDataString = file_get_contents('php://input');
-        $postData = json_decode($postDataString, true);
+        $postData = json_decode(file_get_contents('php://input'), true);
         if (isset($postData["rememberme"])) {
-            $cookie = base64_decode($postData["rememberme"]); // base64 decode post param
+            $cookie = base64_decode($postData["rememberme"]);
         }
     }
 
     if ($cookie) {
-        list ($user, $token, $mac) = explode(':', $cookie);
-        if ($mac === null) { // Check for invalid cookie format
+        $parts = explode(':', $cookie, 3);
+        if (count($parts) !== 3) {
             return false;
         }
+        list ($user, $token, $mac) = $parts;
         if (!hash_equals(hash_hmac('sha256', "$user:$token", $secretkey), $mac)) {
             return false;
         }
         $base64Tokens = fetchTokensByUserName($user);
         foreach ($base64Tokens as $base64Token) {
-            $usertoken = base64_decode($base64Token);
-            if (hash_equals($usertoken, $token)) {
+            if (hash_equals($base64Token, $token)) {
                 logUserIn($user);
                 break;
             }
@@ -138,17 +137,13 @@ if (!isset($_SESSION["budget_auth"])) {
         }
 
         logUserIn($auth_username);
-        $cookieData = onLogin($auth_username);
-        echo json_encode([
-            "success" => true,
-            "cookie" => $cookieData["cookie"],
-            "expire" => date('Y-m-d H:i:s', strtotime("+".$cookieData["days"]." days"))
-        ]);
+        $token = onLogin($auth_username);
+        echo json_encode(["success" => true, "token" => $token]);
+        exit;
     }
+    echo json_encode(["success" => true]);
 } else {
-    echo json_encode([
-        "success" => true
-    ]);
+    echo json_encode(["success" => true]);
 }
 
 
