@@ -48,7 +48,7 @@ function onLogin($user) {
     $cookieValue .= ':' . $mac;
     setcookie('rememberme', $cookieValue, [
         'expires'  => time() + (86400 * $cookieDurationDays),
-        'path'     => '/',
+        'path'     => '/budget',
         'secure'   => true,
         'httponly' => true,
         'samesite' => 'Strict',
