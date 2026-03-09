@@ -299,9 +299,11 @@ function BudgetApp() {
         console.log("startDeleteGoal", goalId);
         API.deleteGoal(goalId)
             .then((result) => {
-                console.log("startContributeGoal", "result", result);
+                console.log("startDeleteGoal", "result", result);
                 if (result.success) {
                     loadGoals();
+                } else if (result.message) {
+                    alert(result.message);
                 }
             })
             .catch((e) => {

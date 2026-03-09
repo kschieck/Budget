@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { toDollarsNoCents } from "./Utils";
+import { toDollars, toDollarsNoCents } from "./Utils";
 
 function GoalRow({
     goal,
@@ -9,7 +9,10 @@ function GoalRow({
 }) {
     const [showDelete, setShowDelete] = useState(false);
 
-    let amountString = toDollarsNoCents(goal.amount / 100);
+    let amountString =
+        goal.amount !== 0 && Math.floor(Math.abs(goal.amount) / 100) === 0
+            ? toDollars(goal.amount / 100)
+            : toDollarsNoCents(goal.amount / 100);
     let totalString = toDollarsNoCents(goal.total / 100);
 
     function handleGoalClick() {

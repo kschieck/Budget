@@ -170,6 +170,11 @@ function loadTransactionsList($transactionIds) {
     return $transactions;
 }
 
+function loadGoalById($id) {
+    $sql = "SELECT `id`, `amount` FROM `goals` WHERE `id` = ? AND `active` = 1 LIMIT 1";
+    return select($sql, "i", [$id]);
+}
+
 function loadGoals($limit) {
     $limit = intval($limit);
     if ($limit <= 0) {
