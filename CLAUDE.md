@@ -95,12 +95,12 @@ Fix when touching related code — do not work around these issues:
 - **Dialog as JSX in state** — `activeDialog` in `BudgetApp` stores live JSX. Replace with state flags + conditional rendering.
 - **Prop drilling** — `BudgetApp` passes many handlers deep through props. Use React context for new features; refactor existing when touching.
 - **Inverted filter logic** — `filters` Set contains *hidden* usernames. Should contain *visible* usernames so `filters.has(name)` means "show this user."
-- **GoalTotalRow hardcoded values** — `Goals.js:230` passes `amount={50} total={100}`. Should use computed `goalAmountSum` / `goalTotalSum`.
 - **UTC-4 hardcoded** — Timezone offset is hardcoded in SQL queries. Should be a config value in `config.php`.
 
 ## Subagents
 
 - **code-reviewer** — Reviews code for bugs, security issues, and convention violations. Use before finalizing any feature.
+- **document-updater** — Updates files in `docs/` based on a git diff. Use after completing a feature to keep docs in sync. Scoped strictly to `docs/` — will not touch source files.
 
 ## Skills
 

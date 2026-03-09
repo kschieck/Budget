@@ -11,7 +11,7 @@ Each feature gets its own file named after the feature area. Update the relevant
 | Feature | File | Description |
 |---------|------|-------------|
 | Transactions | (see data-flow.md) | Add, edit, delete, browse by month |
-| Goals | (see data-flow.md) | Savings targets with contribution tracking |
+| Goals | [goals.md](goals.md) | Savings targets with contribution tracking, goal-linked transactions |
 | Charts | — | Canvas-based monthly drawdown chart |
 | Filters | — | Per-user transaction visibility toggles |
 | New Month Tool | — | Duplicate first-of-month transactions from previous month |

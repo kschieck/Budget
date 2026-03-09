@@ -58,7 +58,20 @@ User clicks x → startDeleteTransaction(id)
 User enters amount → onSave(goalId, amount)
   → API.saveGoalTransaction(goalId, amount)
   → POST transaction.php { goalId, amount }
-  → dao.addGoalTransaction() → INSERT transaction + UPDATE amount + UPDATE goal (atomic)
+  → dao.addGoalTransaction() → INSERT transaction (with goal_id) + UPDATE amount + UPDATE goal (atomic)
+  → { success: true }
+  → loadAmountTotal() + loadTransactions() + loadGoals()
+```
+
+### Edit Goal Transaction
+```
+User edits amount on a goal-linked transaction → onSave(id, amount, description)
+  → API.saveTransaction(id, amount, description)
+  → PUT transaction.php { transactionId, amount, description }
+  → dao.editTransaction() → load old amount + goal_id
+      → delta = newAmount - oldAmount
+      → UPDATE transactions + UPDATE amount (-delta) + UPDATE goals (+delta) (atomic)
+      → description is rewritten to "Goal contribution/subtraction: <name>" (not user-editable)
   → { success: true }
   → loadAmountTotal() + loadTransactions() + loadGoals()
 ```
