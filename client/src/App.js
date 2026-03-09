@@ -200,6 +200,9 @@ function BudgetApp() {
                             if (result.success) {
                                 loadAmountTotal();
                                 loadTransactions();
+                                if (transaction.goal_id) {
+                                    loadGoals();
+                                }
                             }
                         })
                         .catch((e) => {
@@ -213,14 +216,18 @@ function BudgetApp() {
     }
     function startDeleteTransaction(transactionId) {
         console.log("startDeleteTransaction", transactionId);
+        const transaction = transactions.find((t) => t.id === transactionId) || null;
         API.deleteTransaction(transactionId)
             .then((result) => {
                 console.log("startContributeGoal", "result", result);
                 if (result.success) {
                     loadAmountTotal(); // reload the total
+                    if (transaction?.goal_id) {
+                        loadGoals();
+                    }
                     setTransactions((prev) =>
                         prev.filter(
-                            (transaction) => transaction.id !== transactionId,
+                            (t) => t.id !== transactionId,
                         ),
                     );
                 }

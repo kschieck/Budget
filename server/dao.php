@@ -146,7 +146,7 @@ function loadTransactionsDate($dateString) {
 }
 
 function loadTransactionsStartEndDate($startDateString, $endDateString) {
-    $sql = "SELECT id, DATE_SUB(date_added, INTERVAL 4 HOUR) as date_added, amount, `description`, `active`, `user`
+    $sql = "SELECT id, DATE_SUB(date_added, INTERVAL 4 HOUR) as date_added, amount, `description`, `active`, `user`, `goal_id`
             FROM `transactions`
             WHERE DATE_SUB(date_added, INTERVAL 4 HOUR) > ? AND DATE_SUB(date_added, INTERVAL 4 HOUR) < ? ORDER BY id DESC";
     return select($sql, "ss", [$startDateString, $endDateString]);
