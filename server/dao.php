@@ -146,7 +146,7 @@ function loadTransactionsDate($dateString) {
 }
 
 function loadTransactionsStartEndDate($startDateString, $endDateString) {
-    $sql = "SELECT id, DATE_SUB(date_added, INTERVAL 4 HOUR) as date_added, amount, `description`, `active`, `user`
+    $sql = "SELECT id, DATE_SUB(date_added, INTERVAL 4 HOUR) as date_added, amount, `description`, `active`, `user`, `goal_id`
             FROM `transactions`
             WHERE DATE_SUB(date_added, INTERVAL 4 HOUR) > ? AND DATE_SUB(date_added, INTERVAL 4 HOUR) < ? ORDER BY id DESC";
     return select($sql, "ss", [$startDateString, $endDateString]);
@@ -168,6 +168,11 @@ function loadTransactionsList($transactionIds) {
     }
 
     return $transactions;
+}
+
+function loadGoalById($id) {
+    $sql = "SELECT `id`, `amount` FROM `goals` WHERE `id` = ? AND `active` = 1 LIMIT 1";
+    return select($sql, "i", [$id]);
 }
 
 function loadGoals($limit) {
@@ -234,37 +239,57 @@ function addTransactions($user, $transactions) {
 function editTransaction($user, $transactionId, $amount, $description) {
     // Load transaction, find amount delta to adjust amount table and update the amount
 
-    $loadResult = select("SELECT `amount` FROM `transactions` WHERE `user` = ? AND `id` = ? AND `active` = 1", "si", [$user, $transactionId]);
+    $loadResult = select("SELECT `amount`, `goal_id` FROM `transactions` WHERE `user` = ? AND `id` = ? AND `active` = 1", "si", [$user, $transactionId]);
     if (!($transaction = $loadResult->fetch_assoc())) {
         return false;
     }
 
     $oldAmount = $transaction["amount"];
     $deltaAmount = $amount - $oldAmount;
+    $goalId = $transaction["goal_id"];
+
+    if ($goalId !== null) {
+        $goalResult = select("SELECT `name` FROM `goals` WHERE id = ? LIMIT 1", "i", [$goalId]);
+        $goalRow = $goalResult->fetch_assoc();
+        if (!$goalRow) {
+            return false;
+        }
+        $verb = $amount > 0 ? "contribution" : "subtraction";
+        $description = "Goal $verb: " . $goalRow["name"];
+    }
 
     $conn = getConnection();
     $conn->begin_transaction();
     try {
         $conn->autocommit(false);
 
-        if ($deltaAmount !== 0)
-        {
+        if ($deltaAmount !== 0) {
             $updateAmountStmt = prepStatement($conn,
                 "UPDATE amount SET amount = amount - ? LIMIT 1", "i", [$deltaAmount]);
 
             if (!$updateAmountStmt->execute()) {
                 error_log("Failed to update amount");
-                error_log("MySQL Execution Error: " . $updateAmountStmt->error); // Log the statement execution error
+                error_log("MySQL Execution Error: " . $updateAmountStmt->error);
                 throw new mysqli_sql_exception("Execution failed for transaction.");
+            }
+
+            if ($goalId !== null) {
+                $updateGoalStmt = prepStatement($conn,
+                    "UPDATE `goals` SET amount = amount + ? WHERE id = ?", "ii", [$deltaAmount, $goalId]);
+                if (!$updateGoalStmt->execute()) {
+                    error_log("Failed to execute update goal");
+                    error_log("MySQL Execution Error: " . $updateGoalStmt->error);
+                    throw new mysqli_sql_exception("Update statement execution failed.");
+                }
             }
         }
 
-        $updateTxStmt = prepStatement($conn, 
+        $updateTxStmt = prepStatement($conn,
             "UPDATE `transactions` SET `amount` = ?, `description` = ? WHERE id = ?", "isi", [$amount, substr($description, 0, 64), $transactionId]);
 
         if (!$updateTxStmt->execute()) {
             error_log("Failed to execute update transaction");
-            error_log("MySQL Execution Error: " . $updateTxStmt->error); // Log the statement execution error
+            error_log("MySQL Execution Error: " . $updateTxStmt->error);
             throw new mysqli_sql_exception("Update statement execution failed.");
         }
         $conn->commit();
@@ -283,12 +308,13 @@ function editTransaction($user, $transactionId, $amount, $description) {
 function disableTransaction($user, $transactionId) {
     // Load transaction, get amount and reverse it while setting inactive
 
-    $loadResult = select("SELECT `amount` FROM `transactions` WHERE `user` = ? AND `id` = ? AND `active` = 1", "si", [$user, $transactionId]);
+    $loadResult = select("SELECT `amount`, `goal_id` FROM `transactions` WHERE `user` = ? AND `id` = ? AND `active` = 1", "si", [$user, $transactionId]);
     if (!($transaction = $loadResult->fetch_assoc())) {
         return false;
     }
 
     $amount = $transaction["amount"];
+    $goalId = $transaction["goal_id"];
 
     $conn = getConnection();
     $conn->begin_transaction();
@@ -298,18 +324,28 @@ function disableTransaction($user, $transactionId) {
         $updateAmountStmt = prepStatement($conn,
             "UPDATE amount SET amount = amount + ? LIMIT 1", "i", [$amount]);
 
-        $updateTxStmt = prepStatement($conn, 
+        $updateTxStmt = prepStatement($conn,
             "UPDATE `transactions` SET `active` = 0 WHERE id = ?", "i", [$transactionId]);
 
         if (!$updateAmountStmt->execute()) {
             error_log("Failed to execute update transaction");
-            error_log("MySQL Execution Error: " . $updateAmountStmt->error); // Log the statement execution error
+            error_log("MySQL Execution Error: " . $updateAmountStmt->error);
             throw new mysqli_sql_exception("Update statement execution failed.");
         }
         if (!$updateTxStmt->execute()) {
             error_log("Failed to execute update transaction");
-            error_log("MySQL Execution Error: " . $updateTxStmt->error); // Log the statement execution error
+            error_log("MySQL Execution Error: " . $updateTxStmt->error);
             throw new mysqli_sql_exception("Update statement execution failed.");
+        }
+
+        if ($goalId !== null) {
+            $updateGoalStmt = prepStatement($conn,
+                "UPDATE `goals` SET amount = amount - ? WHERE id = ?", "ii", [$amount, $goalId]);
+            if (!$updateGoalStmt->execute()) {
+                error_log("Failed to execute update goal");
+                error_log("MySQL Execution Error: " . $updateGoalStmt->error);
+                throw new mysqli_sql_exception("Update statement execution failed.");
+            }
         }
 
         $conn->commit();
@@ -343,9 +379,9 @@ function addGoalTransaction($user, $goalId, $amount) {
     try {
         $conn->autocommit(false);
 
-        $createTxStmt = prepStatement($conn, 
-            "INSERT INTO `transactions` (user, amount, `description`) VALUES (?,?,?)", 
-            "sis", [substr($user, 0, 32), $amount, substr($description, 0, 64)]);
+        $createTxStmt = prepStatement($conn,
+            "INSERT INTO `transactions` (user, amount, `description`, `goal_id`) VALUES (?,?,?,?)",
+            "sisi", [substr($user, 0, 32), $amount, substr($description, 0, 64), $goalId]);
 
         $updateAmountStmt = prepStatement($conn,
             "UPDATE amount SET amount = amount - ? LIMIT 1", "i", [$amount]);

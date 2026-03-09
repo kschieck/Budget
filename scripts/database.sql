@@ -26,6 +26,8 @@ ALTER TABLE `transactions`
   ADD PRIMARY KEY (`id`),
   ADD KEY `date_added` (`date_added`);
 
+ALTER TABLE `transactions` ADD COLUMN `goal_id` int(11) NULL DEFAULT NULL;
+
 CREATE TABLE `user_tokens` (
     `id` int(11) NOT NULL,
     `user` varchar(32) NOT NULL,

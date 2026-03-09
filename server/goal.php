@@ -38,6 +38,18 @@ switch($_SERVER['REQUEST_METHOD']) {
         }
 
         $id = intval($data["id"]);
+
+        $goalResult = loadGoalById($id);
+        $goal = $goalResult ? $goalResult->fetch_assoc() : null;
+        if (!$goal) {
+            echo json_encode(["success" => false]);
+            exit(1);
+        }
+        if (intval($goal["amount"]) !== 0) {
+            echo json_encode(["success" => false, "message" => "Remove all contributions before deleting this goal."]);
+            exit(1);
+        }
+
         try {
             $success = disableGoal($_SESSION["budget_auth"], $id);
             echo json_encode(["success" => $success]);

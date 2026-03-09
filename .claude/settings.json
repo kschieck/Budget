@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const d=JSON.parse(require('fs').readFileSync(0,'utf8')); const f=(d.tool_input||{}).file_path||''; if(/\\.js$/.test(f)){require('child_process').execSync('npx prettier --config .prettierrc --write \"'+f+'\"',{stdio:'inherit',cwd:require('path').dirname(require('path').dirname(f))});}\"",
+            "description": "Auto-format JS files with Prettier after Write/Edit"
+          }
+        ]
+      }
+    ]
+  }
+}

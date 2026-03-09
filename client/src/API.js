@@ -14,7 +14,6 @@ export function AuthWithToken(token) {
     }).then((response) => response.json());
 }
 
-// Try to auth with a stored cookie. You should check if the cookie exists before doing this
 export function AuthWithCookie() {
     return fetch("./auth.php", { method: "POST" }).then((response) =>
         response.json(),
