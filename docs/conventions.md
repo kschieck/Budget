@@ -58,14 +58,27 @@ export function saveTransaction(id, amount, description) {
 
 ## CSS Classes
 
-Use existing classes from `styles.css` before adding new ones:
-- `small_cell` — narrow table cell
-- `small_button` — compact button (delete x)
-- `space_right` — margin-right spacing
-- `center_spaced` — centered with space-between layout
+Use existing classes from `styles.css` before adding new ones. The stylesheet uses CSS custom properties (design tokens) defined in `:root` — always prefer tokens over hard-coded values when writing inline styles.
+
+Button classes:
+- `btn-icon` — 36 × 36 px circular icon button (nav arrows, add +). Background: `--color-accent-light`, hover fills with `--color-accent`.
+- `btn-icon-sm` — 26 × 26 px circular icon button for destructive actions (✕ delete). Background: `--color-negative-light`, hover fills with `--color-negative`.
+- `btn-primary` — full pill-shaped primary action (dialog Save).
+- `btn-ghost` — transparent pill-shaped secondary action (dialog Cancel).
+
+Layout utilities:
+- `center_spaced` — `display: flex; justify-content: space-between; align-items: center`
 - `no_bottom_space` — removes bottom margin
-- `goal_progress` — progress bar container
+- `space_right` — `margin-right: var(--space-sm)`
+- `hidden` — `display: none !important`
+
+Component-specific:
+- `small_cell` — table cell with truncation (overflow ellipsis)
+- `soft_underline` — `border-bottom: 1px solid var(--color-border)`
+- `goal_progress` — progress bar container (full-radius, `--color-progress-bg` background)
 - `form_title` — dialog heading
+- `short_input` — narrow number input (New Month Tool)
+- `small_button` — legacy fallback; prefer `btn-icon-sm` for new delete buttons
 
 ## Soft Delete
 

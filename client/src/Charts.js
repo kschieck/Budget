@@ -78,18 +78,18 @@ export function DrawdownChart({ width, height, transactions = [] }) {
         if (values.length > 0) {
             ctx.beginPath();
             ctx.lineWidth = 1;
-            ctx.strokeStyle = "#AAA";
+            ctx.strokeStyle = "#c4afa5";
             var x = 0;
             var y = height * (1 - (values[0] - minY) / (maxY - minY));
             ctx.moveTo(x, y);
             ctx.lineTo(width, y0);
             ctx.stroke();
         }
-        ctx.strokeStyle = "#000";
+        ctx.strokeStyle = "#7a6860";
 
         // Shape fill (above)
         ctx.beginPath();
-        ctx.fillStyle = "#b3ffb5";
+        ctx.fillStyle = "#c8e6d0";
         ctx.moveTo(0, 0); // top left
         var lastY = 0;
         for (var i = 0; i < values.length; i++) {
@@ -112,7 +112,7 @@ export function DrawdownChart({ width, height, transactions = [] }) {
 
         // Shape fill (below)
         ctx.beginPath();
-        ctx.fillStyle = "#ffb3b3";
+        ctx.fillStyle = "#f5c5be";
         ctx.moveTo(0, 0); // top left
         lastY = 0;
         for (var i = 0; i < values.length; i++) {
@@ -168,8 +168,8 @@ export function DrawdownChart({ width, height, transactions = [] }) {
 
         if (values.length > 0) {
             // Draw amount
-            ctx.font = "18px sans-serif";
-            ctx.fillStyle = "#000";
+            ctx.font = "600 14px 'Nunito', sans-serif";
+            ctx.fillStyle = "#2c2420";
             ctx.lineWidth = 1;
             var text = "$" + Math.floor(maxY / 100).toLocaleString("en-US");
             ctx.fillText(text, 5, 15, width);

@@ -39,10 +39,10 @@ function TransactionRow({
             <td className="small_cell">
                 {showDelete ? (
                     <button
-                        className="space_right small_button"
+                        className="btn-icon-sm space_right"
                         onClick={clickedDeleteTransaction}
                     >
-                        x
+                        ✕
                     </button>
                 ) : null}
                 <div
@@ -126,7 +126,7 @@ export default function TransactionsSection({
             <h1 id="tx_title">
                 Transactions&nbsp;
                 {!readonly ? (
-                    <button onClick={startAddTransaction}>+</button>
+                    <button className="btn-icon" onClick={startAddTransaction}>+</button>
                 ) : null}
             </h1>
             <table id="tx_table" cellSpacing="0">

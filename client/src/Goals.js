@@ -26,10 +26,10 @@ function GoalRow({
             <td>
                 {showDelete ? (
                     <button
-                        className="space_right small_button"
+                        className="btn-icon-sm space_right"
                         onClick={() => startDeleteGoal(goal.id)}
                     >
-                        x
+                        ✕
                     </button>
                 ) : null}
                 <div
@@ -62,7 +62,7 @@ function GoalRow({
                 </div>
             </td>
             <td>
-                <button onClick={() => startContributeGoal(goal.id)}>+</button>
+                <button className="btn-icon" onClick={() => startContributeGoal(goal.id)}>+</button>
             </td>
         </tr>
     );
@@ -216,7 +216,7 @@ export default function GoalsSection({
         <>
             <h1 id="goal_title">
                 Goals&nbsp;
-                <button onClick={startAddGoal}>+</button>
+                <button className="btn-icon" onClick={startAddGoal}>+</button>
             </h1>
             <table>
                 <tbody>

@@ -1,132 +1,894 @@
-table {
-  margin: auto;
+/* ============================================================
+   Design Tokens
+   ============================================================ */
+:root {
+  --color-bg:               #f9f5f0;
+  --color-surface:          #ffffff;
+  --color-surface-alt:      #fdf9f5;
+  --color-border:           #e8ddd3;
+  --color-border-light:     #f0e8e0;
+
+  --color-text:             #2c2420;
+  --color-text-secondary:   #7a6860;
+  --color-text-disabled:    #b8a89e;
+
+  --color-accent:           #c17f52;
+  --color-accent-dark:      #a5673e;
+  --color-accent-light:     #f2e4d6;
+
+  --color-positive:         #5c8f6a;
+  --color-positive-light:   #dff0e5;
+  --color-negative:         #c25e4e;
+  --color-negative-light:   #fbe8e5;
+
+  --color-progress-bg:      #eedfd2;
+  --color-progress-fill:    #c17f52;
+
+  --radius-sm:   6px;
+  --radius-md:   12px;
+  --radius-lg:   18px;
+  --radius-full: 9999px;
+
+  --shadow-card: 0 2px 12px rgba(44, 36, 32, 0.08);
+  --shadow-dialog: 0 8px 40px rgba(44, 36, 32, 0.18);
+
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md:  16px;
+  --space-lg:  24px;
+  --space-xl:  32px;
+
+  --font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+  --font-size-sm:   0.8125rem;
+  --font-size-base: 1rem;
+  --font-size-lg:   1.125rem;
+  --font-size-xl:   1.5rem;
+  --font-size-2xl:  2rem;
 }
 
-#tx_amount,
-#tx_desc {
-  width: 100%;
+/* ============================================================
+   Reset & Base
+   ============================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
-#tx_title,
-#goal_title {
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-bg);
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: var(--space-md) var(--space-md) var(--space-xl);
+  min-height: 100vh;
+}
+
+/* ============================================================
+   Typography
+   ============================================================ */
+h1, h2, h3, h4 {
+  font-family: var(--font-family);
+  margin: 0;
+  text-align: center;
+}
+
+h1 { font-size: var(--font-size-xl);  font-weight: 700; }
+h2 { font-size: var(--font-size-lg);  font-weight: 700; }
+h3 { font-size: var(--font-size-lg);  font-weight: 600; }
+h4 { font-size: var(--font-size-base); font-weight: 600; }
+
+/* ============================================================
+   Card
+   ============================================================ */
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.card-header {
+  padding: var(--space-md) var(--space-md) var(--space-sm);
+  border-bottom: 1px solid var(--color-border-light);
   display: flex;
+  align-items: center;
   justify-content: center;
+  gap: var(--space-sm);
+}
+
+.card-body {
+  padding: var(--space-sm) 0;
+}
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+button {
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: var(--space-sm) var(--space-md);
+  transition: background-color 0.15s ease, transform 0.1s ease;
+  line-height: 1;
+}
+
+button:active {
+  transform: scale(0.96);
+}
+
+/* Icon / circle buttons — nav arrows, +, ✕ */
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: var(--radius-full);
+  background: var(--color-accent-light);
+  color: var(--color-accent-dark);
+  font-size: 1.1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.btn-icon:hover {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+/* Small destructive icon (✕ delete) */
+.btn-icon-sm {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border-radius: var(--radius-full);
+  background: var(--color-negative-light);
+  color: var(--color-negative);
+  font-size: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.btn-icon-sm:hover {
+  background: var(--color-negative);
+  color: #fff;
+}
+
+/* Primary action button (Save in dialogs) */
+.btn-primary {
+  background: var(--color-accent);
+  color: #fff;
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-base);
+}
+
+.btn-primary:hover {
+  background: var(--color-accent-dark);
+}
+
+/* Ghost / secondary button (Cancel) */
+.btn-ghost {
+  background: transparent;
+  color: var(--color-text-secondary);
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+}
+
+.btn-ghost:hover {
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+}
+
+/* ============================================================
+   Month Selector / Header
+   The MonthSelector renders as h1.no_bottom_space.center_spaced
+   followed by #total_spend. Both sit in a card.
+   ============================================================ */
+h1.no_bottom_space.center_spaced {
+  margin: var(--space-sm) 0 0;
+  padding: var(--space-lg) var(--space-md);
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  font-size: var(--font-size-2xl);
+  color: var(--color-accent-dark);
+  /* center_spaced already provides display:flex + justify-content:space-between */
+}
+
+#total_spend {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  text-align: center;
+  margin: var(--space-xs) 0 0;
+  font-weight: 600;
+  padding: 0 var(--space-md);
+}
+
+/* ============================================================
+   Layout utilities (kept from original, repurposed)
+   ============================================================ */
+.hidden {
+  display: none !important;
+}
+
+.center_spaced {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
 }
 
-h1,
-h2,
-h3,
-h4 {
-  margin-top: 30px;
-  text-align: center;
-  margin-bottom: 0px;
+.no_bottom_space {
+  margin-bottom: 0;
 }
 
-table * td {
-  padding: 2px 5px 2px 5px;
+.space_right {
+  margin-right: var(--space-sm);
 }
 
-table * th {
-  padding: 2px 5px 2px 5px;
-}
-
-#amount_head {
+/* ============================================================
+   Transactions Section
+   ============================================================ */
+#tx_title {
+  margin: var(--space-lg) 0 0;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  box-shadow: var(--shadow-card);
+  padding: var(--space-md) var(--space-md);
   display: flex;
-  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  font-size: var(--font-size-lg);
+  color: var(--color-text);
+  border-bottom: 1px solid var(--color-border-light);
 }
 
-td,
-.soft_underline {
-  border-bottom: 1px solid #ddd;
-}
-
-.short_input {
-  width: 60px;
+#tx_table {
+  display: block;
+  width: 100%;
+  margin: 0;
+  background: var(--color-surface);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
 }
 
 #tx_table thead,
 #tx_table tbody {
   display: block;
+  width: 100%;
 }
 
 #tx_table tbody {
-  max-height: 245px;
-  overflow-y: scroll;
+  max-height: 300px;
+  overflow-y: auto;
 }
 
-#tx_table {
-  margin-top: 20px;
-}
-
-.no_bottom_space {
-  margin-bottom: 0px;
-}
-
-.center_spaced {
+#tx_table thead tr,
+#tx_table tbody tr {
   display: flex;
-  justify-content: space-evenly;
   align-items: center;
+  width: 100%;
+  padding: 0 var(--space-md);
 }
 
-#total_spend {
-  font-size: .80em;
-  margin: auto;
-  text-align: center;
+#tx_table thead tr {
+  background: var(--color-surface-alt);
+  border-bottom: 1px solid var(--color-border);
 }
 
-#chart {
-  margin: auto;
-  margin-top: 20px;
-  display: block;
+#tx_table tbody tr {
+  border-bottom: 1px solid var(--color-border-light);
+  min-height: 44px;
 }
 
-.hidden {
-  display: none !important;
+#tx_table tbody tr:last-child {
+  border-bottom: none;
+}
+
+#tx_table tbody tr:hover {
+  background: var(--color-surface-alt);
+}
+
+#tx_table td,
+#tx_table th {
+  padding: var(--space-sm) var(--space-xs);
+  border: none;
+  font-size: var(--font-size-sm);
+}
+
+#tx_table th {
+  color: var(--color-text-secondary);
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Date column */
+#tx_table td:first-child,
+#tx_table th:first-child {
+  width: 48px;
+  flex-shrink: 0;
+  color: var(--color-text-secondary);
+}
+
+/* Amount column */
+#tx_table td:nth-child(2),
+#tx_table th:nth-child(2) {
+  width: 80px;
+  flex-shrink: 0;
+  font-weight: 700;
+  font-size: var(--font-size-sm);
+  color: var(--color-negative);
+  text-align: right;
+}
+
+/* Description column */
+#tx_table td:nth-child(3),
+#tx_table th:nth-child(3) {
+  flex: 1;
+  min-width: 0;
+  padding-left: var(--space-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
 }
 
 .small_cell {
-  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  max-width: 100%;
 }
 
-.space_right {
-  margin-right: 5px;
+/* Description div inside transaction row — truncate long names */
+#tx_table td:nth-child(3) > div {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
 }
 
-.small_button {
-  padding: 0px 5px;
+/* Goal name div inside goal row */
+#goal_title + table td:first-child > div {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  min-width: 0;
+  flex: 1;
 }
 
-.goal_progress {
-  height: 1.5em;
+/* ============================================================
+   Goals Section
+   ============================================================ */
+#goal_title {
+  margin: var(--space-lg) 0 0;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  box-shadow: var(--shadow-card);
+  padding: var(--space-md) var(--space-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  font-size: var(--font-size-lg);
+  color: var(--color-text);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+#goal_title + table {
+  display: block;
   width: 100%;
-  background-color: #eee;
+  margin: 0;
+  background: var(--color-surface);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+#goal_title + table tbody tr {
+  display: flex;
+  align-items: center;
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--color-border-light);
+  min-height: 56px;
+}
+
+#goal_title + table tbody tr:last-child {
+  border-bottom: none;
+}
+
+#goal_title + table td {
+  border: none;
+  padding: var(--space-xs) var(--space-xs);
+  vertical-align: middle;
+}
+
+/* Goal name cell */
+#goal_title + table td:first-child {
+  flex-shrink: 0;
+  min-width: 90px;
+  max-width: 110px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+}
+
+/* Progress bar cell */
+#goal_title + table td:nth-child(2) {
+  flex: 1;
+  padding: 0 var(--space-sm);
+}
+
+/* Contribute button cell */
+#goal_title + table td:nth-child(3) {
+  flex-shrink: 0;
+}
+
+/* Goal total summary row */
+.goal_display_total td {
+  border-top: 2px solid var(--color-border);
+  background: var(--color-surface-alt);
+}
+
+.goal_display_total > td {
+  border-bottom: none;
+}
+
+/* Progress bar */
+.goal_progress {
+  height: 20px;
+  width: 100%;
+  background-color: var(--color-progress-bg);
   position: relative;
-  border-radius: 4px;
+  border-radius: var(--radius-full);
+  overflow: hidden;
 }
 
 .goal_progress:before {
   content: attr(data-label);
-  font-size: 1em;
+  font-size: 0.7rem;
+  font-weight: 700;
   position: absolute;
   text-align: center;
-  top: 0.15em;
+  top: 50%;
+  transform: translateY(-50%);
   left: 0;
   right: 0;
+  z-index: 1;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 var(--space-xs);
 }
 
 .goal_progress .value {
-  background-color: #bbe0ff;
-  display: inline-block;
+  background-color: var(--color-progress-fill);
+  display: block;
   height: 100%;
-  border-radius: 4px;
+  border-radius: var(--radius-full);
+  transition: width 0.4s ease;
 }
 
-.form_title,
-.sub_title {
-  margin-top: 0px;
+/* ============================================================
+   Filters Section
+   Targets via h3.sub_title since there's no wrapper div
+   ============================================================ */
+
+/* The h1 "Filters" heading sits above h3.sub_title — style it as card top */
+h3.sub_title {
+  margin: 0;
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  text-align: left;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border-light);
 }
 
-.goal_display_total>td {
+h3.sub_title + table {
+  display: block;
+  width: 100%;
+  margin: 0;
+  background: var(--color-surface);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+h3.sub_title + table td {
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--color-border-light);
+  border-top: none;
+  font-size: var(--font-size-sm);
+}
+
+h3.sub_title + table tr:last-child td {
   border-bottom: none;
+}
+
+h3.sub_title + table input[type="checkbox"] {
+  accent-color: var(--color-accent);
+  width: 16px;
+  height: 16px;
+  margin-right: var(--space-sm);
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+/* ============================================================
+   Chart
+   ============================================================ */
+#chart {
+  display: block;
+  margin: var(--space-md) auto 0;
+  max-width: 100%;
+  border-radius: var(--radius-md);
+}
+
+.chart-wrapper {
+  margin-top: var(--space-lg);
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-md);
+  overflow: hidden;
+}
+
+/* ============================================================
+   Tools Link
+   ============================================================ */
+.tools-link {
+  text-align: center;
+  margin-top: var(--space-sm);
+}
+
+.tools-link a {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.tools-link a:hover {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+/* ============================================================
+   Dialogs
+   ============================================================ */
+dialog {
+  border: none;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-dialog);
+  padding: var(--space-xl) var(--space-lg);
+  width: calc(100vw - 48px);
+  max-width: 400px;
+  background: var(--color-surface);
+  font-family: var(--font-family);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+dialog::backdrop {
+  background: rgba(44, 36, 32, 0.45);
+  backdrop-filter: blur(2px);
+}
+
+.form_title {
+  margin: 0 0 var(--space-lg);
+  font-size: var(--font-size-lg);
+  color: var(--color-text);
+  text-align: center;
+}
+
+dialog input[type="text"],
+dialog input[type="number"],
+dialog input[type="password"] {
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  background: var(--color-surface-alt);
+  outline: none;
+  transition: border-color 0.15s ease;
+  display: block;
+  box-sizing: border-box;
+}
+
+dialog input[type="text"]:focus,
+dialog input[type="number"]:focus {
+  border-color: var(--color-accent);
+  background: var(--color-surface);
+}
+
+dialog input:disabled {
+  color: var(--color-text-disabled);
+  background: var(--color-bg);
+}
+
+dialog br {
+  display: none;
+}
+
+/* Stack inputs vertically with gap */
+dialog > input,
+dialog > h3 ~ input {
+  margin-bottom: var(--space-md);
+}
+
+/* Style dialog save/cancel buttons.
+   Floats on inline styles are no-ops inside flex containers,
+   so no override needed — the flex column layout takes over. */
+dialog > button {
+  flex: 1;
+}
+
+dialog > button:first-of-type {
+  background: var(--color-accent);
+  color: #fff;
+  border-radius: var(--radius-full);
+  padding: var(--space-sm) var(--space-lg);
+  font-size: var(--font-size-base);
+  font-weight: 700;
+}
+
+dialog > button:first-of-type:hover {
+  background: var(--color-accent-dark);
+}
+
+dialog > button:last-of-type {
+  background: transparent;
+  color: var(--color-text-secondary);
+  border-radius: var(--radius-full);
+  padding: var(--space-sm) var(--space-lg);
+  border: 1.5px solid var(--color-border);
+  font-size: var(--font-size-base);
+}
+
+dialog > button:last-of-type:hover {
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+}
+
+/* ============================================================
+   Login Form
+   ============================================================ */
+#form-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  margin: 0;
+  padding: var(--space-md);
+}
+
+#form-container fieldset {
+  border: none;
+  padding: var(--space-xl);
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+#form-container fieldset::before {
+  content: "Budget";
+  display: block;
+  text-align: center;
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: var(--color-accent);
+  margin-bottom: var(--space-sm);
+}
+
+#form-container input[type="text"],
+#form-container input[type="password"] {
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  background: var(--color-surface-alt);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+#form-container input[type="text"]:focus,
+#form-container input[type="password"]:focus {
+  border-color: var(--color-accent);
+  background: var(--color-surface);
+}
+
+#form-container input[type="text"]::placeholder,
+#form-container input[type="password"]::placeholder {
+  color: var(--color-text-disabled);
+}
+
+#submit-button {
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-full);
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+#submit-button:hover {
+  background: var(--color-accent-dark);
+}
+
+/* ============================================================
+   Filters — h1 "Filters" card header
+   The h1 directly precedes h3.sub_title; style it as the card top
+   ============================================================ */
+h3.sub_title {
+  /* already defined above; the h1 above it gets its card look from
+     the generic section-h1 styles below */
+}
+
+/* Generic section h1s that act as card headers
+   (tx_title and goal_title have IDs; Filters h1 does not) */
+h1:not(.no_bottom_space):not(#tx_title):not(#goal_title) {
+  margin: var(--space-lg) 0 0;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  box-shadow: var(--shadow-card);
+  padding: var(--space-md);
+  font-size: var(--font-size-lg);
+  color: var(--color-text);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+/* The sub_title follows immediately, so remove its top radius */
+h1 + h3.sub_title {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* ============================================================
+   New Month Tool (dialog content)
+   ============================================================ */
+.short_input {
+  width: 70px;
+  padding: var(--space-xs) var(--space-sm);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  background: var(--color-surface-alt);
+  outline: none;
+}
+
+.short_input:focus {
+  border-color: var(--color-accent);
+}
+
+/* NewMonthTool uses input[type="button"] instead of <button> */
+dialog input[type="button"] {
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  border-radius: var(--radius-full);
+  padding: var(--space-sm) var(--space-md);
+  float: none !important;
+}
+
+dialog input[type="button"]:first-of-type {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+dialog input[type="button"]:first-of-type:hover {
+  background: var(--color-accent-dark);
+}
+
+dialog input[type="button"]:first-of-type:disabled {
+  background: var(--color-border);
+  color: var(--color-text-disabled);
+  cursor: default;
+}
+
+dialog input[type="button"]:last-of-type {
+  background: transparent;
+  color: var(--color-text-secondary);
+  border: 1.5px solid var(--color-border);
+}
+
+dialog input[type="button"]:last-of-type:hover {
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+}
+
+/* Float overrides for NewMonthTool — lay them out as a flex row */
+dialog > input[type="button"] {
+  display: inline-block;
+}
+
+/* Table inside new month tool dialog */
+dialog table {
+  width: 100%;
+  margin: var(--space-md) 0;
+}
+
+dialog table td {
+  padding: var(--space-xs) var(--space-sm);
+  border-bottom: 1px solid var(--color-border-light);
+  font-size: var(--font-size-sm);
+  vertical-align: middle;
+}
+
+dialog table tr:last-child td {
+  border-bottom: none;
+}
+
+/* ============================================================
+   Soft underline utility (kept)
+   ============================================================ */
+.soft_underline {
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Remove default table td borders — card sections manage their own */
+td {
+  border-bottom: none;
+}
+
+/* ============================================================
+   Amount display helpers
+   ============================================================ */
+#amount_head {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Small button kept as fallback */
+.small_button {
+  padding: 0;
 }
