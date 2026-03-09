@@ -69,8 +69,8 @@ function GoalRow({
 }
 
 function GoalTotalRow({ amount, total }) {
-    let amountString = toDollarsNoCents(amount);
-    let totalString = toDollarsNoCents(total);
+    let amountString = toDollarsNoCents(amount / 100);
+    let totalString = toDollarsNoCents(total / 100);
 
     let ratio = Math.min(amount / total, 1);
     return (
@@ -229,8 +229,8 @@ export default function GoalsSection({
                             startContributeGoal={startContributeGoal}
                         />
                     ))}
-                    {goals.length > 0 ? (
-                        <GoalTotalRow amount={50} total={100} />
+                    {goals.length > 1 ? (
+                        <GoalTotalRow amount={goalAmountSum} total={goalTotalSum} />
                     ) : null}
                 </tbody>
             </table>
