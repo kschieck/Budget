@@ -42,7 +42,7 @@ function RecurringTransactionRow({ recurring, onEditClicked, onDeleteClicked }) 
                     </>
                 ) : null}
                 <div style={{ display: "inline-block" }} onClick={clickedRow}>
-                    {"monthly: " + recurring.description}
+                    {recurring.description}
                 </div>
             </td>
         </tr>
