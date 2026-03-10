@@ -108,18 +108,18 @@ export function loadRecurringTransactions() {
     return fetch("./recurring.php").then((response) => response.json());
 }
 
-export function saveRecurringTransaction(id, amount, description, endMonth) {
+export function saveRecurringTransaction(id, amount, description, startMonth, endMonth) {
     if (id === -1) {
         return fetch("./recurring.php", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ amount, description, end_month: endMonth }),
+            body: JSON.stringify({ amount, description, start_month: startMonth, end_month: endMonth }),
         }).then((response) => response.json());
     } else {
         return fetch("./recurring.php", {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id, amount, description, end_month: endMonth }),
+            body: JSON.stringify({ id, amount, description, start_month: startMonth, end_month: endMonth }),
         }).then((response) => response.json());
     }
 }

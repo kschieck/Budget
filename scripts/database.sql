@@ -52,8 +52,7 @@ CREATE TABLE `recurring_transactions` (
 
 CREATE TABLE `recurring_processed` (
     `id` int(11) NOT NULL AUTO_INCREMENT,
-    `user` varchar(32) NOT NULL,
     `month` varchar(7) NOT NULL,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `user_month` (`user`, `month`)
+    UNIQUE KEY `month` (`month`)
 );

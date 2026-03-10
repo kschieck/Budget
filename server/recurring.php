@@ -39,9 +39,21 @@ switch ($_SERVER['REQUEST_METHOD']) {
             exit(1);
         }
 
+        $startMonthRaw = isset($_POST["start_month"]) ? trim($_POST["start_month"]) : "";
+        if (!preg_match('/^\d{4}-\d{2}$/', $startMonthRaw)) {
+            echo json_encode(["success" => false]);
+            exit(1);
+        }
+        $currentMonth = date("Y-m", strtotime("-4 hours"));
+        if ($startMonthRaw < $currentMonth) {
+            echo json_encode(["success" => false]);
+            exit(1);
+        }
+        $startMonth = $startMonthRaw;
+
         $endMonthRaw = isset($_POST["end_month"]) ? trim($_POST["end_month"]) : "";
         if (strlen($endMonthRaw) > 0) {
-            if (!preg_match('/^\d{4}-\d{2}$/', $endMonthRaw)) {
+            if (!preg_match('/^\d{4}-\d{2}$/', $endMonthRaw) || $endMonthRaw <= $startMonth) {
                 echo json_encode(["success" => false]);
                 exit(1);
             }
@@ -50,11 +62,24 @@ switch ($_SERVER['REQUEST_METHOD']) {
             $endMonth = null;
         }
 
-        // start_month is always next calendar month (UTC-4)
-        $startMonth = date("Y-m", strtotime("-4 hours +1 month"));
-
         $id = addRecurring($_SESSION["budget_auth"], $amount, $description, $startMonth, $endMonth);
-        echo json_encode(["success" => $id > 0]);
+        if (!($id > 0)) {
+            echo json_encode(["success" => false]);
+            break;
+        }
+
+        // If start_month is the current month and that month has already been processed,
+        // create the transaction immediately so it appears without waiting for next month's load.
+        if ($startMonth === $currentMonth && hasProcessedRecurring($currentMonth)) {
+            $txDescription = substr("monthly: " . $description, 0, 64);
+            try {
+                addTransaction($_SESSION["budget_auth"], $amount, $txDescription);
+            } catch (Exception $e) {
+                error_log("Failed to create immediate recurring transaction: " . $e->getMessage());
+            }
+        }
+
+        echo json_encode(["success" => true]);
         break;
 
     case "PUT":
@@ -82,9 +107,16 @@ switch ($_SERVER['REQUEST_METHOD']) {
             exit(1);
         }
 
+        $startMonthRaw = isset($data["start_month"]) ? trim($data["start_month"]) : "";
+        if (!preg_match('/^\d{4}-\d{2}$/', $startMonthRaw)) {
+            echo json_encode(["success" => false]);
+            exit(1);
+        }
+        $startMonth = $startMonthRaw;
+
         $endMonthRaw = isset($data["end_month"]) ? trim($data["end_month"]) : "";
         if (strlen($endMonthRaw) > 0) {
-            if (!preg_match('/^\d{4}-\d{2}$/', $endMonthRaw)) {
+            if (!preg_match('/^\d{4}-\d{2}$/', $endMonthRaw) || $endMonthRaw <= $startMonth) {
                 echo json_encode(["success" => false]);
                 exit(1);
             }
@@ -93,7 +125,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
             $endMonth = null;
         }
 
-        $result = editRecurring($_SESSION["budget_auth"], $id, $amount, $description, $endMonth);
+        $result = editRecurring($_SESSION["budget_auth"], $id, $amount, $description, $startMonth, $endMonth);
         echo json_encode(["success" => (bool)$result]);
         break;
 

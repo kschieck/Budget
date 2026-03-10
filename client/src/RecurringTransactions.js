@@ -2,6 +2,11 @@ import { useState, useEffect, useRef } from "react";
 import { toDollars } from "./Utils.js";
 import * as API from "./API.js";
 
+function getCurrentMonthString() {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+}
+
 function RecurringTransactionRow({ recurring, onEditClicked, onDeleteClicked }) {
     const [showDelete, setShowDelete] = useState(false);
 
@@ -43,12 +48,14 @@ export function AddEditRecurringDialog({
     id = -1,
     amount = "",
     description = "",
+    startMonth = getCurrentMonthString(),
     endMonth = "",
     onSave,
     onCancel,
 }) {
     const [txAmount, setTxAmount] = useState(amount);
     const [txDesc, setTxDesc] = useState(description);
+    const [txStartMonth, setTxStartMonth] = useState(startMonth);
     const [txEndMonth, setTxEndMonth] = useState(endMonth);
     const dialogRef = useRef(null);
 
@@ -81,6 +88,14 @@ export function AddEditRecurringDialog({
             <br />
             <input
                 type="text"
+                placeholder="start month (YYYY-MM)"
+                value={txStartMonth}
+                onChange={(e) => setTxStartMonth(e.target.value)}
+            />
+            <br />
+            <br />
+            <input
+                type="text"
                 placeholder="end month (YYYY-MM, optional)"
                 value={txEndMonth}
                 onChange={(e) => setTxEndMonth(e.target.value)}
@@ -89,7 +104,7 @@ export function AddEditRecurringDialog({
             <br />
             <button
                 style={{ float: "left" }}
-                onClick={() => onSave(id, txAmount, txDesc, txEndMonth || null)}
+                onClick={() => onSave(id, txAmount, txDesc, txStartMonth, txEndMonth || null)}
             >
                 Save
             </button>
@@ -117,8 +132,8 @@ export default function RecurringTransactionsSection() {
 
     useEffect(loadRecurring, []);
 
-    function handleSave(id, amount, description, endMonth) {
-        API.saveRecurringTransaction(id, amount, description, endMonth)
+    function handleSave(id, amount, description, startMonth, endMonth) {
+        API.saveRecurringTransaction(id, amount, description, startMonth, endMonth)
             .then((result) => {
                 if (result.success) {
                     setShowAddDialog(false);
@@ -164,6 +179,7 @@ export default function RecurringTransactionsSection() {
                     id={editingRecurring.id}
                     amount={editingRecurring.amount / 100}
                     description={editingRecurring.description}
+                    startMonth={editingRecurring.start_month}
                     endMonth={editingRecurring.end_month || ""}
                     onCancel={() => setEditingRecurring(null)}
                     onSave={handleSave}

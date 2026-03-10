@@ -492,16 +492,16 @@ function addRecurring($user, $amount, $description, $startMonth, $endMonth) {
     );
 }
 
-function editRecurring($user, $id, $amount, $description, $endMonth) {
+function editRecurring($user, $id, $amount, $description, $startMonth, $endMonth) {
     if ($endMonth === null) {
         return query(
-            "UPDATE `recurring_transactions` SET amount = ?, description = ?, end_month = NULL WHERE id = ? AND user = ? AND active = 1",
-            "isis", [$amount, substr($description, 0, 64), $id, $user]
+            "UPDATE `recurring_transactions` SET amount = ?, description = ?, start_month = ?, end_month = NULL WHERE id = ? AND user = ? AND active = 1",
+            "issis", [$amount, substr($description, 0, 64), $startMonth, $id, $user]
         );
     }
     return query(
-        "UPDATE `recurring_transactions` SET amount = ?, description = ?, end_month = ? WHERE id = ? AND user = ? AND active = 1",
-        "issis", [$amount, substr($description, 0, 64), $endMonth, $id, $user]
+        "UPDATE `recurring_transactions` SET amount = ?, description = ?, start_month = ?, end_month = ? WHERE id = ? AND user = ? AND active = 1",
+        "isssis", [$amount, substr($description, 0, 64), $startMonth, $endMonth, $id, $user]
     );
 }
 
@@ -512,15 +512,15 @@ function disableRecurring($user, $id) {
     );
 }
 
-function hasProcessedRecurring($user, $month) {
+function hasProcessedRecurring($month) {
     $result = select(
-        "SELECT id FROM `recurring_processed` WHERE user = ? AND month = ? LIMIT 1",
-        "ss", [$user, $month]
+        "SELECT id FROM `recurring_processed` WHERE month = ? LIMIT 1",
+        "s", [$month]
     );
     return $result && $result->num_rows > 0;
 }
 
-function processRecurringForMonth($user, $month) {
+function processRecurringForMonth($month) {
     $conn = getConnection();
     $conn->begin_transaction();
     try {
@@ -528,8 +528,8 @@ function processRecurringForMonth($user, $month) {
 
         // INSERT IGNORE: if the row already exists (race condition), affected_rows will be 0
         $markStmt = prepStatement($conn,
-            "INSERT IGNORE INTO `recurring_processed` (user, month) VALUES (?, ?)",
-            "ss", [$user, $month]);
+            "INSERT IGNORE INTO `recurring_processed` (month) VALUES (?)",
+            "s", [$month]);
 
         if (!$markStmt->execute()) {
             error_log("Failed to mark recurring month processed");
@@ -543,11 +543,12 @@ function processRecurringForMonth($user, $month) {
             return true;
         }
 
-        // Fetch due recurring transactions inside the transaction to avoid TOCTOU issues
+        // Fetch ALL users' due recurring transactions inside the transaction to avoid TOCTOU issues
+        // end_month is exclusive: a recurring with end_month = current month does not fire
         $selectStmt = prepStatement($conn,
-            "SELECT amount, description FROM `recurring_transactions`
-             WHERE user = ? AND active = 1 AND start_month <= ? AND (end_month IS NULL OR end_month >= ?)",
-            "sss", [$user, $month, $month]);
+            "SELECT user, amount, description FROM `recurring_transactions`
+             WHERE active = 1 AND start_month <= ? AND (end_month IS NULL OR end_month > ?)",
+            "ss", [$month, $month]);
 
         if (!$selectStmt->execute()) {
             error_log("Failed to fetch due recurring transactions");
@@ -562,7 +563,7 @@ function processRecurringForMonth($user, $month) {
             $description = substr("monthly: " . $recurring["description"], 0, 64);
             $createStmt = prepStatement($conn,
                 "INSERT INTO `transactions` (user, amount, description) VALUES (?, ?, ?)",
-                "sis", [substr($user, 0, 32), $recurring["amount"], $description]);
+                "sis", [substr($recurring["user"], 0, 32), $recurring["amount"], $description]);
 
             if (!$createStmt->execute()) {
                 error_log("Failed to create recurring transaction for month $month");

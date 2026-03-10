@@ -105,9 +105,9 @@ switch($_SERVER['REQUEST_METHOD']) {
         // On current-month loads, materialize any due recurring transactions
         if ($monthAdjust === 0) {
             $currentMonth = date("Y-m", strtotime("-4 hours"));
-            if (!hasProcessedRecurring($_SESSION["budget_auth"], $currentMonth)) {
+            if (!hasProcessedRecurring($currentMonth)) {
                 try {
-                    processRecurringForMonth($_SESSION["budget_auth"], $currentMonth);
+                    processRecurringForMonth($currentMonth);
                 } catch (Exception $e) {
                     error_log("Failed to process recurring transactions: " . $e->getMessage());
                 }

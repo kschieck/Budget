@@ -10,7 +10,6 @@ import GoalsSection, {
 import FiltersSection from "./Filters.js";
 import * as API from "./API.js";
 import { DrawdownChart } from "./Charts.js";
-import NewMonthToolDialog from "./NewMonthTool.js";
 import RecurringTransactionsSection from "./RecurringTransactions.js";
 
 function MonthSelector({ children, previousMonth, nextMonth, showNextMonth }) {
@@ -355,12 +354,6 @@ function BudgetApp() {
             return newFilters;
         });
     }
-    function showNewMonthTool() {
-        setActiveDialog(
-            <NewMonthToolDialog onClose={() => setActiveDialog(null)} />,
-        );
-    }
-
     return (
         <>
             {activeDialog}
@@ -395,14 +388,6 @@ function BudgetApp() {
                     />
                     <br />
                 </>
-            ) : null}
-
-            {showTools && !isNextMonth ? (
-                <div style={{ "text-align": "center" }}>
-                    <a href="#" onClick={showNewMonthTool}>
-                        New Month Tool
-                    </a>
-                </div>
             ) : null}
 
             {isNextMonth ? (
