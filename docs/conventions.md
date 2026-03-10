@@ -33,6 +33,10 @@ Input parsing by method:
 - Internal components (not exported): `TransactionRow`, `GoalRow`
 - All in the same file as their section
 
+Row interaction pattern: clicking a row description toggles `showActions` local state, which reveals ✎ (edit) and ✕ (delete) buttons inline. The ✎ button triggers the edit handler passed from `BudgetApp`; the ✕ button triggers the delete handler. Dialogs are never opened directly on row click.
+
+Dialog pattern: dialogs are rendered in `BudgetApp` via boolean/ID state flags (`showAddTransaction`, `editingTransactionId`, `showAddGoal`, `editingGoalId`, `contributingGoalId`) with conditional JSX — never stored as live JSX in state.
+
 ## API Functions (`API.js`)
 
 One function per API action. Returns a plain promise. Caller checks `result.success`:

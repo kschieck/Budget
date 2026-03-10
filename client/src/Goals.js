@@ -7,7 +7,7 @@ function GoalRow({
     startDeleteGoal,
     startContributeGoal,
 }) {
-    const [showDelete, setShowDelete] = useState(false);
+    const [showActions, setShowActions] = useState(false);
 
     let amountString =
         goal.amount !== 0 && Math.floor(Math.abs(goal.amount) / 100) === 0
@@ -16,21 +16,28 @@ function GoalRow({
     let totalString = toDollarsNoCents(goal.total / 100);
 
     function handleGoalClick() {
-        startEditGoal(goal.id);
-        setShowDelete(!showDelete);
+        setShowActions(!showActions);
     }
 
     let percent = Math.min((goal.amount / goal.total) * 100, 100);
     return (
         <tr>
             <td>
-                {showDelete ? (
-                    <button
-                        className="btn-icon-sm space_right"
-                        onClick={() => startDeleteGoal(goal.id)}
-                    >
-                        ✕
-                    </button>
+                {showActions ? (
+                    <>
+                        <button
+                            className="btn-icon-sm space_right"
+                            onClick={() => startEditGoal(goal.id)}
+                        >
+                            ✎
+                        </button>
+                        <button
+                            className="btn-icon-sm space_right"
+                            onClick={() => startDeleteGoal(goal.id)}
+                        >
+                            ✕
+                        </button>
+                    </>
                 ) : null}
                 <div
                     className="small_cell"

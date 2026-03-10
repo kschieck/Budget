@@ -15,6 +15,7 @@ Shared host (stratfordtreasurehunt.com/budget)
 ├── goal.php
 ├── amount.php
 ├── transaction-duplicate.php
+├── recurring.php
 ├── dao.php
 └── config.php
 ```
@@ -37,23 +38,28 @@ The React app uses `homepage: "./"` so asset paths are relative, allowing it to 
 App (auth state)
 └── BudgetApp (all shared state)
     ├── MonthSelector
-    ├── DrawdownChart
-    ├── TransactionsSection
+    ├── DrawdownChart           (hidden on next-month view)
+    ├── TransactionsSection     (shown when monthOffset >= 0)
     │   └── TransactionRow (×N)
     │   [AddEditTransactionDialog] (modal)
-    ├── GoalsSection
+    ├── RecurringTransactionsSection  (shown when monthOffset === -1)
+    │   └── RecurringTransactionRow (×N)
+    │   [AddEditRecurringDialog] (modal)
+    ├── GoalsSection            (current month only)
     │   └── GoalRow (×N)
     │   └── GoalTotalRow
     │   [AddEditGoalDialog] (modal)
     │   [AddGoalTransactionDialog] (modal)
-    ├── FiltersSection
-    └── [NewMonthToolDialog] (modal)
+    ├── FiltersSection          (hidden on next-month view)
+    └── [NewMonthToolDialog] (modal, hidden on next-month view)
 ```
 
 State ownership:
 - `App`: auth state (`loggingIn`, `authSuccess`)
-- `BudgetApp`: all domain state (`transactions`, `goals`, `amountTotal`, `monthOffset`, `filters`, `activeDialog`)
-- Components: local UI state only (`showDelete`, form input values)
+- `BudgetApp`: all domain state (`transactions`, `goals`, `amountTotal`, `monthOffset`, `filters`) plus dialog flags (`showAddTransaction`, `editingTransactionId`, `showAddGoal`, `editingGoalId`, `contributingGoalId`)
+- Components: local UI state only (`showActions`, form input values)
+
+Dialog rendering uses boolean/ID flags with conditional rendering in JSX — dialogs are never stored as live JSX in state.
 
 ## Server Architecture
 
@@ -77,6 +83,7 @@ The `amount` table (single-row balance) must always stay in sync with the sum of
 - `editTransaction()` — UPDATE transaction + UPDATE amount delta atomically
 - `disableTransaction()` — SET active=0 + reverse amount atomically
 - `addGoalTransaction()` — INSERT transaction + UPDATE amount + UPDATE goal atomically
+- `processRecurringForMonth()` — INSERT recurring_processed row (UNIQUE KEY prevents duplicates) + INSERT transactions + UPDATE amount atomically
 
 ## Auth Architecture
 

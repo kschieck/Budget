@@ -7,7 +7,7 @@ function TransactionRow({
     onTransactionClicked,
     onDeleteClicked,
 }) {
-    const [showDelete, setShowDelete] = useState(false);
+    const [showActions, setShowActions] = useState(false);
 
     let dateString = transaction.date_added.substring(5, 10);
 
@@ -15,15 +15,7 @@ function TransactionRow({
         if (readonly) {
             return;
         }
-        setShowDelete(!showDelete);
-        onTransactionClicked(transaction.id);
-    }
-
-    function clickedDeleteTransaction() {
-        if (readonly) {
-            return;
-        }
-        onDeleteClicked(transaction.id);
+        setShowActions(!showActions);
     }
 
     function TransactionAmount(num) {
@@ -37,13 +29,21 @@ function TransactionRow({
             <td>{dateString}</td>
             <td>{TransactionAmount(transaction.amount)}</td>
             <td className="small_cell">
-                {showDelete ? (
-                    <button
-                        className="btn-icon-sm space_right"
-                        onClick={clickedDeleteTransaction}
-                    >
-                        ✕
-                    </button>
+                {showActions ? (
+                    <>
+                        <button
+                            className="btn-icon-sm space_right"
+                            onClick={() => onTransactionClicked(transaction.id)}
+                        >
+                            ✎
+                        </button>
+                        <button
+                            className="btn-icon-sm space_right"
+                            onClick={() => onDeleteClicked(transaction.id)}
+                        >
+                            ✕
+                        </button>
+                    </>
                 ) : null}
                 <div
                     style={{ display: "inline-block" }}

@@ -37,3 +37,22 @@ CREATE TABLE `user_tokens` (
 ALTER TABLE `user_tokens`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user` (`user`);
+
+CREATE TABLE `recurring_transactions` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `user` varchar(32) NOT NULL,
+    `amount` int(11) NOT NULL,
+    `description` varchar(64) NOT NULL,
+    `active` tinyint(1) NOT NULL DEFAULT 1,
+    `start_month` varchar(7) NOT NULL,
+    `end_month` varchar(7) NULL DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    KEY `user_active` (`user`, `active`)
+);
+
+CREATE TABLE `recurring_processed` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `month` varchar(7) NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `month` (`month`)
+);
