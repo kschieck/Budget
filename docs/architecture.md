@@ -56,8 +56,10 @@ App (auth state)
 
 State ownership:
 - `App`: auth state (`loggingIn`, `authSuccess`)
-- `BudgetApp`: all domain state (`transactions`, `goals`, `amountTotal`, `monthOffset`, `filters`, `activeDialog`)
-- Components: local UI state only (`showDelete`, form input values)
+- `BudgetApp`: all domain state (`transactions`, `goals`, `amountTotal`, `monthOffset`, `filters`) plus dialog flags (`showAddTransaction`, `editingTransactionId`, `showAddGoal`, `editingGoalId`, `contributingGoalId`)
+- Components: local UI state only (`showActions`, form input values)
+
+Dialog rendering uses boolean/ID flags with conditional rendering in JSX — dialogs are never stored as live JSX in state.
 
 ## Server Architecture
 

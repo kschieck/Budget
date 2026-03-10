@@ -102,7 +102,7 @@ In this view:
 
 ### Row Interaction
 
-Clicking a `RecurringTransactionRow` toggles a delete button. The first click both reveals the delete button and opens the edit dialog; subsequent clicks toggle the delete button without reopening the dialog.
+Clicking a `RecurringTransactionRow` description toggles edit (✎) and delete (✕) action buttons. Clicking the ✎ button opens the edit dialog; clicking ✕ deletes the template. Clicking the description again hides the buttons.
 
 ## Client API Functions (`API.js`)
 
