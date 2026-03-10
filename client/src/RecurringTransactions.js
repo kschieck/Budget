@@ -8,13 +8,10 @@ function getCurrentMonthString() {
 }
 
 function RecurringTransactionRow({ recurring, onEditClicked, onDeleteClicked }) {
-    const [showDelete, setShowDelete] = useState(false);
+    const [showActions, setShowActions] = useState(false);
 
     function clickedRow() {
-        if (!showDelete) {
-            onEditClicked(recurring.id);
-        }
-        setShowDelete(!showDelete);
+        setShowActions(!showActions);
     }
 
     function TransactionAmount(num) {
@@ -25,21 +22,29 @@ function RecurringTransactionRow({ recurring, onEditClicked, onDeleteClicked }) 
 
     return (
         <tr>
+            <td>{recurring.end_month ? "until " + recurring.end_month : ""}</td>
             <td>{TransactionAmount(recurring.amount)}</td>
             <td className="small_cell">
-                {showDelete ? (
-                    <button
-                        className="btn-icon-sm space_right"
-                        onClick={() => onDeleteClicked(recurring.id)}
-                    >
-                        ✕
-                    </button>
+                {showActions ? (
+                    <>
+                        <button
+                            className="btn-icon-sm space_right"
+                            onClick={() => onEditClicked(recurring.id)}
+                        >
+                            ✎
+                        </button>
+                        <button
+                            className="btn-icon-sm space_right"
+                            onClick={() => onDeleteClicked(recurring.id)}
+                        >
+                            ✕
+                        </button>
+                    </>
                 ) : null}
                 <div style={{ display: "inline-block" }} onClick={clickedRow}>
                     {"monthly: " + recurring.description}
                 </div>
             </td>
-            <td>{recurring.end_month ? "until " + recurring.end_month : ""}</td>
         </tr>
     );
 }
