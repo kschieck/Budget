@@ -90,6 +90,9 @@ All endpoints return JSON. Success shape varies by endpoint:
 // GET amount.php
 { "success": true, "amount": 123456 }
 
+// GET recurring.php
+{ "success": true, "recurring": [{ "id", "amount", "description", "start_month", "end_month" }] }
+
 // Any mutation (POST/PUT/DELETE)
 { "success": true }
 // or
@@ -121,13 +124,41 @@ App mounts
 
 ## Month Navigation
 
-`monthOffset` (integer, 0 = current month) drives which transactions load:
+`monthOffset` (integer) drives which view and data loads:
+
+| monthOffset | View |
+|---|---|
+| 0 | Current month — transactions editable, goals visible |
+| 1, 2, … | Past month — transactions read-only, goals hidden, chart visible |
+| -1 | Next month — RecurringTransactionsSection shown, chart/tools/filters hidden |
 
 ```
-monthOffset changes → useEffect fires → setTransactions([]) → API.reloadTransactions(offset)
-  → GET transaction.php?past=N
-  → PHP: date('Y-m-01', strtotime("-4 hours -N months")) to date('Y-m-t', ...)
-  → returns transactions for that calendar month
+monthOffset changes → useEffect fires
+  if monthOffset === -1: skip transaction load (RecurringTransactionsSection self-loads)
+  otherwise: setTransactions([]) → API.reloadTransactions(offset)
+    → GET transaction.php?past=N
+    → PHP: date('Y-m-01', strtotime("-4 hours -N months")) to date('Y-m-t', ...)
+    → returns transactions for that calendar month
 ```
 
-When `monthOffset > 0`: transactions are read-only, goals are hidden, chart is visible.
+The "next" navigation button is hidden when `monthOffset === -1` (cannot navigate past next month).
+
+### Recurring Materialization on Current-Month Load
+
+When `GET transaction.php?past=0` (current-month load) is handled by PHP, it checks whether recurring transactions have been materialized for the current month (UTC-4) before returning results:
+
+```
+GET transaction.php?past=0
+  → PHP: $currentMonth = date("Y-m", strtotime("-4 hours"))
+  → hasProcessedRecurring(user, currentMonth)?
+      → no: processRecurringForMonth(user, currentMonth)
+              → INSERT IGNORE INTO recurring_processed (user, month)
+              → if affected_rows === 0: another request already processed — skip
+              → SELECT due recurring_transactions (start_month <= month AND end_month IS NULL OR >= month)
+              → INSERT transactions (description = substr("monthly: " + desc, 0, 64))
+              → UPDATE amount (atomic)
+      → yes: skip
+  → return transactions for current month (including newly materialized ones)
+```
+
+Skipped months are not backfilled — if the app is not opened during a month, that month's recurring transactions are never materialized.

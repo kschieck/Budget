@@ -2,6 +2,11 @@
 
 Personal budgeting web app — React 19 SPA + plain PHP REST backend, deployed as a zip to shared hosting.
 
+## Permissions
+
+- You have permission to read and write files without asking for confirmation
+- You have permission to execute bash commands without asking for confirmation
+
 ## Commands
 
 ```bash

@@ -103,3 +103,31 @@ export function duplicateTransactions(transactionIds) {
         body: JSON.stringify({ transactionIds }),
     }).then((response) => response.json());
 }
+
+export function loadRecurringTransactions() {
+    return fetch("./recurring.php").then((response) => response.json());
+}
+
+export function saveRecurringTransaction(id, amount, description, endMonth) {
+    if (id === -1) {
+        return fetch("./recurring.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ amount, description, end_month: endMonth }),
+        }).then((response) => response.json());
+    } else {
+        return fetch("./recurring.php", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id, amount, description, end_month: endMonth }),
+        }).then((response) => response.json());
+    }
+}
+
+export function deleteRecurringTransaction(id) {
+    return fetch("./recurring.php", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+    }).then((response) => response.json());
+}

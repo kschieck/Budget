@@ -467,10 +467,131 @@ function getDailyTotals($startDate) {
 }
 
 function getLastMonth1stTransactions($currentDate) {
-    $sql = "SELECT id, DATE_SUB(date_added, INTERVAL 4 HOUR) as date_added, amount, `description` FROM `transactions` 
+    $sql = "SELECT id, DATE_SUB(date_added, INTERVAL 4 HOUR) as date_added, amount, `description` FROM `transactions`
             WHERE `active` = 1 AND
             DATE(date_added) = DATE_FORMAT(DATE(DATE_SUB(DATE_SUB(?, INTERVAL 4 HOUR), INTERVAL 1 MONTH)), '%Y-%m-01')";
     return select($sql, "s", [$currentDate]);
+}
+
+function loadRecurringTransactions($user) {
+    $sql = "SELECT id, amount, description, start_month, end_month FROM `recurring_transactions`
+            WHERE user = ? AND active = 1 ORDER BY id DESC";
+    return select($sql, "s", [$user]);
+}
+
+function addRecurring($user, $amount, $description, $startMonth, $endMonth) {
+    if ($endMonth === null) {
+        return insert(
+            "INSERT INTO `recurring_transactions` (user, amount, description, start_month) VALUES (?,?,?,?)",
+            "siss", [substr($user, 0, 32), $amount, substr($description, 0, 64), $startMonth]
+        );
+    }
+    return insert(
+        "INSERT INTO `recurring_transactions` (user, amount, description, start_month, end_month) VALUES (?,?,?,?,?)",
+        "sisss", [substr($user, 0, 32), $amount, substr($description, 0, 64), $startMonth, $endMonth]
+    );
+}
+
+function editRecurring($user, $id, $amount, $description, $endMonth) {
+    if ($endMonth === null) {
+        return query(
+            "UPDATE `recurring_transactions` SET amount = ?, description = ?, end_month = NULL WHERE id = ? AND user = ? AND active = 1",
+            "isis", [$amount, substr($description, 0, 64), $id, $user]
+        );
+    }
+    return query(
+        "UPDATE `recurring_transactions` SET amount = ?, description = ?, end_month = ? WHERE id = ? AND user = ? AND active = 1",
+        "issis", [$amount, substr($description, 0, 64), $endMonth, $id, $user]
+    );
+}
+
+function disableRecurring($user, $id) {
+    return query(
+        "UPDATE `recurring_transactions` SET active = 0 WHERE id = ? AND user = ?",
+        "is", [$id, $user]
+    );
+}
+
+function hasProcessedRecurring($user, $month) {
+    $result = select(
+        "SELECT id FROM `recurring_processed` WHERE user = ? AND month = ? LIMIT 1",
+        "ss", [$user, $month]
+    );
+    return $result && $result->num_rows > 0;
+}
+
+function processRecurringForMonth($user, $month) {
+    $conn = getConnection();
+    $conn->begin_transaction();
+    try {
+        $conn->autocommit(false);
+
+        // INSERT IGNORE: if the row already exists (race condition), affected_rows will be 0
+        $markStmt = prepStatement($conn,
+            "INSERT IGNORE INTO `recurring_processed` (user, month) VALUES (?, ?)",
+            "ss", [$user, $month]);
+
+        if (!$markStmt->execute()) {
+            error_log("Failed to mark recurring month processed");
+            throw new mysqli_sql_exception("Failed to mark month processed.");
+        }
+
+        // If another request already processed this month, exit cleanly
+        if ($conn->affected_rows === 0) {
+            $conn->commit();
+            $conn->close();
+            return true;
+        }
+
+        // Fetch due recurring transactions inside the transaction to avoid TOCTOU issues
+        $selectStmt = prepStatement($conn,
+            "SELECT amount, description FROM `recurring_transactions`
+             WHERE user = ? AND active = 1 AND start_month <= ? AND (end_month IS NULL OR end_month >= ?)",
+            "sss", [$user, $month, $month]);
+
+        if (!$selectStmt->execute()) {
+            error_log("Failed to fetch due recurring transactions");
+            error_log("MySQL Execution Error: " . $selectStmt->error);
+            throw new mysqli_sql_exception("Failed to fetch recurring transactions.");
+        }
+
+        $recurringResult = $selectStmt->get_result();
+        $amountSum = 0;
+
+        while ($recurring = $recurringResult->fetch_assoc()) {
+            $description = substr("monthly: " . $recurring["description"], 0, 64);
+            $createStmt = prepStatement($conn,
+                "INSERT INTO `transactions` (user, amount, description) VALUES (?, ?, ?)",
+                "sis", [substr($user, 0, 32), $recurring["amount"], $description]);
+
+            if (!$createStmt->execute()) {
+                error_log("Failed to create recurring transaction for month $month");
+                error_log("MySQL Execution Error: " . $createStmt->error);
+                throw new mysqli_sql_exception("Failed to create recurring transaction.");
+            }
+            $amountSum += $recurring["amount"];
+        }
+
+        if ($amountSum !== 0) {
+            $updateAmountStmt = prepStatement($conn,
+                "UPDATE amount SET amount = amount - ? LIMIT 1", "i", [$amountSum]);
+
+            if (!$updateAmountStmt->execute()) {
+                error_log("Failed to update amount for recurring transactions");
+                error_log("MySQL Execution Error: " . $updateAmountStmt->error);
+                throw new mysqli_sql_exception("Update amount failed for recurring transactions.");
+            }
+        }
+
+        $conn->commit();
+    } catch (mysqli_sql_exception $exception) {
+        error_log("Failed to process recurring transactions: " . $exception->getMessage());
+        $conn->rollback();
+        throw $exception;
+    }
+
+    $conn->close();
+    return true;
 }
 
 ?>

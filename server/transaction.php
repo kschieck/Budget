@@ -96,12 +96,21 @@ switch($_SERVER['REQUEST_METHOD']) {
     case "GET":
         // Server is 4 hours off local time, user specific code
         $dateOffset = "-4 hours";
+        $monthAdjust = isset($_GET["past"]) ? intval($_GET["past"]) : 0;
 
-        // If past param is specified, show previous months
-        if (isset($_GET["past"]) && $_GET["past"]) {
-            $monthAdjust = intval($_GET["past"]);
-            if ($monthAdjust > 0) {
-                $dateOffset .= " -$monthAdjust months";
+        if ($monthAdjust > 0) {
+            $dateOffset .= " -$monthAdjust months";
+        }
+
+        // On current-month loads, materialize any due recurring transactions
+        if ($monthAdjust === 0) {
+            $currentMonth = date("Y-m", strtotime("-4 hours"));
+            if (!hasProcessedRecurring($_SESSION["budget_auth"], $currentMonth)) {
+                try {
+                    processRecurringForMonth($_SESSION["budget_auth"], $currentMonth);
+                } catch (Exception $e) {
+                    error_log("Failed to process recurring transactions: " . $e->getMessage());
+                }
             }
         }
 

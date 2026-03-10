@@ -11,6 +11,7 @@ import FiltersSection from "./Filters.js";
 import * as API from "./API.js";
 import { DrawdownChart } from "./Charts.js";
 import NewMonthToolDialog from "./NewMonthTool.js";
+import RecurringTransactionsSection from "./RecurringTransactions.js";
 
 function MonthSelector({ children, previousMonth, nextMonth, showNextMonth }) {
     return (
@@ -69,7 +70,8 @@ function BudgetApp() {
     const [activeDialog, setActiveDialog] = useState(null);
     const [showTools, setShowTools] = useState(false);
 
-    const isCurrentMonth = monthOffset == 0;
+    const isCurrentMonth = monthOffset === 0;
+    const isNextMonth = monthOffset === -1;
     function getMonthName(monthOffset) {
         const monthNames = [
             "January",
@@ -129,6 +131,7 @@ function BudgetApp() {
             .catch(console.error);
     }
     function loadTransactions() {
+        if (isNextMonth) return;
         setTransactions([]);
         API.reloadTransactions(monthOffset)
             .then((json) => {
@@ -147,7 +150,7 @@ function BudgetApp() {
         setMonthOffset(monthOffset + 1);
     }
     function nextMonth() {
-        setMonthOffset(Math.max(0, monthOffset - 1));
+        setMonthOffset(Math.max(-1, monthOffset - 1));
     }
     function startAddTransaction() {
         console.log("startAddTransaction");
@@ -365,7 +368,7 @@ function BudgetApp() {
             <MonthSelector
                 previousMonth={previousMonth}
                 nextMonth={nextMonth}
-                showNextMonth={!isCurrentMonth}
+                showNextMonth={monthOffset > -1}
             >
                 <span
                     style={{ width: "150px" }}
@@ -383,7 +386,7 @@ function BudgetApp() {
                 </div>
             ) : null}
 
-            {showTools || !isCurrentMonth ? (
+            {(showTools || !isCurrentMonth) && !isNextMonth ? (
                 <>
                     <DrawdownChart
                         transactions={transactions}
@@ -394,7 +397,7 @@ function BudgetApp() {
                 </>
             ) : null}
 
-            {showTools ? (
+            {showTools && !isNextMonth ? (
                 <div style={{ "text-align": "center" }}>
                     <a href="#" onClick={showNewMonthTool}>
                         New Month Tool
@@ -402,13 +405,17 @@ function BudgetApp() {
                 </div>
             ) : null}
 
-            <TransactionsSection
-                readonly={!isCurrentMonth}
-                transactions={transactions}
-                startAddTransaction={startAddTransaction}
-                startEditTransaction={startEditTransaction}
-                startDeleteTransaction={startDeleteTransaction}
-            />
+            {isNextMonth ? (
+                <RecurringTransactionsSection />
+            ) : (
+                <TransactionsSection
+                    readonly={!isCurrentMonth}
+                    transactions={transactions}
+                    startAddTransaction={startAddTransaction}
+                    startEditTransaction={startEditTransaction}
+                    startDeleteTransaction={startDeleteTransaction}
+                />
+            )}
 
             {isCurrentMonth ? (
                 <GoalsSection
@@ -420,7 +427,7 @@ function BudgetApp() {
                 />
             ) : null}
 
-            {users.length > 0 ? (
+            {users.length > 0 && !isNextMonth ? (
                 <FiltersSection
                     names={users}
                     filters={filters}
