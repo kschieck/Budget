@@ -216,7 +216,7 @@ button:active {
 /* ============================================================
    Month Selector / Header
    The MonthSelector renders as h1.no_bottom_space.center_spaced
-   followed by #total_spend. Both sit in a card.
+   followed by #days_left. Both sit in a card.
    ============================================================ */
 h1.no_bottom_space.center_spaced {
   margin: var(--space-sm) 0 0;
@@ -229,7 +229,7 @@ h1.no_bottom_space.center_spaced {
   /* center_spaced already provides display:flex + justify-content:space-between */
 }
 
-#total_spend {
+#days_left {
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
   text-align: center;
