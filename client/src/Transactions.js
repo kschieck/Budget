@@ -121,6 +121,11 @@ export default function TransactionsSection({
     startEditTransaction,
     startDeleteTransaction,
 }) {
+
+    transactions.sort((a, b) => {
+        return new Date(b.date_added) - new Date(a.date_added);
+    });
+
     return (
         <>
             <h1 id="tx_title">

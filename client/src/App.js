@@ -346,9 +346,8 @@ function BudgetApp() {
                         : getMonthName(monthOffset)}
                     <br />
                     {!isNextMonth ? (
-                        <div id="total_spend">
-                            {toDollarsNoCents(totalTxSpentDollars / 100)} spent
-                            {isCurrentMonth ? ", " + getDaysLeftInTheMonth() + " days left" : null}
+                        <div id="days_left">
+                            {isCurrentMonth ? getDaysLeftInTheMonth() + " days left" : null}
                         </div>) : null}
                 </span>
 

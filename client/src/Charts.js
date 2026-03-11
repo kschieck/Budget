@@ -1,4 +1,5 @@
 import { useRef, useEffect } from "react";
+import { toDollarsNoCents } from "./Utils";
 
 export function DrawdownChart({ width, height, transactions = [] }) {
     const canvasRef = useRef(null);
@@ -49,22 +50,7 @@ export function DrawdownChart({ width, height, transactions = [] }) {
         return values;
     }
 
-    var dayValues = calcChartData(TransactionDateAmounts);
-    var minValue = Math.min(0, ...dayValues);
-    var maxValue = calcMaxValue(TransactionDateAmounts);
-
-    function calcMaxValue(txAmounts) {
-        var totalPositive = 0;
-        txAmounts.forEach((elem) => {
-            var amount = elem[1];
-            if (amount < 0) {
-                totalPositive -= amount;
-            }
-        });
-        return totalPositive;
-    }
-
-    function renderChart(canvas, maxX, minY, maxY, values) {
+    function renderChart(canvas, maxX, minY, maxY, income, spent, values) {
         var height = canvas.height;
         var width = canvas.width;
 
@@ -171,17 +157,38 @@ export function DrawdownChart({ width, height, transactions = [] }) {
             ctx.font = "600 14px 'Nunito', sans-serif";
             ctx.fillStyle = "#2c2420";
             ctx.lineWidth = 1;
-            var text = "$" + Math.floor(maxY / 100).toLocaleString("en-US");
-            ctx.fillText(text, 5, 15, width);
+            ctx.textAlign = "left";
+            ctx.textBaseline = "top";
+            let text = toDollarsNoCents(income / 100) + " income";
+            ctx.fillText(text, 5, 2, width);
+
+            text = toDollarsNoCents(spent / 100) + " spent";
+            ctx.textAlign = "right";
+            ctx.textBaseline = "top";
+            ctx.fillText(text, width - 2, 2, width);
         }
     }
+
+    var dayValues = calcChartData(TransactionDateAmounts);
+    var minValue = Math.min(0, ...dayValues);
+    let totalIncome = TransactionDateAmounts
+        .map((tx) => tx[1])
+        .filter(amount => amount < 0)
+        .reduce((acc, amount) => acc - amount, 0);
+
+    let totalSpent = TransactionDateAmounts
+        .map((tx) => tx[1])
+        .filter(amount => amount > 0)
+        .reduce((acc, amount) => acc + amount, 0);
 
     useEffect(() => {
         renderChart(
             canvasRef.current,
             daysInMonth,
             minValue,
-            maxValue,
+            totalIncome,
+            totalIncome,
+            totalSpent,
             dayValues,
         );
     }, [transactions, width, height]);
