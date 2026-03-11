@@ -38,7 +38,9 @@ paths:
 
 ## Filters
 
-- Filter state must be a Set of **visible** usernames
-- `filters.size === 0` means "show all users" (no filter active)
+- Filter state (`filters`) is a Set of **visible** usernames, or `null` when not yet initialized
+- `null` means "loading / not yet initialized" — treat as show all
 - `filters.has(username)` means "show this user's transactions"
-- The current inverted implementation (hidden Set) is tech debt — fix when touching filter code
+- An empty Set means all users are hidden — show no transactions
+- Apply filters: `filters === null ? transactions : transactions.filter(t => filters.has(t.user))`
+- `filters` is reset to `null` on month change and initialized to all current users once transactions load

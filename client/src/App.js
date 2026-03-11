@@ -62,7 +62,7 @@ function LoginForm({ onTryLogin, disabled }) {
 
 function BudgetApp() {
     const [monthOffset, setMonthOffset] = useState(0);
-    const [filters, setFilters] = useState(new Set([]));
+    const [filters, setFilters] = useState(null);
     const [goals, setGoals] = useState([]);
     const [transactions, setTransactions] = useState([]);
     const [amountTotal, setAmountTotal] = useState(0);
@@ -113,6 +113,11 @@ function BudgetApp() {
         );
     }
 
+    const filteredTransactions =
+        filters === null
+            ? transactions
+            : transactions.filter((t) => filters.has(t.user));
+
     let totalTxSpentDollars = transactions
         .filter((tx) => tx.active && tx.amount > 0)
         .map((tx) => tx.amount)
@@ -157,7 +162,21 @@ function BudgetApp() {
 
     useEffect(loadAmountTotal, []);
     useEffect(loadGoals, []);
-    useEffect(loadTransactions, [monthOffset]);
+    useEffect(() => {
+        setFilters(null);
+        loadTransactions();
+    }, [monthOffset]);
+    useEffect(() => {
+        if (filters === null && transactions.length > 0) {
+            setFilters(
+                new Set(
+                    transactions
+                        .map((t) => t.user)
+                        .filter((u) => u && u.length > 0),
+                ),
+            );
+        }
+    }, [filters, transactions]);
 
     function previousMonth() {
         setMonthOffset(monthOffset + 1);
@@ -191,10 +210,50 @@ function BudgetApp() {
             });
     }
     function startAddGoal() {
-        setShowAddGoal(true);
+        setActiveDialog(
+            <AddEditGoalDialog
+                onCancel={() => setActiveDialog(null)}
+                onSave={(id, amount, description) => {
+                    API.saveGoal(id, amount, description)
+                        .then((result) => {
+                            if (result.success) {
+                                loadGoals();
+                            }
+                        })
+                        .catch((e) => {
+                            console.error(e);
+                            alert("Failed to save");
+                        });
+                    setActiveDialog(null);
+                }}
+            />,
+        );
     }
     function startEditGoal(goalId) {
-        setEditingGoalId(goalId);
+        let goal = goals.filter((goal) => goal.id == goalId)?.[0] || null;
+        if (goal == null) return;
+
+        setActiveDialog(
+            <AddEditGoalDialog
+                id={goalId}
+                description={goal.name}
+                amount={goal.total / 100}
+                onCancel={() => setActiveDialog(null)}
+                onSave={(id, amount, description) => {
+                    API.saveGoal(id, amount, description)
+                        .then((result) => {
+                            if (result.success) {
+                                loadGoals();
+                            }
+                        })
+                        .catch((e) => {
+                            console.error(e);
+                            alert("Failed to save");
+                        });
+                    setActiveDialog(null);
+                }}
+            />,
+        );
     }
     function startDeleteGoal(goalId) {
         API.deleteGoal(goalId)
@@ -211,15 +270,35 @@ function BudgetApp() {
             });
     }
     function startContributeGoal(goalId) {
-        setContributingGoalId(goalId);
+        setActiveDialog(
+            <AddGoalTransactionDialog
+                id={goalId}
+                onCancel={() => setActiveDialog(null)}
+                onSave={(id, amount) => {
+                    API.saveGoalTransaction(id, amount)
+                        .then((result) => {
+                            if (result.success) {
+                                loadAmountTotal();
+                                loadTransactions();
+                                loadGoals();
+                            }
+                        })
+                        .catch((e) => {
+                            console.error(e);
+                            alert("Failed to save");
+                        });
+                    setActiveDialog(null);
+                }}
+            />,
+        );
     }
     function changeFilterState(name, showTransactions) {
         setFilters((prev) => {
-            const newFilters = new Set(prev);
+            const newFilters = new Set(prev ?? users);
             if (showTransactions) {
-                newFilters.delete(name);
-            } else {
                 newFilters.add(name);
+            } else {
+                newFilters.delete(name);
             }
             return newFilters;
         });
@@ -339,13 +418,13 @@ function BudgetApp() {
             >
                 <span
                     style={{ width: "150px" }}
-                    onClick={() => setShowTools(!showTools)}
                 >
                     {isCurrentMonth
                         ? toDollars(amountTotal / 100)
                         : getMonthName(monthOffset)}
                 </span>
             </MonthSelector>
+
             {isCurrentMonth ? (
                 <div id="total_spend">
                     {toDollarsNoCents(totalTxSpentDollars / 100)} spent,{" "}
@@ -353,7 +432,7 @@ function BudgetApp() {
                 </div>
             ) : null}
 
-            {(showTools || !isCurrentMonth) && !isNextMonth ? (
+            {!isNextMonth ? (
                 <>
                     <DrawdownChart
                         transactions={transactions}
@@ -364,35 +443,41 @@ function BudgetApp() {
                 </>
             ) : null}
 
-            {isNextMonth ? (
-                <RecurringTransactionsSection />
-            ) : (
-                <TransactionsSection
-                    readonly={!isCurrentMonth}
-                    transactions={transactions}
-                    startAddTransaction={startAddTransaction}
-                    startEditTransaction={startEditTransaction}
-                    startDeleteTransaction={startDeleteTransaction}
-                />
-            )}
+            {
+                isNextMonth ? (
+                    <RecurringTransactionsSection />
+                ) : (
+                    <TransactionsSection
+                        readonly={!isCurrentMonth}
+                        transactions={filteredTransactions}
+                        startAddTransaction={startAddTransaction}
+                        startEditTransaction={startEditTransaction}
+                        startDeleteTransaction={startDeleteTransaction}
+                    />
+                )
+            }
 
-            {isCurrentMonth ? (
-                <GoalsSection
-                    goals={goals}
-                    startAddGoal={startAddGoal}
-                    startEditGoal={startEditGoal}
-                    startDeleteGoal={startDeleteGoal}
-                    startContributeGoal={startContributeGoal}
-                />
-            ) : null}
+            {
+                isCurrentMonth ? (
+                    <GoalsSection
+                        goals={goals}
+                        startAddGoal={startAddGoal}
+                        startEditGoal={startEditGoal}
+                        startDeleteGoal={startDeleteGoal}
+                        startContributeGoal={startContributeGoal}
+                    />
+                ) : null
+            }
 
-            {users.length > 0 && !isNextMonth ? (
-                <FiltersSection
-                    names={users}
-                    filters={filters}
-                    changeFilterState={changeFilterState}
-                />
-            ) : null}
+            {
+                users.length > 0 && !isNextMonth ? (
+                    <FiltersSection
+                        names={users}
+                        filters={filters}
+                        changeFilterState={changeFilterState}
+                    />
+                ) : null
+            }
         </>
     );
 }

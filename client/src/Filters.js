@@ -30,7 +30,7 @@ export default function FiltersSection({
                         <FilterRow
                             key={name}
                             name={name}
-                            checked={!filters.has(name)}
+                            checked={filters ? filters.has(name) : true}
                             changeFilterState={changeFilterState}
                         />
                     ))}

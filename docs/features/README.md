@@ -13,7 +13,7 @@ Each feature gets its own file named after the feature area. Update the relevant
 | Transactions | (see data-flow.md) | Add, edit, delete, browse by month |
 | Goals | [goals.md](goals.md) | Savings targets with contribution tracking, goal-linked transactions |
 | Charts | — | Canvas-based monthly drawdown chart (see [frontend-styles.md](../frontend-styles.md) for chart colors) |
-| Filters | — | Per-user transaction visibility toggles |
+| Filters | [filters.md](filters.md) | Per-user transaction visibility toggles |
 | New Month Tool | — | Duplicate first-of-month transactions from previous month |
 | Auth | — | Cookie / token / username+password auth flow |
 

@@ -61,6 +61,8 @@ State ownership:
 
 Dialog rendering uses boolean/ID flags with conditional rendering in JSX — dialogs are never stored as live JSX in state.
 
+`filters` is a `Set` of visible usernames, or `null` when not yet initialized. A `useEffect` watching `[filters, transactions]` initializes it to all current users whenever it is `null` and transactions have loaded. `TransactionsSection` receives a pre-filtered `filteredTransactions` derived value; `DrawdownChart` receives the raw `transactions`.
+
 ## Server Architecture
 
 Each PHP file handles one resource via HTTP method dispatch:

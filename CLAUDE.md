@@ -99,7 +99,6 @@ Fix when touching related code — do not work around these issues:
 
 - **Dialog as JSX in state** — `activeDialog` in `BudgetApp` stores live JSX. Replace with state flags + conditional rendering.
 - **Prop drilling** — `BudgetApp` passes many handlers deep through props. Use React context for new features; refactor existing when touching.
-- **Inverted filter logic** — `filters` Set contains *hidden* usernames. Should contain *visible* usernames so `filters.has(name)` means "show this user."
 - **UTC-4 hardcoded** — Timezone offset is hardcoded in SQL queries. Should be a config value in `config.php`.
 
 ## Subagents

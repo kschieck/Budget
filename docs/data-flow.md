@@ -13,12 +13,21 @@ useEffect(monthOffset) → loadTransactions() → API.reloadTransactions(offset)
 State flows down as props:
 ```
 BudgetApp
-  ├── transactions → TransactionsSection → TransactionRow
-  ├── goals → GoalsSection → GoalRow
+  ├── filteredTransactions → TransactionsSection → TransactionRow  (current/past months only)
+  ├── transactions (unfiltered) → DrawdownChart                    (current/past months only)
+  ├── goals → GoalsSection → GoalRow                              (current month only)
   ├── amountTotal → MonthSelector (displayed as balance)
-  ├── filters → FiltersSection
-  └── monthOffset → MonthSelector (controls which month loads)
+  ├── filters → FiltersSection                                     (current/past months only)
+  ├── monthOffset → MonthSelector (controls which month loads)
+  └── (next month: RecurringTransactionsSection self-loads, no transactions/filters)
 ```
+
+`filteredTransactions` is a derived value computed in `BudgetApp`:
+- `filters === null` (not yet initialized): equals `transactions` — all shown
+- `filters` is a non-empty `Set`: equals `transactions.filter(t => filters.has(t.user))` — only matching users shown
+- `filters` is an empty `Set` (all unchecked): equals `[]` — nothing shown
+
+The chart always receives the full unfiltered `transactions` regardless of filter state. The "spent" total in the header also uses unfiltered `transactions`.
 
 ## User Action → API → State Update
 
