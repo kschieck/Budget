@@ -1,0 +1,3476 @@
+{
+    "amount": 54321,
+    "goals": [
+        {
+            "id": 16,
+            "date_added": "2025-10-26 21:49:03",
+            "total": 100000,
+            "amount": 20800,
+            "name": "New TV"
+        },
+        {
+            "id": 15,
+            "date_added": "2025-10-26 21:49:03",
+            "total": 1500000,
+            "amount": 500000,
+            "name": "Home Renovation"
+        }
+    ],
+    "transactions": [
+        {
+            "id": 2390,
+            "date_added": "2025-08-31 19:33:54",
+            "amount": 2300,
+            "description": "Mouth medicine",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2389,
+            "date_added": "2025-08-30 21:32:42",
+            "amount": 600,
+            "description": "Garlic bread",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2388,
+            "date_added": "2025-08-30 19:26:06",
+            "amount": 10519,
+            "description": "Baby things",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2387,
+            "date_added": "2025-08-30 19:06:04",
+            "amount": 4279,
+            "description": "Child boots",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2386,
+            "date_added": "2025-08-30 18:55:44",
+            "amount": 3464,
+            "description": "Child boots",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2385,
+            "date_added": "2025-08-30 15:04:46",
+            "amount": 1400,
+            "description": "Ice cream",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2384,
+            "date_added": "2025-08-30 09:18:52",
+            "amount": 1300,
+            "description": "Starbucks",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2383,
+            "date_added": "2025-08-29 21:08:04",
+            "amount": 10600,
+            "description": "Dinner",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2382,
+            "date_added": "2025-08-29 21:07:50",
+            "amount": 2300,
+            "description": "Food",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2381,
+            "date_added": "2025-08-29 09:15:25",
+            "amount": 63150,
+            "description": "Costco",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2380,
+            "date_added": "2025-08-29 09:15:14",
+            "amount": 10200,
+            "description": "Dog food",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2379,
+            "date_added": "2025-08-29 09:15:06",
+            "amount": 3000,
+            "description": "Gas",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2378,
+            "date_added": "2025-08-28 17:47:33",
+            "amount": 980,
+            "description": "Costco food",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2374,
+            "date_added": "2025-08-28 07:25:45",
+            "amount": -8400,
+            "description": "Craft Sale",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2373,
+            "date_added": "2025-08-28 07:21:44",
+            "amount": 10012,
+            "description": "Child present",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2372,
+            "date_added": "2025-08-27 17:36:09",
+            "amount": 4000,
+            "description": "Video game",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2371,
+            "date_added": "2025-08-27 07:40:59",
+            "amount": 4802,
+            "description": "Birthday decor",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2370,
+            "date_added": "2025-08-26 08:21:42",
+            "amount": 5923,
+            "description": "Toiletries",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2369,
+            "date_added": "2025-08-25 18:53:28",
+            "amount": 4000,
+            "description": "Groceries",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2368,
+            "date_added": "2025-08-25 13:41:39",
+            "amount": 19000,
+            "description": "Website annual subscription",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2367,
+            "date_added": "2025-08-25 12:15:54",
+            "amount": 5868,
+            "description": "Appleland",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2366,
+            "date_added": "2025-08-24 19:03:18",
+            "amount": 900,
+            "description": "Dairy Queen",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2365,
+            "date_added": "2025-08-24 15:28:36",
+            "amount": 7100,
+            "description": "Gas",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2364,
+            "date_added": "2025-08-24 15:28:10",
+            "amount": 3700,
+            "description": "Groceries",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2363,
+            "date_added": "2025-08-23 15:49:03",
+            "amount": 21000,
+            "description": "Wedding gift",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2362,
+            "date_added": "2025-08-21 15:09:12",
+            "amount": 4500,
+            "description": "Haircuts",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2361,
+            "date_added": "2025-08-21 07:43:37",
+            "amount": 2259,
+            "description": "Page turner device",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2360,
+            "date_added": "2025-08-20 17:56:40",
+            "amount": 1129,
+            "description": "Screws",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2359,
+            "date_added": "2025-08-19 17:15:13",
+            "amount": 2500,
+            "description": "Dog food",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2358,
+            "date_added": "2025-08-19 17:15:06",
+            "amount": 6100,
+            "description": "Groceries",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2357,
+            "date_added": "2025-08-19 07:51:05",
+            "amount": 2146,
+            "description": "Hanging Hooks",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2356,
+            "date_added": "2025-08-19 07:46:46",
+            "amount": 5649,
+            "description": "Shelf",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2352,
+            "date_added": "2025-08-18 17:47:32",
+            "amount": -10451,
+            "description": "eBay item sale",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2351,
+            "date_added": "2025-08-18 16:23:41",
+            "amount": 27685,
+            "description": "Dog boarding",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2350,
+            "date_added": "2025-08-18 11:44:21",
+            "amount": 3700,
+            "description": "OnRoute food",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2349,
+            "date_added": "2025-08-18 10:16:27",
+            "amount": 21753,
+            "description": "Newborn deposit",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2348,
+            "date_added": "2025-08-17 15:00:31",
+            "amount": 3000,
+            "description": "Ice cream",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2347,
+            "date_added": "2025-08-15 07:59:06",
+            "amount": 764,
+            "description": "Tims",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2346,
+            "date_added": "2025-08-14 19:14:12",
+            "amount": 3400,
+            "description": "Gas",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2345,
+            "date_added": "2025-08-13 18:37:42",
+            "amount": 1468,
+            "description": "Towel rack",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2344,
+            "date_added": "2025-08-13 18:04:42",
+            "amount": 700,
+            "description": "Orange juice",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2343,
+            "date_added": "2025-08-13 17:19:10",
+            "amount": 2300,
+            "description": "Medicine and cheese",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2340,
+            "date_added": "2025-08-13 11:26:31",
+            "amount": 28137,
+            "description": "Craft supplies",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2339,
+            "date_added": "2025-08-13 07:33:57",
+            "amount": 8471,
+            "description": "Shoes",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2337,
+            "date_added": "2025-08-12 14:39:08",
+            "amount": -42500,
+            "description": "Craft sales",
+            "active": 0,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2336,
+            "date_added": "2025-08-11 11:46:14",
+            "amount": 1200,
+            "description": "Toy",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2335,
+            "date_added": "2025-08-11 09:47:51",
+            "amount": 474,
+            "description": "Tims",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2334,
+            "date_added": "2025-08-10 21:31:22",
+            "amount": 1945,
+            "description": "Craft supplies",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2333,
+            "date_added": "2025-08-10 16:15:15",
+            "amount": 1445,
+            "description": "Toiletries",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2332,
+            "date_added": "2025-08-10 15:58:16",
+            "amount": 5500,
+            "description": "Gas",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2331,
+            "date_added": "2025-08-10 15:58:08",
+            "amount": 900,
+            "description": "Tims",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2330,
+            "date_added": "2025-08-10 14:42:18",
+            "amount": 936,
+            "description": "Toothbrush covers",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2329,
+            "date_added": "2025-08-10 12:34:05",
+            "amount": 1299,
+            "description": "Book",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2328,
+            "date_added": "2025-08-10 11:54:15",
+            "amount": 5700,
+            "description": "Gas",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2327,
+            "date_added": "2025-08-10 08:06:14",
+            "amount": 1200,
+            "description": "Breakfast",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2325,
+            "date_added": "2025-08-09 20:28:20",
+            "amount": -22525,
+            "description": "Craft sales",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2324,
+            "date_added": "2025-08-09 20:22:24",
+            "amount": 6200,
+            "description": "East sides dinner",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2323,
+            "date_added": "2025-08-09 13:44:00",
+            "amount": 6900,
+            "description": "lunch",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2322,
+            "date_added": "2025-08-09 12:42:32",
+            "amount": 3600,
+            "description": "Parking",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2321,
+            "date_added": "2025-08-09 12:42:27",
+            "amount": 600,
+            "description": "Tims",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2320,
+            "date_added": "2025-08-08 18:21:41",
+            "amount": 1130,
+            "description": "Dog boarding fees",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2319,
+            "date_added": "2025-08-08 18:21:36",
+            "amount": 11949,
+            "description": "Clothes",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2318,
+            "date_added": "2025-08-08 15:32:45",
+            "amount": 2900,
+            "description": "Parking",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2317,
+            "date_added": "2025-08-07 19:16:49",
+            "amount": 800,
+            "description": "Crabbys tip",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2316,
+            "date_added": "2025-08-07 13:15:22",
+            "amount": 902,
+            "description": "Ice cream",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2315,
+            "date_added": "2025-08-06 22:00:08",
+            "amount": 11700,
+            "description": "Groceries",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2314,
+            "date_added": "2025-08-06 21:59:57",
+            "amount": 3500,
+            "description": "Gas",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2313,
+            "date_added": "2025-08-06 15:26:56",
+            "amount": 1762,
+            "description": "Water bottle",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2311,
+            "date_added": "2025-08-05 18:06:40",
+            "amount": -5309,
+            "description": "eBay item sale",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2310,
+            "date_added": "2025-08-05 14:49:18",
+            "amount": 4968,
+            "description": "Printer ink and dishwasher soap",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2309,
+            "date_added": "2025-08-05 10:55:10",
+            "amount": 4745,
+            "description": "Door handles",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2308,
+            "date_added": "2025-08-04 17:24:34",
+            "amount": 3000,
+            "description": "Pizza",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2307,
+            "date_added": "2025-08-04 13:32:10",
+            "amount": 419,
+            "description": "Tims",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2306,
+            "date_added": "2025-08-04 06:59:11",
+            "amount": 7761,
+            "description": "More home gas",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2305,
+            "date_added": "2025-08-01 06:57:00",
+            "amount": 27999,
+            "description": "Preschool fees",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2304,
+            "date_added": "2025-08-01 06:57:00",
+            "amount": -378340,
+            "description": "Pay 2",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2303,
+            "date_added": "2025-08-01 06:57:00",
+            "amount": 1355,
+            "description": "Kindle unlimited",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2302,
+            "date_added": "2025-08-01 06:57:00",
+            "amount": -110131,
+            "description": "Baby bonus",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2301,
+            "date_added": "2025-08-01 06:57:00",
+            "amount": 1244,
+            "description": "Amazon music",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2300,
+            "date_added": "2025-08-01 06:57:00",
+            "amount": 7684,
+            "description": "Phone 2",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2299,
+            "date_added": "2025-08-01 06:57:00",
+            "amount": 2581,
+            "description": "Life insurance",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2298,
+            "date_added": "2025-08-01 06:57:00",
+            "amount": 5989,
+            "description": "Phone 1",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2297,
+            "date_added": "2025-08-01 06:57:00",
+            "amount": 1469,
+            "description": "Koodo stream",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2296,
+            "date_added": "2025-08-01 06:57:00",
+            "amount": 11917,
+            "description": "Home insurance",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2295,
+            "date_added": "2025-08-01 06:57:00",
+            "amount": 6667,
+            "description": "Internet",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2294,
+            "date_added": "2025-08-01 06:57:00",
+            "amount": 25325,
+            "description": "Hydro electric",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2293,
+            "date_added": "2025-08-01 06:57:00",
+            "amount": 42929,
+            "description": "Car loan",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2292,
+            "date_added": "2025-08-01 06:57:00",
+            "amount": 182417,
+            "description": "Mortgage",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2291,
+            "date_added": "2025-08-01 06:57:00",
+            "amount": 8188,
+            "description": "Home gas",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2290,
+            "date_added": "2025-08-01 06:57:00",
+            "amount": 49220,
+            "description": "Home tax",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2289,
+            "date_added": "2025-08-01 06:57:00",
+            "amount": -390007,
+            "description": "Pay 1",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2288,
+            "date_added": "2025-08-04 06:54:58",
+            "amount": 600,
+            "description": "Tims",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2287,
+            "date_added": "2025-08-02 16:17:17",
+            "amount": 1695,
+            "description": "Clorox wipes",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2286,
+            "date_added": "2025-08-01 20:00:44",
+            "amount": 3388,
+            "description": "Popsicle and freezie molds",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2285,
+            "date_added": "2025-08-01 19:38:02",
+            "amount": 2400,
+            "description": "Groceries and ice cream",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2284,
+            "date_added": "2025-08-01 16:21:21",
+            "amount": 1130,
+            "description": "Dog boarding fees",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2283,
+            "date_added": "2025-08-01 11:34:14",
+            "amount": 2000,
+            "description": "Nails",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2498,
+            "date_added": "2025-09-30 19:54:27",
+            "amount": 700,
+            "description": "Chocolate",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2497,
+            "date_added": "2025-09-30 18:19:51",
+            "amount": 2200,
+            "description": "McDonalds",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2496,
+            "date_added": "2025-09-30 17:37:10",
+            "amount": 900,
+            "description": "Harveys",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2495,
+            "date_added": "2025-09-29 19:26:22",
+            "amount": 4400,
+            "description": "Groceries",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2494,
+            "date_added": "2025-09-29 17:03:25",
+            "amount": 1130,
+            "description": "Dog boarding fees",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2493,
+            "date_added": "2025-09-29 16:46:28",
+            "amount": 13549,
+            "description": "Water Heater Rental",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2491,
+            "date_added": "2025-09-28 14:51:26",
+            "amount": 6500,
+            "description": "decorations",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2490,
+            "date_added": "2025-09-28 11:03:29",
+            "amount": 1500,
+            "description": "Tims",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2489,
+            "date_added": "2025-09-28 10:10:52",
+            "amount": 56978,
+            "description": "Costco",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2488,
+            "date_added": "2025-09-27 13:31:27",
+            "amount": 2100,
+            "description": "food",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2487,
+            "date_added": "2025-09-27 10:48:43",
+            "amount": 5012,
+            "description": "Gas",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2485,
+            "date_added": "2025-09-27 10:38:42",
+            "amount": 151400,
+            "description": "Phone 1",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2484,
+            "date_added": "2025-09-27 10:36:56",
+            "amount": 1195,
+            "description": "Tims",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2483,
+            "date_added": "2025-09-26 19:33:55",
+            "amount": 5400,
+            "description": "Toys",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2482,
+            "date_added": "2025-09-26 17:44:20",
+            "amount": 3100,
+            "description": "Pizza",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2481,
+            "date_added": "2025-09-26 10:13:12",
+            "amount": 1117,
+            "description": "Craft supplies",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2480,
+            "date_added": "2025-09-25 18:55:56",
+            "amount": 14690,
+            "description": "Vet",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2478,
+            "date_added": "2025-09-24 18:59:14",
+            "amount": 600,
+            "description": "Dairy Queen",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2476,
+            "date_added": "2025-09-24 14:45:43",
+            "amount": 4180,
+            "description": "Toys",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2475,
+            "date_added": "2025-09-24 09:29:42",
+            "amount": 5718,
+            "description": "diapers",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2474,
+            "date_added": "2025-09-22 16:37:00",
+            "amount": 1130,
+            "description": "Dog boarding fees",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2473,
+            "date_added": "2025-09-21 16:20:41",
+            "amount": 3700,
+            "description": "A&w",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2472,
+            "date_added": "2025-09-21 12:33:12",
+            "amount": 1300,
+            "description": "Tickets and food faire",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2471,
+            "date_added": "2025-09-21 11:50:23",
+            "amount": 2500,
+            "description": "Ride tix",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2470,
+            "date_added": "2025-09-21 08:00:54",
+            "amount": 11246,
+            "description": "Clothes",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2468,
+            "date_added": "2025-09-20 12:25:25",
+            "amount": 25000,
+            "description": "Groceries",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2467,
+            "date_added": "2025-09-20 11:13:41",
+            "amount": 6640,
+            "description": "electrolytes",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2466,
+            "date_added": "2025-09-20 10:01:02",
+            "amount": 2000,
+            "description": "Snow boots",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2465,
+            "date_added": "2025-09-20 08:56:28",
+            "amount": 1242,
+            "description": "Cords",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2464,
+            "date_added": "2025-09-20 01:17:28",
+            "amount": 6925,
+            "description": "Toiletries and food",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2463,
+            "date_added": "2025-09-16 16:40:09",
+            "amount": 6100,
+            "description": "Gas",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2462,
+            "date_added": "2025-09-16 10:46:19",
+            "amount": 18237,
+            "description": "Clothes",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2461,
+            "date_added": "2025-09-16 07:07:19",
+            "amount": -7500,
+            "description": "Craft sales",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2459,
+            "date_added": "2025-09-15 17:57:11",
+            "amount": 600,
+            "description": "Dairy Queen",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2458,
+            "date_added": "2025-09-14 20:28:23",
+            "amount": 1130,
+            "description": "Dog boarding fees",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2457,
+            "date_added": "2025-09-14 20:27:15",
+            "amount": 1353,
+            "description": "Hanging Hooks",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2456,
+            "date_added": "2025-09-14 12:36:31",
+            "amount": 2032,
+            "description": "Garbage bags",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2455,
+            "date_added": "2025-09-14 08:29:05",
+            "amount": 1570,
+            "description": "audible",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2449,
+            "date_added": "2025-09-01 08:20:10",
+            "amount": 20000,
+            "description": "Preschool",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2448,
+            "date_added": "2025-09-01 08:20:10",
+            "amount": -378340,
+            "description": "Pay 2",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2447,
+            "date_added": "2025-09-01 08:20:10",
+            "amount": 1355,
+            "description": "Kindle unlimited",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2446,
+            "date_added": "2025-09-01 08:20:10",
+            "amount": -110131,
+            "description": "Baby bonus",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2445,
+            "date_added": "2025-09-01 08:20:10",
+            "amount": 1244,
+            "description": "Amazon music",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2444,
+            "date_added": "2025-09-01 08:20:10",
+            "amount": 7684,
+            "description": "phone 2",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2443,
+            "date_added": "2025-09-01 08:20:10",
+            "amount": 2581,
+            "description": "Life insurance",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2442,
+            "date_added": "2025-09-01 08:20:10",
+            "amount": 5989,
+            "description": "Phone 1",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2441,
+            "date_added": "2025-09-01 08:20:10",
+            "amount": 1469,
+            "description": "Koodo stream",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2440,
+            "date_added": "2025-09-01 08:20:10",
+            "amount": 11917,
+            "description": "Home insurance",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2439,
+            "date_added": "2025-09-01 08:20:10",
+            "amount": 6667,
+            "description": "Internet",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2438,
+            "date_added": "2025-09-01 08:20:10",
+            "amount": 23194,
+            "description": "Hydro electric",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2437,
+            "date_added": "2025-09-01 08:20:10",
+            "amount": 42929,
+            "description": "Car loan",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2436,
+            "date_added": "2025-09-01 08:20:10",
+            "amount": 182417,
+            "description": "Mortgage",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2435,
+            "date_added": "2025-09-01 08:20:10",
+            "amount": 7761,
+            "description": "Home gas",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2434,
+            "date_added": "2025-09-01 08:20:10",
+            "amount": 49220,
+            "description": "Home tax",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2433,
+            "date_added": "2025-09-01 08:20:10",
+            "amount": -378340,
+            "description": "Pay 1",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2432,
+            "date_added": "2025-09-13 17:09:19",
+            "amount": 3706,
+            "description": "Phone case",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2431,
+            "date_added": "2025-09-13 15:25:43",
+            "amount": 19223,
+            "description": "Groceries",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2430,
+            "date_added": "2025-09-13 12:23:02",
+            "amount": 3720,
+            "description": "Dishwasher soap",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2429,
+            "date_added": "2025-09-13 08:36:13",
+            "amount": 1800,
+            "description": "Ice cream",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2428,
+            "date_added": "2025-09-12 15:54:06",
+            "amount": 1468,
+            "description": "Grip tape",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2427,
+            "date_added": "2025-09-11 18:19:30",
+            "amount": 800,
+            "description": "Ice cream",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2426,
+            "date_added": "2025-09-11 16:38:56",
+            "amount": 1400,
+            "description": "Subway",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2425,
+            "date_added": "2025-09-11 16:04:44",
+            "amount": 1700,
+            "description": "School food",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2424,
+            "date_added": "2025-09-11 09:52:27",
+            "amount": 66149,
+            "description": "Car seat",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2423,
+            "date_added": "2025-09-10 20:49:28",
+            "amount": 5085,
+            "description": "Show",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2422,
+            "date_added": "2025-09-10 15:34:26",
+            "amount": 5096,
+            "description": "Kids gloves",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2421,
+            "date_added": "2025-09-10 09:43:45",
+            "amount": 10900,
+            "description": "Skateboard deck",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2420,
+            "date_added": "2025-09-09 17:04:04",
+            "amount": 8500,
+            "description": "Cash for toy show",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2419,
+            "date_added": "2025-09-09 17:00:12",
+            "amount": 4000,
+            "description": "Gas",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2418,
+            "date_added": "2025-09-09 16:41:27",
+            "amount": 1771,
+            "description": "Spinach dip",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2417,
+            "date_added": "2025-09-09 11:51:39",
+            "amount": 4106,
+            "description": "Clothes",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2416,
+            "date_added": "2025-09-08 19:22:40",
+            "amount": 10000,
+            "description": "Groceries",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2415,
+            "date_added": "2025-09-08 15:59:38",
+            "amount": 1000,
+            "description": "Parking and chocolate",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2414,
+            "date_added": "2025-09-07 19:20:58",
+            "amount": 1316,
+            "description": "Toothpaste",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2413,
+            "date_added": "2025-09-06 13:58:41",
+            "amount": 5876,
+            "description": "Pjs",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2412,
+            "date_added": "2025-09-06 13:11:54",
+            "amount": 3461,
+            "description": "Boots",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2411,
+            "date_added": "2025-09-06 08:24:02",
+            "amount": 400,
+            "description": "Tims",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2410,
+            "date_added": "2025-09-06 07:50:47",
+            "amount": 1204,
+            "description": "Tims",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2409,
+            "date_added": "2025-09-05 20:57:59",
+            "amount": 900,
+            "description": "Dairy Queen",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2408,
+            "date_added": "2025-09-05 14:47:12",
+            "amount": 5557,
+            "description": "Soap refills",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2406,
+            "date_added": "2025-09-04 17:03:14",
+            "amount": 4900,
+            "description": "decor",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2405,
+            "date_added": "2025-09-04 16:17:16",
+            "amount": 2832,
+            "description": "Pull ups",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2404,
+            "date_added": "2025-09-04 12:38:17",
+            "amount": 5495,
+            "description": "Baby stuff",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2403,
+            "date_added": "2025-09-04 11:43:41",
+            "amount": 13493,
+            "description": "Rubber boots",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2402,
+            "date_added": "2025-09-03 16:21:20",
+            "amount": 1469,
+            "description": "Dance tights",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2401,
+            "date_added": "2025-09-03 16:19:04",
+            "amount": 4463,
+            "description": "Dance leotards",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2398,
+            "date_added": "2025-09-02 19:50:53",
+            "amount": 2012,
+            "description": "Book",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2397,
+            "date_added": "2025-09-02 16:48:37",
+            "amount": 839,
+            "description": "Book",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2396,
+            "date_added": "2025-09-02 16:25:28",
+            "amount": 5873,
+            "description": "Protein",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2395,
+            "date_added": "2025-09-02 15:16:59",
+            "amount": 5675,
+            "description": "Craft sale fees",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2394,
+            "date_added": "2025-09-02 15:16:15",
+            "amount": 12057,
+            "description": "Girls dance",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2393,
+            "date_added": "2025-09-02 12:40:48",
+            "amount": 1200,
+            "description": "Tims",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2392,
+            "date_added": "2025-09-01 19:45:04",
+            "amount": 1445,
+            "description": "Apple slicer",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2391,
+            "date_added": "2025-09-01 15:45:18",
+            "amount": 3500,
+            "description": "Lunch",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2585,
+            "date_added": "2025-10-30 17:20:26",
+            "amount": 2600,
+            "description": "Groceries",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2583,
+            "date_added": "2025-10-29 13:27:23",
+            "amount": 2259,
+            "description": "Unbuckle me",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2582,
+            "date_added": "2025-10-28 19:36:38",
+            "amount": 2720,
+            "description": "Pizza and choc",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2581,
+            "date_added": "2025-10-28 17:27:21",
+            "amount": 4000,
+            "description": "McDonalds",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2580,
+            "date_added": "2025-10-28 16:10:07",
+            "amount": 2598,
+            "description": "car seat cover",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2579,
+            "date_added": "2025-10-28 15:46:24",
+            "amount": 2823,
+            "description": "Phone case and screen protector",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2578,
+            "date_added": "2025-10-27 09:56:43",
+            "amount": 28100,
+            "description": "Concert tix",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2576,
+            "date_added": "2025-10-26 21:49:20",
+            "amount": -10000,
+            "description": "Craft sales",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2575,
+            "date_added": "2025-10-26 13:30:01",
+            "amount": 4100,
+            "description": "Groceries",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2574,
+            "date_added": "2025-10-26 09:41:28",
+            "amount": 700,
+            "description": "Parking",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2572,
+            "date_added": "2025-10-26 08:31:03",
+            "amount": 4519,
+            "description": "Wireless card",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2571,
+            "date_added": "2025-10-25 21:27:49",
+            "amount": 2860,
+            "description": "toiletries",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2570,
+            "date_added": "2025-10-25 12:11:13",
+            "amount": 7400,
+            "description": "Groceries",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2569,
+            "date_added": "2025-10-24 02:04:47",
+            "amount": 1300,
+            "description": "Bulk barn",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2568,
+            "date_added": "2025-10-24 02:04:02",
+            "amount": 4050,
+            "description": "Power bars",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2567,
+            "date_added": "2025-10-23 17:31:27",
+            "amount": 5400,
+            "description": "Gas",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2566,
+            "date_added": "2025-10-22 09:37:30",
+            "amount": 7413,
+            "description": "Clothes",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2565,
+            "date_added": "2025-10-21 17:26:06",
+            "amount": 3479,
+            "description": "McDonalds",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2564,
+            "date_added": "2025-10-19 14:12:33",
+            "amount": 2500,
+            "description": "Spray foam",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2563,
+            "date_added": "2025-10-19 14:12:25",
+            "amount": 1100,
+            "description": "Gloves",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2562,
+            "date_added": "2025-10-18 11:33:49",
+            "amount": 71752,
+            "description": "Costco",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2561,
+            "date_added": "2025-10-18 11:33:05",
+            "amount": 4354,
+            "description": "toiletries and baby wipes",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2560,
+            "date_added": "2025-10-18 08:18:01",
+            "amount": 1242,
+            "description": "furniture gripper",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2559,
+            "date_added": "2025-10-16 17:07:50",
+            "amount": 2200,
+            "description": "McDonalds",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2558,
+            "date_added": "2025-10-16 11:03:07",
+            "amount": 15747,
+            "description": "Winter coats",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2557,
+            "date_added": "2025-10-16 10:32:18",
+            "amount": 6866,
+            "description": "Clothes",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2556,
+            "date_added": "2025-10-15 19:19:20",
+            "amount": 677,
+            "description": "toothbrush",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2555,
+            "date_added": "2025-10-15 11:54:11",
+            "amount": 789,
+            "description": "Tims",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2554,
+            "date_added": "2025-10-14 18:15:05",
+            "amount": 2200,
+            "description": "Pizza",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2553,
+            "date_added": "2025-10-14 13:29:23",
+            "amount": 1300,
+            "description": "Headphones",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2552,
+            "date_added": "2025-10-14 12:57:53",
+            "amount": 700,
+            "description": "Chocolate",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2551,
+            "date_added": "2025-10-14 09:00:15",
+            "amount": 5638,
+            "description": "photos",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2550,
+            "date_added": "2025-10-12 14:40:33",
+            "amount": 4010,
+            "description": "razor blades and soaps",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2549,
+            "date_added": "2025-10-11 14:50:04",
+            "amount": 6230,
+            "description": "Gas",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2548,
+            "date_added": "2025-10-11 12:56:07",
+            "amount": 6700,
+            "description": "Birthday gifts",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2547,
+            "date_added": "2025-10-11 08:47:29",
+            "amount": 834,
+            "description": "Tims",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2546,
+            "date_added": "2025-10-10 16:59:03",
+            "amount": 500,
+            "description": "Screws",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2545,
+            "date_added": "2025-10-10 16:58:55",
+            "amount": 600,
+            "description": "Parking",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2544,
+            "date_added": "2025-10-10 08:07:14",
+            "amount": 800,
+            "description": "Tims",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2543,
+            "date_added": "2025-10-09 11:27:29",
+            "amount": 11500,
+            "description": "Groceries",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2542,
+            "date_added": "2025-10-08 19:57:39",
+            "amount": 1862,
+            "description": "protein bars",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2540,
+            "date_added": "2025-10-08 03:57:38",
+            "amount": 2443,
+            "description": "electrolytes",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2539,
+            "date_added": "2025-10-07 23:03:14",
+            "amount": 4374,
+            "description": "clothes",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2537,
+            "date_added": "2025-10-07 23:01:28",
+            "amount": 4438,
+            "description": "Garbage can and soaps",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2536,
+            "date_added": "2025-10-07 18:31:52",
+            "amount": 3800,
+            "description": "McDonalds",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2534,
+            "date_added": "2025-10-06 13:38:28",
+            "amount": 9145,
+            "description": "Clothes",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2533,
+            "date_added": "2025-10-06 10:37:45",
+            "amount": 7484,
+            "description": "Clothes",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2532,
+            "date_added": "2025-10-05 19:53:57",
+            "amount": 2400,
+            "description": "Toothbrushes",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2531,
+            "date_added": "2025-10-05 09:17:07",
+            "amount": 2711,
+            "description": "Sheets",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2529,
+            "date_added": "2025-10-04 20:04:06",
+            "amount": 1468,
+            "description": "Baby stuff",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2528,
+            "date_added": "2025-10-04 13:11:40",
+            "amount": 21709,
+            "description": "Groceries",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2527,
+            "date_added": "2025-10-04 09:17:00",
+            "amount": 19000,
+            "description": "Dog food",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2526,
+            "date_added": "2025-10-04 09:16:49",
+            "amount": 7800,
+            "description": "Garbage bag tags",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2525,
+            "date_added": "2025-10-04 09:16:40",
+            "amount": 500,
+            "description": "Tims",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2524,
+            "date_added": "2025-10-03 19:25:39",
+            "amount": 8095,
+            "description": "kids photo clothes",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2522,
+            "date_added": "2025-10-02 18:50:17",
+            "amount": 1000,
+            "description": "Ice cream",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2521,
+            "date_added": "2025-10-02 16:48:21",
+            "amount": 4200,
+            "description": "Dinner",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2520,
+            "date_added": "2025-10-02 16:48:11",
+            "amount": 7300,
+            "description": "Gas",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2519,
+            "date_added": "2025-10-02 11:23:37",
+            "amount": 39549,
+            "description": "Freezer",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2518,
+            "date_added": "2025-10-02 07:35:07",
+            "amount": 7345,
+            "description": "Costco membership",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2517,
+            "date_added": "2025-10-02 07:34:52",
+            "amount": 12057,
+            "description": "girls dance",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2516,
+            "date_added": "2025-10-02 07:34:25",
+            "amount": -6000,
+            "description": "phone refund",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2515,
+            "date_added": "2025-10-01 21:56:49",
+            "amount": 15499,
+            "description": "Preschool",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2514,
+            "date_added": "2025-10-01 21:56:49",
+            "amount": -394138,
+            "description": "Pay 2",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2513,
+            "date_added": "2025-10-01 21:56:49",
+            "amount": 1355,
+            "description": "Kindle unlimited",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2512,
+            "date_added": "2025-10-01 21:56:49",
+            "amount": -110131,
+            "description": "Baby bonus",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2511,
+            "date_added": "2025-10-01 21:56:49",
+            "amount": 7684,
+            "description": "Phone 2",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2510,
+            "date_added": "2025-10-01 21:56:49",
+            "amount": 2581,
+            "description": "Life insurance",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2509,
+            "date_added": "2025-10-01 21:56:49",
+            "amount": 5989,
+            "description": "Phone 1",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2508,
+            "date_added": "2025-10-01 21:56:49",
+            "amount": 1469,
+            "description": "Koodo stream",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2507,
+            "date_added": "2025-10-01 21:56:49",
+            "amount": 15093,
+            "description": "Home insurance",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2506,
+            "date_added": "2025-10-01 21:56:49",
+            "amount": 6667,
+            "description": "Internet",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2505,
+            "date_added": "2025-10-01 21:56:49",
+            "amount": 31257,
+            "description": "Hydro electric",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2504,
+            "date_added": "2025-10-01 21:56:49",
+            "amount": 42929,
+            "description": "Car loan",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2503,
+            "date_added": "2025-10-01 21:56:49",
+            "amount": 182417,
+            "description": "Mortgage",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2502,
+            "date_added": "2025-10-01 21:56:49",
+            "amount": 6130,
+            "description": "Home gas",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2501,
+            "date_added": "2025-10-01 21:56:49",
+            "amount": 49220,
+            "description": "Home tax",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2500,
+            "date_added": "2025-10-01 21:56:49",
+            "amount": -378340,
+            "description": "Pay 1",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2697,
+            "date_added": "2025-11-30 21:49:49",
+            "amount": 6778,
+            "description": "Detergent",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2696,
+            "date_added": "2025-11-30 18:07:52",
+            "amount": 25147,
+            "description": "Show and Train",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2695,
+            "date_added": "2025-11-30 17:17:58",
+            "amount": 5615,
+            "description": "Shoes",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2693,
+            "date_added": "2025-11-30 10:54:22",
+            "amount": 36159,
+            "description": "bottle washer",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2692,
+            "date_added": "2025-11-30 01:33:38",
+            "amount": 5649,
+            "description": "Sheets",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2691,
+            "date_added": "2025-11-29 18:30:53",
+            "amount": 3915,
+            "description": "A&w",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2690,
+            "date_added": "2025-11-29 16:24:25",
+            "amount": 11400,
+            "description": "Tree",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2689,
+            "date_added": "2025-11-29 16:24:20",
+            "amount": 2000,
+            "description": "Cookies",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2688,
+            "date_added": "2025-11-29 11:38:38",
+            "amount": 6300,
+            "description": "Gas",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2687,
+            "date_added": "2025-11-28 22:04:01",
+            "amount": 15900,
+            "description": "Photo frames",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2684,
+            "date_added": "2025-11-28 13:15:57",
+            "amount": 600,
+            "description": "Parking",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2683,
+            "date_added": "2025-11-28 13:15:50",
+            "amount": 15613,
+            "description": "groceries",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2682,
+            "date_added": "2025-11-28 13:15:26",
+            "amount": 11298,
+            "description": "Boots",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2681,
+            "date_added": "2025-11-27 15:50:14",
+            "amount": 4600,
+            "description": "Groceries",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2680,
+            "date_added": "2025-11-27 10:49:44",
+            "amount": 700,
+            "description": "Masks",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2678,
+            "date_added": "2025-11-26 11:31:42",
+            "amount": 6800,
+            "description": "Tires",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2677,
+            "date_added": "2025-11-25 19:27:16",
+            "amount": 2000,
+            "description": "Pizza",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2675,
+            "date_added": "2025-11-25 10:03:12",
+            "amount": 800,
+            "description": "Tims",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2674,
+            "date_added": "2025-11-24 20:00:32",
+            "amount": 4624,
+            "description": "Frames and bread yeast",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2673,
+            "date_added": "2025-11-23 19:39:55",
+            "amount": 7900,
+            "description": "Formula",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2672,
+            "date_added": "2025-11-22 17:16:59",
+            "amount": 1457,
+            "description": "pill organizer",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2671,
+            "date_added": "2025-11-22 17:04:13",
+            "amount": 7798,
+            "description": "vitamins, tube",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2670,
+            "date_added": "2025-11-22 11:57:38",
+            "amount": 11016,
+            "description": "protein powder",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2669,
+            "date_added": "2025-11-22 04:18:06",
+            "amount": 3354,
+            "description": "book and nose filters",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2668,
+            "date_added": "2025-11-21 18:07:10",
+            "amount": 2200,
+            "description": "Bins",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2667,
+            "date_added": "2025-11-21 17:25:59",
+            "amount": 2205,
+            "description": "Clothes",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2666,
+            "date_added": "2025-11-21 12:01:28",
+            "amount": 926,
+            "description": "Tims",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2665,
+            "date_added": "2025-11-21 10:35:53",
+            "amount": 7906,
+            "description": "clothes",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2664,
+            "date_added": "2025-11-20 17:35:31",
+            "amount": 4745,
+            "description": "Supplements",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2663,
+            "date_added": "2025-11-20 13:24:58",
+            "amount": 5500,
+            "description": "Gas",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2662,
+            "date_added": "2025-11-20 11:46:01",
+            "amount": 600,
+            "description": "Tims",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2661,
+            "date_added": "2025-11-20 10:47:44",
+            "amount": 7700,
+            "description": "Groceries",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2660,
+            "date_added": "2025-11-20 10:46:59",
+            "amount": 400,
+            "description": "Coloring book",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2659,
+            "date_added": "2025-11-20 09:21:13",
+            "amount": 21752,
+            "description": "Photos",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2657,
+            "date_added": "2025-11-19 17:03:24",
+            "amount": 700,
+            "description": "Smile cookies",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2656,
+            "date_added": "2025-11-19 16:36:21",
+            "amount": 4700,
+            "description": "Groceries",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2655,
+            "date_added": "2025-11-19 13:01:14",
+            "amount": 1692,
+            "description": "Lunch",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2654,
+            "date_added": "2025-11-18 19:44:46",
+            "amount": 1100,
+            "description": "Mineral oil",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2653,
+            "date_added": "2025-11-18 17:14:28",
+            "amount": 733,
+            "description": "Bandaids",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2652,
+            "date_added": "2025-11-18 09:20:57",
+            "amount": 2500,
+            "description": "Birth certificate",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2651,
+            "date_added": "2025-11-18 08:43:43",
+            "amount": 3386,
+            "description": "Book",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2650,
+            "date_added": "2025-11-17 18:32:37",
+            "amount": 4391,
+            "description": "Dinner",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2649,
+            "date_added": "2025-11-17 16:09:13",
+            "amount": 2259,
+            "description": "extension cord",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2648,
+            "date_added": "2025-11-17 12:28:39",
+            "amount": 4067,
+            "description": "Supplements",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2647,
+            "date_added": "2025-11-17 10:55:25",
+            "amount": 9037,
+            "description": "Comforter",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2645,
+            "date_added": "2025-11-16 15:33:45",
+            "amount": 3900,
+            "description": "Formula",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2644,
+            "date_added": "2025-11-16 15:33:37",
+            "amount": 5700,
+            "description": "Game event",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2643,
+            "date_added": "2025-11-16 15:03:46",
+            "amount": 507,
+            "description": "Tim",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2641,
+            "date_added": "2025-11-15 17:27:27",
+            "amount": 4000,
+            "description": "Dq cake",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2640,
+            "date_added": "2025-11-15 12:34:55",
+            "amount": 4406,
+            "description": "Walmart delivery",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2639,
+            "date_added": "2025-11-15 12:31:01",
+            "amount": 2824,
+            "description": "Bottles",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2638,
+            "date_added": "2025-11-15 11:23:52",
+            "amount": 1000,
+            "description": "Tims",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2637,
+            "date_added": "2025-11-15 10:42:08",
+            "amount": 2260,
+            "description": "Dog boarding fees",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2636,
+            "date_added": "2025-11-14 15:10:00",
+            "amount": 3389,
+            "description": "heating pad",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2635,
+            "date_added": "2025-11-14 11:57:22",
+            "amount": 5920,
+            "description": "Protein bars",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2634,
+            "date_added": "2025-11-14 10:01:29",
+            "amount": 6539,
+            "description": "Clothes",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2633,
+            "date_added": "2025-11-13 16:11:35",
+            "amount": 12204,
+            "description": "clothes",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2632,
+            "date_added": "2025-11-13 11:13:40",
+            "amount": 600,
+            "description": "Tims",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2631,
+            "date_added": "2025-11-13 08:32:47",
+            "amount": -1855,
+            "description": "eBay item sale",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2630,
+            "date_added": "2025-11-12 21:51:49",
+            "amount": 5000,
+            "description": "Formula etc",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2629,
+            "date_added": "2025-11-12 13:33:08",
+            "amount": 1600,
+            "description": "McDonalds",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2628,
+            "date_added": "2025-11-12 13:33:00",
+            "amount": 1000,
+            "description": "Lottery",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2627,
+            "date_added": "2025-11-12 13:32:54",
+            "amount": 700,
+            "description": "Parking",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2625,
+            "date_added": "2025-11-12 09:40:50",
+            "amount": 800,
+            "description": "Hospital food",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2624,
+            "date_added": "2025-11-10 10:57:13",
+            "amount": 19949,
+            "description": "Groceries",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2623,
+            "date_added": "2025-11-09 14:26:24",
+            "amount": 3614,
+            "description": "body wash",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2622,
+            "date_added": "2025-11-09 13:11:19",
+            "amount": 5422,
+            "description": "Lights",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2621,
+            "date_added": "2025-11-08 17:19:29",
+            "amount": 400,
+            "description": "Tims",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2620,
+            "date_added": "2025-11-08 11:28:12",
+            "amount": 7439,
+            "description": "Lights",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2619,
+            "date_added": "2025-11-08 08:59:43",
+            "amount": 1100,
+            "description": "Tims",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2618,
+            "date_added": "2025-11-07 22:35:54",
+            "amount": 800,
+            "description": "Park",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2617,
+            "date_added": "2025-11-07 10:33:14",
+            "amount": 5667,
+            "description": "vest",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2616,
+            "date_added": "2025-11-07 09:43:52",
+            "amount": 3527,
+            "description": "bottles and vitamins",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2615,
+            "date_added": "2025-11-06 20:41:05",
+            "amount": 2825,
+            "description": "Gift",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2614,
+            "date_added": "2025-11-06 09:28:50",
+            "amount": 1920,
+            "description": "food pouches",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2613,
+            "date_added": "2025-11-05 18:20:13",
+            "amount": 7600,
+            "description": "Gas",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2612,
+            "date_added": "2025-11-05 18:20:09",
+            "amount": 3400,
+            "description": "Harveys",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2611,
+            "date_added": "2025-11-05 15:25:26",
+            "amount": 2890,
+            "description": "wipes",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2610,
+            "date_added": "2025-11-04 21:24:06",
+            "amount": 6100,
+            "description": "Groceries",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2609,
+            "date_added": "2025-11-04 19:33:40",
+            "amount": 1900,
+            "description": "Spinach dip",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2608,
+            "date_added": "2025-11-04 12:05:42",
+            "amount": 1242,
+            "description": "spoon rest",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2607,
+            "date_added": "2025-11-03 11:27:11",
+            "amount": 4624,
+            "description": "Tape, yarn",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2606,
+            "date_added": "2025-11-02 14:17:53",
+            "amount": 800,
+            "description": "decorations",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2605,
+            "date_added": "2025-11-02 11:27:31",
+            "amount": 8475,
+            "description": "Craft sale fees",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2604,
+            "date_added": "2025-11-01 15:34:59",
+            "amount": 15499,
+            "description": "Preschool",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2603,
+            "date_added": "2025-11-01 15:34:59",
+            "amount": -397000,
+            "description": "Pay 2",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2602,
+            "date_added": "2025-11-01 15:34:59",
+            "amount": 1355,
+            "description": "Kindle unlimited",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2601,
+            "date_added": "2025-11-01 15:34:59",
+            "amount": -110131,
+            "description": "Baby bonus",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2600,
+            "date_added": "2025-11-01 15:34:59",
+            "amount": 7684,
+            "description": "Phone 2",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2599,
+            "date_added": "2025-11-01 15:34:59",
+            "amount": 2581,
+            "description": "Life insurance",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2598,
+            "date_added": "2025-11-01 15:34:59",
+            "amount": 5989,
+            "description": "Phone 1",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2597,
+            "date_added": "2025-11-01 15:34:59",
+            "amount": 1469,
+            "description": "Koodo stream",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2596,
+            "date_added": "2025-11-01 15:34:59",
+            "amount": 15093,
+            "description": "Home insurance",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2595,
+            "date_added": "2025-11-01 15:34:59",
+            "amount": 6667,
+            "description": "Internet",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2594,
+            "date_added": "2025-11-01 15:34:59",
+            "amount": 20133,
+            "description": "Hydro electric",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2593,
+            "date_added": "2025-11-01 15:34:59",
+            "amount": 42929,
+            "description": "Car loan",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2592,
+            "date_added": "2025-11-01 15:34:59",
+            "amount": 182417,
+            "description": "Mortgage",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2591,
+            "date_added": "2025-11-01 15:34:59",
+            "amount": 11200,
+            "description": "Home gas",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2590,
+            "date_added": "2025-11-01 15:34:59",
+            "amount": 49220,
+            "description": "Home tax",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2589,
+            "date_added": "2025-11-01 15:34:59",
+            "amount": -378340,
+            "description": "Pay 1",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2588,
+            "date_added": "2025-11-01 15:19:34",
+            "amount": 5400,
+            "description": "Groceries and toys",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2587,
+            "date_added": "2025-11-01 09:28:33",
+            "amount": 6222,
+            "description": "Clothes",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        },
+        {
+            "id": 2586,
+            "date_added": "2025-11-01 08:04:25",
+            "amount": 7616,
+            "description": "Clothes",
+            "active": 1,
+            "user": "demo",
+            "goal_id": null
+        }
+    ],
+    "recurring": [
+        {
+            "id": 15,
+            "amount": -161800,
+            "description": "Baby bonus",
+            "start_month": "2026-03",
+            "end_month": null
+        },
+        {
+            "id": 14,
+            "amount": -390007,
+            "description": "Pay 1",
+            "start_month": "2026-03",
+            "end_month": null
+        },
+        {
+            "id": 16,
+            "amount": -383000,
+            "description": "Pay 2",
+            "start_month": "2026-03",
+            "end_month": null
+        },
+        {
+            "id": 13,
+            "amount": 1500,
+            "description": "Kindle Unlimited",
+            "start_month": "2026-04",
+            "end_month": null
+        },
+        {
+            "id": 12,
+            "amount": 20000,
+            "description": "Preschool",
+            "start_month": "2026-04",
+            "end_month": null
+        },
+        {
+            "id": 10,
+            "amount": 5300,
+            "description": "Life Insurance",
+            "start_month": "2026-04",
+            "end_month": null
+        },
+        {
+            "id": 9,
+            "amount": 7600,
+            "description": "Phone 2",
+            "start_month": "2026-04",
+            "end_month": null
+        },
+        {
+            "id": 8,
+            "amount": 6000,
+            "description": "Phone 1",
+            "start_month": "2026-04",
+            "end_month": null
+        },
+        {
+            "id": 7,
+            "amount": 1500,
+            "description": "Koodo Stream",
+            "start_month": "2026-04",
+            "end_month": null
+        },
+        {
+            "id": 6,
+            "amount": 16000,
+            "description": "Home Insurance",
+            "start_month": "2026-04",
+            "end_month": null
+        },
+        {
+            "id": 5,
+            "amount": 6500,
+            "description": "Internet",
+            "start_month": "2026-04",
+            "end_month": null
+        },
+        {
+            "id": 4,
+            "amount": 27500,
+            "description": "Hydro Electric",
+            "start_month": "2026-04",
+            "end_month": null
+        },
+        {
+            "id": 3,
+            "amount": 41000,
+            "description": "Car Payment",
+            "start_month": "2026-03",
+            "end_month": "2028-06"
+        },
+        {
+            "id": 2,
+            "amount": 210000,
+            "description": "Mortgage",
+            "start_month": "2026-04",
+            "end_month": null
+        },
+        {
+            "id": 1,
+            "amount": 50000,
+            "description": "Home Tax",
+            "start_month": "2026-04",
+            "end_month": null
+        }
+    ]
+}

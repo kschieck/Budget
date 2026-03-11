@@ -1,187 +1,96 @@
 <?php
+session_start();
+initDemoSession();
 
-require_once(__DIR__."/config.php");
+class ArrayDatabaseResult {
+    private $index = 0;
+    private $data = [];
 
-function query($sql, $types, $params) {
-    global $servername;
-    global $username;
-    global $password;
-    global $dbname;
-
-    // Create connection
-    $conn = new mysqli($servername, $username, $password, $dbname);
-    // Check connection
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
+    public function __construct($data) {
+        $this->data = $data;
     }
 
-    $stmt = $conn->prepare($sql);
-    if (!$stmt) {
-        error_log("Error: " . $sql . "\n" . $conn->error);
-        $conn->close();
-        return false;
+    public function fetch_assoc() {
+        if ($this->index >= count($this->data)) {
+            return false;
+        }
+        $nextData = $this->data[$this->index];
+        $this->index++;
+        return $nextData;
     }
-    $stmt->bind_param($types, ...$params);
+}
 
-    if ($stmt->execute() === false) {
-        error_log("Error: " . $sql . "\n" . $conn->error);
-        $conn->close();
-        return false;
+function initDemoSession() {
+    if (isset($_SESSION["budget"])) {
+        return;
     }
+
+    $demoData = json_decode(file_get_contents(__DIR__ . "/demo_data.json"), true);
+
+    // Find the latest transaction date_added
+    $maxTs = 0;
+    foreach ($demoData["transactions"] as $t) {
+        $ts = strtotime($t["date_added"]);
+        if ($ts > $maxTs) $maxTs = $ts;
+    }
+
+    // Calculate month difference between latest transaction month and current month
+    $maxDate = new DateTime("@$maxTs");
+    $now = new DateTime();
+    $monthDiff = ($now->format('Y') - $maxDate->format('Y')) * 12 + ($now->format('n') - $maxDate->format('n'));
+
+    // Shift all transaction dates forward so the latest month aligns with today's month
+    foreach ($demoData["transactions"] as &$t) {
+        $dt = new DateTime($t["date_added"]);
+        $dt->modify("+$monthDiff months");
+        $t["date_added"] = $dt->format('Y-m-d H:i:s');
+    }
+    unset($t);
+
+    $_SESSION["budget"] = [
+        "amount"       => $demoData["amount"],
+        "goals"        => $demoData["goals"],
+        "transactions" => $demoData["transactions"],
+        "recurring"    => $demoData["recurring"]
+    ];
     
-    $conn->close();
-
-    return true;
 }
 
-function insert($sql, $types, $params) {
-    global $servername;
-    global $username;
-    global $password;
-    global $dbname;
-
-    // Create connection
-    $conn = new mysqli($servername, $username, $password, $dbname);
-    // Check connection
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
-
-    $stmt = $conn->prepare($sql);
-    if (!$stmt) {
-        error_log("Error: " . $sql . "\n" . $conn->error);
-        $conn->close();
-        return 0;
-    }
-    $stmt->bind_param($types, ...$params);
-
-    if ($stmt->execute() === false) {
-        error_log("Error: " . $sql . "\n" . $conn->error);
-        $conn->close();
-        return 0;
-    }
-
-    $insertId = $conn->insert_id;
-    
-    $conn->close();
-
-    return $insertId;
+function getNewGoalId() {
+    $ids = array_map(function($goal) { return $goal["id"]; }, $_SESSION["budget"]["goals"]);
+    return empty($ids) ? 1 : max($ids) + 1;
 }
 
-function select($sql, $types, $params) {
-    global $servername;
-    global $username;
-    global $password;
-    global $dbname;
-
-    // Create connection
-    $conn = new mysqli($servername, $username, $password, $dbname);
-    // Check connection
-    if ($conn->connect_error) {
-        error_log("Connection failed: " . $conn->connect_error);
-    }
-
-    $stmt = $conn->prepare($sql);
-    if (!$stmt) {
-        error_log("Error: " . $sql . "\n" . $conn->error);
-        $conn->close();
-        return null;
-    }
-    if (count($params) > 0) {
-        $stmt->bind_param($types, ...$params);
-    }
-
-    if ($stmt->execute() === false) {
-        error_log("Error: " . $sql . "\n" . $conn->error);
-        $conn->close();
-        return null;
-    }
-    $result = $stmt->get_result();
-    
-    $conn->close();
-
-    return $result;
-}
-
-function getConnection() {
-    global $servername;
-    global $username;
-    global $password;
-    global $dbname;
-
-    // Create connection
-    $conn = new mysqli($servername, $username, $password, $dbname);
-    // Check connection
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
-    return $conn;
-}
-
-function prepStatement($conn, $sql, $types, $params) {
-    $stmt = $conn->prepare($sql);
-    if (!$stmt) {
-        error_log("Error: " . $sql . "\n" . $conn->error);
-        $conn->close();
-        die("Connection failed: " . $conn->connect_error);
-    }
-    $stmt->bind_param($types, ...$params);
-    return $stmt;
+function getNewTransactionId() {
+    $ids = array_map(function($t) { return $t["id"]; }, $_SESSION["budget"]["transactions"]);
+    return empty($ids) ? 1 : max($ids) + 1;
 }
 
 function loadAmount() {
-    $sql = "SELECT amount FROM amount LIMIT 1";
-    $result = select($sql, "", []);
-    if($row = $result->fetch_assoc()) {
-        return $row["amount"];
-    }
-    return 0;
-}
-
-function loadTransactionsDate($dateString) {
-    $sql = "SELECT id, DATE_SUB(date_added, INTERVAL 4 HOUR) as date_added, amount, `description`, `active`
-            FROM `transactions`
-            WHERE DATE_SUB(date_added, INTERVAL 4 HOUR) > ? ORDER BY id DESC";
-    return select($sql, "s", [$dateString]);
+    return $_SESSION["budget"]["amount"];
 }
 
 function loadTransactionsStartEndDate($startDateString, $endDateString) {
-    $sql = "SELECT id, DATE_SUB(date_added, INTERVAL 4 HOUR) as date_added, amount, `description`, `active`, `user`, `goal_id`
-            FROM `transactions`
-            WHERE DATE_SUB(date_added, INTERVAL 4 HOUR) > ? AND DATE_SUB(date_added, INTERVAL 4 HOUR) < ? ORDER BY id DESC";
-    return select($sql, "ss", [$startDateString, $endDateString]);
-}
-
-function loadTransactionsList($transactionIds) {
-
-    $placeholders = implode(',', array_fill(0, count($transactionIds), '?'));  // Generates placeholders: "?, ?, ?, ?"
-    $sql = "SELECT id, DATE_SUB(date_added, INTERVAL 4 HOUR) as date_added, `amount`, `description`, `active` 
-            FROM `transactions` 
-            WHERE id IN ($placeholders) 
-            AND `active` = 1";
-    
-    $result = select($sql, str_repeat('i', count($transactionIds)), $transactionIds);
-
-    $transactions = [];
-    while($row = $result->fetch_assoc()) {
-        $transactions[] = $row;
-    }
-
-    return $transactions;
+    return new ArrayDatabaseResult(array_values(array_filter(
+        $_SESSION["budget"]["transactions"],
+        function($transaction) use ($startDateString, $endDateString) {
+            $transactionTime = strtotime($transaction["date_added"]);
+            return $transactionTime > strtotime($startDateString) && $transactionTime < strtotime($endDateString);
+        }
+    )));
 }
 
 function loadGoalById($id) {
-    $sql = "SELECT `id`, `amount` FROM `goals` WHERE `id` = ? AND `active` = 1 LIMIT 1";
-    return select($sql, "i", [$id]);
+    return new ArrayDatabaseResult(array_values(array_filter(
+        $_SESSION["budget"]["goals"],
+        function($goal) use ($id) {
+            return $goal["id"] == $id;
+        }
+    )));
 }
 
 function loadGoals($limit) {
-    $limit = intval($limit);
-    if ($limit <= 0) {
-        return [];
-    }
-    $sql = "SELECT id, DATE_SUB(date_added, INTERVAL 4 HOUR) as date_added, total, amount, `name` FROM `goals` WHERE `active` = 1 ORDER BY id DESC LIMIT $limit";
-    return select($sql, "", []);
+    return new ArrayDatabaseResult($_SESSION["budget"]["goals"]);
 }
 
 function addTransaction($user, $amount, $description) {
@@ -189,409 +98,268 @@ function addTransaction($user, $amount, $description) {
 }
 
 function addTransactions($user, $transactions) {
-    $conn = getConnection();
-    $conn->begin_transaction();
-    try {
-        $conn->autocommit(false);
-
-        $user = substr($user, 0, 32);
-        $amountSum = 0;
-
-        for ($i = 0; $i < count($transactions); $i++) {
-
-            $amount = $transactions[$i]["amount"];
-            $description = $transactions[$i]["description"];
-
-            $createTxStmt = prepStatement($conn, 
-                "INSERT INTO `transactions` (user, amount, `description`) VALUES (?,?,?)", 
-                "sis", [$user, $amount, substr($description, 0, 64)]);
-
-            // Execute the statement
-            if (!$createTxStmt->execute()) {
-                error_log("Failed to execute transaction: " . json_encode($transactions[$i]));
-                error_log("MySQL Execution Error: " . $createTxStmt->error); // Log the statement execution error
-                throw new mysqli_sql_exception("Execution failed for transaction.");
-            }
-
-            $amountSum += $amount;
-        }
-
-        $updateAmountStmt = prepStatement($conn,
-            "UPDATE amount SET amount = amount - ? LIMIT 1", "i", [$amountSum]);
-
-        if (!$updateAmountStmt->execute()) {
-            error_log("Failed to execute update statement");
-            error_log("MySQL Execution Error: " . $updateAmountStmt->error); // Log the statement execution error
-            throw new mysqli_sql_exception("Update statement execution failed.");
-        }
-        $conn->commit();
-    } catch (mysqli_sql_exception $exception) {
-        error_log("Failed to add transaction: " . $exception->getMessage());
-        $conn->rollback();
-        throw $exception;
+    $amountSum = 0;
+    foreach ($transactions as $tx) {
+        $amount      = $tx["amount"];
+        $description = $tx["description"];
+        $newId       = getNewTransactionId();
+        $_SESSION["budget"]["transactions"][] = [
+            "id"          => $newId,
+            "date_added"  => date('Y-m-d H:i:s'),
+            "amount"      => $amount,
+            "description" => substr($description, 0, 64),
+            "active"      => 1,
+            "user"        => substr($user, 0, 32),
+            "goal_id"     => null
+        ];
+        $amountSum += $amount;
     }
-
-    $conn->close();
-
+    $_SESSION["budget"]["amount"] -= $amountSum;
     return true;
 }
 
 function editTransaction($user, $transactionId, $amount, $description) {
-    // Load transaction, find amount delta to adjust amount table and update the amount
-
-    $loadResult = select("SELECT `amount`, `goal_id` FROM `transactions` WHERE `user` = ? AND `id` = ? AND `active` = 1", "si", [$user, $transactionId]);
-    if (!($transaction = $loadResult->fetch_assoc())) {
-        return false;
+    $txIndex = null;
+    foreach ($_SESSION["budget"]["transactions"] as $i => $t) {
+        if ($t["user"] === $user && $t["id"] == $transactionId && $t["active"] == 1) {
+            $txIndex = $i;
+            break;
+        }
     }
+    if ($txIndex === null) return false;
 
-    $oldAmount = $transaction["amount"];
+    $oldAmount   = $_SESSION["budget"]["transactions"][$txIndex]["amount"];
     $deltaAmount = $amount - $oldAmount;
-    $goalId = $transaction["goal_id"];
+    $goalId      = $_SESSION["budget"]["transactions"][$txIndex]["goal_id"];
 
     if ($goalId !== null) {
-        $goalResult = select("SELECT `name` FROM `goals` WHERE id = ? LIMIT 1", "i", [$goalId]);
-        $goalRow = $goalResult->fetch_assoc();
-        if (!$goalRow) {
-            return false;
+        $goalName = null;
+        foreach ($_SESSION["budget"]["goals"] as $g) {
+            if ($g["id"] == $goalId) {
+                $goalName = $g["name"];
+                break;
+            }
         }
-        $verb = $amount > 0 ? "contribution" : "subtraction";
-        $description = "Goal $verb: " . $goalRow["name"];
+        if ($goalName === null) return false;
+        $verb        = $amount > 0 ? "contribution" : "subtraction";
+        $description = "Goal $verb: " . $goalName;
     }
 
-    $conn = getConnection();
-    $conn->begin_transaction();
-    try {
-        $conn->autocommit(false);
-
-        if ($deltaAmount !== 0) {
-            $updateAmountStmt = prepStatement($conn,
-                "UPDATE amount SET amount = amount - ? LIMIT 1", "i", [$deltaAmount]);
-
-            if (!$updateAmountStmt->execute()) {
-                error_log("Failed to update amount");
-                error_log("MySQL Execution Error: " . $updateAmountStmt->error);
-                throw new mysqli_sql_exception("Execution failed for transaction.");
-            }
-
-            if ($goalId !== null) {
-                $updateGoalStmt = prepStatement($conn,
-                    "UPDATE `goals` SET amount = amount + ? WHERE id = ?", "ii", [$deltaAmount, $goalId]);
-                if (!$updateGoalStmt->execute()) {
-                    error_log("Failed to execute update goal");
-                    error_log("MySQL Execution Error: " . $updateGoalStmt->error);
-                    throw new mysqli_sql_exception("Update statement execution failed.");
+    if ($deltaAmount !== 0) {
+        $_SESSION["budget"]["amount"] -= $deltaAmount;
+        if ($goalId !== null) {
+            foreach ($_SESSION["budget"]["goals"] as &$g) {
+                if ($g["id"] == $goalId) {
+                    $g["amount"] += $deltaAmount;
+                    break;
                 }
             }
+            unset($g);
         }
-
-        $updateTxStmt = prepStatement($conn,
-            "UPDATE `transactions` SET `amount` = ?, `description` = ? WHERE id = ?", "isi", [$amount, substr($description, 0, 64), $transactionId]);
-
-        if (!$updateTxStmt->execute()) {
-            error_log("Failed to execute update transaction");
-            error_log("MySQL Execution Error: " . $updateTxStmt->error);
-            throw new mysqli_sql_exception("Update statement execution failed.");
-        }
-        $conn->commit();
-        return true;
-    } catch (mysqli_sql_exception $exception) {
-        error_log("Failed to add transaction: " . $exception->getMessage());
-        $conn->rollback();
-        throw $exception;
     }
 
-    $conn->close();
+    $_SESSION["budget"]["transactions"][$txIndex]["amount"]      = $amount;
+    $_SESSION["budget"]["transactions"][$txIndex]["description"] = substr($description, 0, 64);
 
-    return false;
+    return true;
 }
 
 function disableTransaction($user, $transactionId) {
-    // Load transaction, get amount and reverse it while setting inactive
-
-    $loadResult = select("SELECT `amount`, `goal_id` FROM `transactions` WHERE `user` = ? AND `id` = ? AND `active` = 1", "si", [$user, $transactionId]);
-    if (!($transaction = $loadResult->fetch_assoc())) {
-        return false;
+    $txIndex = null;
+    foreach ($_SESSION["budget"]["transactions"] as $i => $t) {
+        if ($t["user"] === $user && $t["id"] == $transactionId && $t["active"] == 1) {
+            $txIndex = $i;
+            break;
+        }
     }
+    if ($txIndex === null) return false;
 
-    $amount = $transaction["amount"];
-    $goalId = $transaction["goal_id"];
+    $amount = $_SESSION["budget"]["transactions"][$txIndex]["amount"];
+    $goalId = $_SESSION["budget"]["transactions"][$txIndex]["goal_id"];
 
-    $conn = getConnection();
-    $conn->begin_transaction();
-    try {
-        $conn->autocommit(false);
+    $_SESSION["budget"]["amount"] += $amount;
+    $_SESSION["budget"]["transactions"][$txIndex]["active"] = 0;
 
-        $updateAmountStmt = prepStatement($conn,
-            "UPDATE amount SET amount = amount + ? LIMIT 1", "i", [$amount]);
-
-        $updateTxStmt = prepStatement($conn,
-            "UPDATE `transactions` SET `active` = 0 WHERE id = ?", "i", [$transactionId]);
-
-        if (!$updateAmountStmt->execute()) {
-            error_log("Failed to execute update transaction");
-            error_log("MySQL Execution Error: " . $updateAmountStmt->error);
-            throw new mysqli_sql_exception("Update statement execution failed.");
-        }
-        if (!$updateTxStmt->execute()) {
-            error_log("Failed to execute update transaction");
-            error_log("MySQL Execution Error: " . $updateTxStmt->error);
-            throw new mysqli_sql_exception("Update statement execution failed.");
-        }
-
-        if ($goalId !== null) {
-            $updateGoalStmt = prepStatement($conn,
-                "UPDATE `goals` SET amount = amount - ? WHERE id = ?", "ii", [$amount, $goalId]);
-            if (!$updateGoalStmt->execute()) {
-                error_log("Failed to execute update goal");
-                error_log("MySQL Execution Error: " . $updateGoalStmt->error);
-                throw new mysqli_sql_exception("Update statement execution failed.");
+    if ($goalId !== null) {
+        foreach ($_SESSION["budget"]["goals"] as &$g) {
+            if ($g["id"] == $goalId) {
+                $g["amount"] -= $amount;
+                break;
             }
         }
-
-        $conn->commit();
-        return true;
-    } catch (mysqli_sql_exception $exception) {
-        error_log("Failed to disable transaction: " . $exception->getMessage());
-        $conn->rollback();
-        throw $exception;
+        unset($g);
     }
 
-    $conn->close();
-
-    return false;
+    return true;
 }
 
 function addGoal($user, $name, $total, $amount) {
-    return insert("INSERT INTO `goals` (user, `name`, `total`, `amount`) VALUES (?,?,?,?)", "ssii", [substr($user, 0, 32), substr($name, 0, 64), $total, $amount]);
+    $newGoalId = getNewGoalId();
+    $_SESSION["budget"]["goals"][] = [
+        "id"         => $newGoalId,
+        "date_added" => date('Y-m-d H:i:s'),
+        "total"      => $total,
+        "amount"     => $amount,
+        "name"       => $name
+    ];
+    return $newGoalId;
 }
 
 function addGoalTransaction($user, $goalId, $amount) {
-    $goalResult = select("SELECT `name` FROM `goals` WHERE id = ? LIMIT 1", "i", [$goalId]);
-    $goalRow = $goalResult->fetch_assoc();
-    if (!$goalRow) {
-        return false;
+    $goalName = null;
+    foreach ($_SESSION["budget"]["goals"] as $g) {
+        if ($g["id"] == $goalId) {
+            $goalName = $g["name"];
+            break;
+        }
     }
-    $verb = $amount > 0? "contribution" : "subtraction";
-    $description = "Goal $verb: " . $goalRow["name"];
+    if ($goalName === null) return false;
 
-    $conn = getConnection();
-    $conn->begin_transaction();
-    try {
-        $conn->autocommit(false);
+    $verb        = $amount > 0 ? "contribution" : "subtraction";
+    $description = "Goal $verb: " . $goalName;
 
-        $createTxStmt = prepStatement($conn,
-            "INSERT INTO `transactions` (user, amount, `description`, `goal_id`) VALUES (?,?,?,?)",
-            "sisi", [substr($user, 0, 32), $amount, substr($description, 0, 64), $goalId]);
+    $newId = getNewTransactionId();
+    $_SESSION["budget"]["transactions"][] = [
+        "id"          => $newId,
+        "date_added"  => date('Y-m-d H:i:s'),
+        "amount"      => $amount,
+        "description" => substr($description, 0, 64),
+        "active"      => 1,
+        "user"        => substr($user, 0, 32),
+        "goal_id"     => $goalId
+    ];
 
-        $updateAmountStmt = prepStatement($conn,
-            "UPDATE amount SET amount = amount - ? LIMIT 1", "i", [$amount]);
+    $_SESSION["budget"]["amount"] -= $amount;
 
-        $updateGoalStmt = prepStatement($conn,
-            "UPDATE `goals` SET amount = amount + ? WHERE id = ?", "ii", [$amount, $goalId]);
-
-        if (!$createTxStmt->execute()) {
-            error_log("Failed to execute create tx");
-            error_log("MySQL Execution Error: " . $createTxStmt->error); // Log the statement execution error
-            throw new mysqli_sql_exception("Update statement execution failed.");
+    foreach ($_SESSION["budget"]["goals"] as &$g) {
+        if ($g["id"] == $goalId) {
+            $g["amount"] += $amount;
+            break;
         }
-        if (!$updateAmountStmt->execute()) {
-            error_log("Failed to execute update amount");
-            error_log("MySQL Execution Error: " . $updateAmountStmt->error); // Log the statement execution error
-            throw new mysqli_sql_exception("Update statement execution failed.");
-        }
-        if (!$updateGoalStmt->execute()) {
-            error_log("Failed to execute update goal");
-            error_log("MySQL Execution Error: " . $updateGoalStmt->error); // Log the statement execution error
-            throw new mysqli_sql_exception("Update statement execution failed.");
-        }
-
-        $conn->commit();
-    } catch (mysqli_sql_exception $exception) {
-        error_log("Failed to add transaction: " . $exception->getMessage());
-        $conn->rollback();
-        throw $exception;
     }
-
-    $conn->close();
+    unset($g);
 
     return true;
 }
 
 function setGoalTotal($user, $goalId, $total) {
-    return query("UPDATE `goals` SET `total` = ? WHERE id = ? LIMIT 1", "ii", [$total, $goalId]);
+    foreach ($_SESSION["budget"]["goals"] as &$g) {
+        if ($g["id"] == $goalId) {
+            $g["total"] = $total;
+            return true;
+        }
+    }
+    return false;
 }
 
 function disableGoal($user, $goalId) {
-    return query("UPDATE `goals` SET `active` = 0 WHERE id = ? LIMIT 1", "i", [$goalId]);
+    $_SESSION["budget"]["goals"] = array_values(array_filter(
+        $_SESSION["budget"]["goals"],
+        function($g) use ($goalId) { return $g["id"] != $goalId; }
+    ));
+    return true;
 }
 
 function setUserToken($user, $token, $daysValid) {
-    $sql = "INSERT INTO user_tokens (`user`, `token`, `expires_at`) VALUES (?,?,DATE_ADD(NOW(), INTERVAL ? DAY))";
-    return query($sql, "ssi", [$user, $token, $daysValid]);
+    return true;
 }
 
 function getUserTokens($user) {
-    $sql = "SELECT `token` FROM `user_tokens` WHERE `user` = ? AND `expires_at` > NOW()";
-    $result = select($sql, "s", [$user]);
-    $tokens = [];
-    while($row = $result->fetch_assoc()) {
-        $tokens[] = $row["token"];
-    }
-    return $tokens;
+    return [];
 }
 
 function getMonthlyTotals($startDate) {
+    $groups  = [];
+    $startTs = strtotime($startDate);
 
-    // Get all active transactions that are not described as goal transactions (a bit of a hack)
-    $sql = "SELECT SUM(amount) as total, SUM(GREATEST(0, amount)) as spent, SUM(LEAST(0, amount)) as earned,
-            EXTRACT(YEAR_MONTH FROM (DATE_SUB(date_added, INTERVAL 4 HOUR))) as `year_month`
-            FROM `transactions`
-            WHERE DATE_SUB(date_added, INTERVAL 4 HOUR) > ? AND `active` = 1
-            AND `description` NOT LIKE \"Goal Contribution: %\"
-            AND `description` NOT LIKE \"Goal Subtraction: %\"
-            GROUP BY `year_month`";
+    foreach ($_SESSION["budget"]["transactions"] as $t) {
+        if (!$t["active"]) continue;
+        if ($t["goal_id"] !== null) continue;
 
-    return select($sql, "s", [$startDate]);
+        // Apply UTC-4 offset to match the SQL DATE_SUB(date_added, INTERVAL 4 HOUR) pattern
+        $ts = strtotime($t["date_added"]) - 4 * 3600;
+        if ($ts <= $startTs) continue;
+
+        $yearMonth = date('Ym', $ts);
+        if (!isset($groups[$yearMonth])) {
+            $groups[$yearMonth] = ["total" => 0, "spent" => 0, "earned" => 0, "year_month" => $yearMonth];
+        }
+        $groups[$yearMonth]["total"]  += $t["amount"];
+        $groups[$yearMonth]["spent"]  += max(0, $t["amount"]);
+        $groups[$yearMonth]["earned"] += min(0, $t["amount"]);
+    }
+
+    return new ArrayDatabaseResult(array_values($groups));
 }
 
 function getDailyTotals($startDate) {
+    $groups        = [];
+    $startTs       = strtotime($startDate);
+    $startDateOnly = date('Y-m-d', $startTs);
 
-    $sql = "SELECT SUM(amount) as total,
-            DATE(DATE_SUB(date_added, INTERVAL 4 HOUR)) as `date`,
-            DATEDIFF(DATE(DATE_SUB(date_added, INTERVAL 4 HOUR)), DATE(?)) as `datediff`
-            FROM `transactions`
-            WHERE DATE_SUB(date_added, INTERVAL 4 HOUR) > ? AND `active` = 1
-            GROUP BY `date`";
+    foreach ($_SESSION["budget"]["transactions"] as $t) {
+        if (!$t["active"]) continue;
 
-    return select($sql, "ss", [$startDate, $startDate]);
-}
+        // Apply UTC-4 offset to match the SQL DATE_SUB(date_added, INTERVAL 4 HOUR) pattern
+        $ts = strtotime($t["date_added"]) - 4 * 3600;
+        if ($ts <= $startTs) continue;
 
-function getLastMonth1stTransactions($currentDate) {
-    $sql = "SELECT id, DATE_SUB(date_added, INTERVAL 4 HOUR) as date_added, amount, `description` FROM `transactions`
-            WHERE `active` = 1 AND
-            DATE(date_added) = DATE_FORMAT(DATE(DATE_SUB(DATE_SUB(?, INTERVAL 4 HOUR), INTERVAL 1 MONTH)), '%Y-%m-01')";
-    return select($sql, "s", [$currentDate]);
+        $dateStr = date('Y-m-d', $ts);
+        if (!isset($groups[$dateStr])) {
+            $datediff            = (int)((strtotime($dateStr) - strtotime($startDateOnly)) / 86400);
+            $groups[$dateStr]    = ["total" => 0, "date" => $dateStr, "datediff" => $datediff];
+        }
+        $groups[$dateStr]["total"] += $t["amount"];
+    }
+
+    return new ArrayDatabaseResult(array_values($groups));
 }
 
 function loadRecurringTransactions() {
-    $sql = "SELECT id, amount, description, start_month, end_month FROM `recurring_transactions`
-            WHERE active = 1 ORDER BY id DESC";
-    return select($sql, "", []);
+    return new ArrayDatabaseResult($_SESSION["budget"]["recurring"]);
 }
 
 function addRecurring($user, $amount, $description, $startMonth, $endMonth) {
-    if ($endMonth === null) {
-        return insert(
-            "INSERT INTO `recurring_transactions` (user, amount, description, start_month) VALUES (?,?,?,?)",
-            "siss", [substr($user, 0, 32), $amount, substr($description, 0, 64), $startMonth]
-        );
-    }
-    return insert(
-        "INSERT INTO `recurring_transactions` (user, amount, description, start_month, end_month) VALUES (?,?,?,?,?)",
-        "sisss", [substr($user, 0, 32), $amount, substr($description, 0, 64), $startMonth, $endMonth]
-    );
+    $ids   = array_map(function($r) { return $r["id"]; }, $_SESSION["budget"]["recurring"]);
+    $newId = empty($ids) ? 1 : max($ids) + 1;
+    $_SESSION["budget"]["recurring"][] = [
+        "id"          => $newId,
+        "amount"      => $amount,
+        "description" => substr($description, 0, 64),
+        "start_month" => $startMonth,
+        "end_month"   => $endMonth
+    ];
+    return $newId;
 }
 
 function editRecurring($user, $id, $amount, $description, $startMonth, $endMonth) {
-    if ($endMonth === null) {
-        return query(
-            "UPDATE `recurring_transactions` SET amount = ?, description = ?, start_month = ?, end_month = NULL WHERE id = ? AND user = ? AND active = 1",
-            "issis", [$amount, substr($description, 0, 64), $startMonth, $id, $user]
-        );
+    foreach ($_SESSION["budget"]["recurring"] as &$r) {
+        if ($r["id"] == $id) {
+            $r["amount"]      = $amount;
+            $r["description"] = substr($description, 0, 64);
+            $r["start_month"] = $startMonth;
+            $r["end_month"]   = $endMonth;
+            unset($r);
+            return true;
+        }
     }
-    return query(
-        "UPDATE `recurring_transactions` SET amount = ?, description = ?, start_month = ?, end_month = ? WHERE id = ? AND user = ? AND active = 1",
-        "isssis", [$amount, substr($description, 0, 64), $startMonth, $endMonth, $id, $user]
-    );
+    unset($r);
+    return false;
 }
 
 function disableRecurring($user, $id) {
-    return query(
-        "UPDATE `recurring_transactions` SET active = 0 WHERE id = ? AND user = ?",
-        "is", [$id, $user]
-    );
+    $_SESSION["budget"]["recurring"] = array_values(array_filter(
+        $_SESSION["budget"]["recurring"],
+        function($r) use ($id) { return $r["id"] != $id; }
+    ));
+    return true;
 }
 
 function hasProcessedRecurring($month) {
-    $result = select(
-        "SELECT id FROM `recurring_processed` WHERE month = ? LIMIT 1",
-        "s", [$month]
-    );
-    return $result && $result->num_rows > 0;
+    return true;
 }
 
 function processRecurringForMonth($month) {
-    $conn = getConnection();
-    $conn->begin_transaction();
-    try {
-        $conn->autocommit(false);
-
-        // INSERT IGNORE: if the row already exists (race condition), affected_rows will be 0
-        $markStmt = prepStatement($conn,
-            "INSERT IGNORE INTO `recurring_processed` (month) VALUES (?)",
-            "s", [$month]);
-
-        if (!$markStmt->execute()) {
-            error_log("Failed to mark recurring month processed");
-            throw new mysqli_sql_exception("Failed to mark month processed.");
-        }
-
-        // If another request already processed this month, exit cleanly
-        if ($conn->affected_rows === 0) {
-            $conn->commit();
-            $conn->close();
-            return true;
-        }
-
-        // Fetch ALL users' due recurring transactions inside the transaction to avoid TOCTOU issues
-        // end_month is exclusive: a recurring with end_month = current month does not fire
-        $selectStmt = prepStatement($conn,
-            "SELECT user, amount, description FROM `recurring_transactions`
-             WHERE active = 1 AND start_month <= ? AND (end_month IS NULL OR end_month > ?)",
-            "ss", [$month, $month]);
-
-        if (!$selectStmt->execute()) {
-            error_log("Failed to fetch due recurring transactions");
-            error_log("MySQL Execution Error: " . $selectStmt->error);
-            throw new mysqli_sql_exception("Failed to fetch recurring transactions.");
-        }
-
-        $recurringResult = $selectStmt->get_result();
-        $amountSum = 0;
-
-        while ($recurring = $recurringResult->fetch_assoc()) {
-            $description = substr("monthly: " . $recurring["description"], 0, 64);
-            $createStmt = prepStatement($conn,
-                "INSERT INTO `transactions` (user, amount, description) VALUES (?, ?, ?)",
-                "sis", [substr($recurring["user"], 0, 32), $recurring["amount"], $description]);
-
-            if (!$createStmt->execute()) {
-                error_log("Failed to create recurring transaction for month $month");
-                error_log("MySQL Execution Error: " . $createStmt->error);
-                throw new mysqli_sql_exception("Failed to create recurring transaction.");
-            }
-            $amountSum += $recurring["amount"];
-        }
-
-        if ($amountSum !== 0) {
-            $updateAmountStmt = prepStatement($conn,
-                "UPDATE amount SET amount = amount - ? LIMIT 1", "i", [$amountSum]);
-
-            if (!$updateAmountStmt->execute()) {
-                error_log("Failed to update amount for recurring transactions");
-                error_log("MySQL Execution Error: " . $updateAmountStmt->error);
-                throw new mysqli_sql_exception("Update amount failed for recurring transactions.");
-            }
-        }
-
-        $conn->commit();
-    } catch (mysqli_sql_exception $exception) {
-        error_log("Failed to process recurring transactions: " . $exception->getMessage());
-        $conn->rollback();
-        throw $exception;
-    }
-
-    $conn->close();
     return true;
 }
 
