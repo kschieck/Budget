@@ -11,22 +11,7 @@ import FiltersSection from "./Filters.js";
 import * as API from "./API.js";
 import { DrawdownChart } from "./Charts.js";
 import RecurringTransactionsSection from "./RecurringTransactions.js";
-
-function MonthSelector({ children, previousMonth, nextMonth, showNextMonth }) {
-    return (
-        <h1 className="no_bottom_space center_spaced">
-            <button className="btn-icon" onClick={previousMonth}>‹</button>
-            {children}
-            <button
-                className="btn-icon"
-                onClick={nextMonth}
-                style={showNextMonth ? {} : { visibility: "hidden" }}
-            >
-                ›
-            </button>
-        </h1>
-    );
-}
+import MonthSelector from "./MonthSelector.js";
 
 function LoginForm({ onTryLogin, disabled }) {
     let [username, setUsername] = useState("");
@@ -66,7 +51,6 @@ function BudgetApp() {
     const [goals, setGoals] = useState([]);
     const [transactions, setTransactions] = useState([]);
     const [amountTotal, setAmountTotal] = useState(0);
-    const [showTools, setShowTools] = useState(false);
 
     const [showAddTransaction, setShowAddTransaction] = useState(false);
     const [editingTransactionId, setEditingTransactionId] = useState(null);
@@ -416,21 +400,18 @@ function BudgetApp() {
                 nextMonth={nextMonth}
                 showNextMonth={monthOffset > -1}
             >
-                <span
-                    style={{ width: "150px" }}
-                >
+                <span>
                     {isCurrentMonth
                         ? toDollars(amountTotal / 100)
                         : getMonthName(monthOffset)}
+                    <br />
+                    <div id="total_spend">
+                        {toDollarsNoCents(totalTxSpentDollars / 100)} spent
+                        {isCurrentMonth ? ", " + getDaysLeftInTheMonth() + " days left" : null}
+                    </div>
                 </span>
-            </MonthSelector>
 
-            {isCurrentMonth ? (
-                <div id="total_spend">
-                    {toDollarsNoCents(totalTxSpentDollars / 100)} spent,{" "}
-                    {getDaysLeftInTheMonth()} days left
-                </div>
-            ) : null}
+            </MonthSelector>
 
             {!isNextMonth ? (
                 <>
