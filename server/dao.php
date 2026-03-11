@@ -473,10 +473,10 @@ function getLastMonth1stTransactions($currentDate) {
     return select($sql, "s", [$currentDate]);
 }
 
-function loadRecurringTransactions($user) {
+function loadRecurringTransactions() {
     $sql = "SELECT id, amount, description, start_month, end_month FROM `recurring_transactions`
-            WHERE user = ? AND active = 1 ORDER BY id DESC";
-    return select($sql, "s", [$user]);
+            WHERE active = 1 ORDER BY id DESC";
+    return select($sql, "", []);
 }
 
 function addRecurring($user, $amount, $description, $startMonth, $endMonth) {

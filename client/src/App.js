@@ -355,14 +355,14 @@ function BudgetApp() {
             </MonthSelector>
 
             {!isNextMonth ? (
-                <>
+                <h1 className="no_bottom_space center_spaced">
                     <DrawdownChart
                         transactions={transactions}
                         width={300}
                         height={100}
                     />
                     <br />
-                </>
+                </h1>
             ) : null}
 
             {
