@@ -194,50 +194,10 @@ function BudgetApp() {
             });
     }
     function startAddGoal() {
-        setActiveDialog(
-            <AddEditGoalDialog
-                onCancel={() => setActiveDialog(null)}
-                onSave={(id, amount, description) => {
-                    API.saveGoal(id, amount, description)
-                        .then((result) => {
-                            if (result.success) {
-                                loadGoals();
-                            }
-                        })
-                        .catch((e) => {
-                            console.error(e);
-                            alert("Failed to save");
-                        });
-                    setActiveDialog(null);
-                }}
-            />,
-        );
+        setShowAddGoal(true);
     }
     function startEditGoal(goalId) {
-        let goal = goals.filter((goal) => goal.id == goalId)?.[0] || null;
-        if (goal == null) return;
-
-        setActiveDialog(
-            <AddEditGoalDialog
-                id={goalId}
-                description={goal.name}
-                amount={goal.total / 100}
-                onCancel={() => setActiveDialog(null)}
-                onSave={(id, amount, description) => {
-                    API.saveGoal(id, amount, description)
-                        .then((result) => {
-                            if (result.success) {
-                                loadGoals();
-                            }
-                        })
-                        .catch((e) => {
-                            console.error(e);
-                            alert("Failed to save");
-                        });
-                    setActiveDialog(null);
-                }}
-            />,
-        );
+        setEditingGoalId(goalId);
     }
     function startDeleteGoal(goalId) {
         API.deleteGoal(goalId)
@@ -254,27 +214,7 @@ function BudgetApp() {
             });
     }
     function startContributeGoal(goalId) {
-        setActiveDialog(
-            <AddGoalTransactionDialog
-                id={goalId}
-                onCancel={() => setActiveDialog(null)}
-                onSave={(id, amount) => {
-                    API.saveGoalTransaction(id, amount)
-                        .then((result) => {
-                            if (result.success) {
-                                loadAmountTotal();
-                                loadTransactions();
-                                loadGoals();
-                            }
-                        })
-                        .catch((e) => {
-                            console.error(e);
-                            alert("Failed to save");
-                        });
-                    setActiveDialog(null);
-                }}
-            />,
-        );
+        setContributingGoalId(goalId);
     }
     function changeFilterState(name, showTransactions) {
         setFilters((prev) => {
@@ -405,10 +345,11 @@ function BudgetApp() {
                         ? toDollars(amountTotal / 100)
                         : getMonthName(monthOffset)}
                     <br />
-                    <div id="total_spend">
-                        {toDollarsNoCents(totalTxSpentDollars / 100)} spent
-                        {isCurrentMonth ? ", " + getDaysLeftInTheMonth() + " days left" : null}
-                    </div>
+                    {!isNextMonth ? (
+                        <div id="total_spend">
+                            {toDollarsNoCents(totalTxSpentDollars / 100)} spent
+                            {isCurrentMonth ? ", " + getDaysLeftInTheMonth() + " days left" : null}
+                        </div>) : null}
                 </span>
 
             </MonthSelector>
