@@ -355,7 +355,7 @@ function BudgetApp() {
             </MonthSelector>
 
             {!isNextMonth ? (
-                <h1 className="no_bottom_space center_spaced">
+                <h1 className="chart-wrapper">
                     <DrawdownChart
                         transactions={transactions}
                         width={300}

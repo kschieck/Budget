@@ -129,6 +129,22 @@ export default function RecurringTransactionsSection() {
         API.loadRecurringTransactions()
             .then((result) => {
                 if (result.success) {
+
+                    // Sort with negative values first (highest to lowest)
+                    // then positive values (highest to lowest)
+                    result.recurring.sort((a, b) => {
+                        const aNeg = a.amount < 0;
+                        const bNeg = b.amount < 0;
+
+                        if (aNeg !== bNeg) {
+                            return aNeg ? -1 : 1;
+                        }
+
+                        return aNeg
+                            ? a.amount - b.amount   // negatives: ascending
+                            : b.amount - a.amount;  // positives: descending
+                    });
+
                     setRecurring(result.recurring);
                 }
             })

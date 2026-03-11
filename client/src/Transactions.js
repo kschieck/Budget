@@ -130,7 +130,7 @@ export default function TransactionsSection({
                 ) : null}
             </h1>
             <table id="tx_table" cellSpacing="0">
-                <tbody>
+                <tbody className="limited_height">
                     {transactions
                         .filter((transaction) => transaction.active)
                         .map((transaction) => (

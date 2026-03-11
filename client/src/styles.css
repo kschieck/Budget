@@ -2,54 +2,56 @@
    Design Tokens
    ============================================================ */
 :root {
-  --color-bg:               #f9f5f0;
-  --color-surface:          #ffffff;
-  --color-surface-alt:      #fdf9f5;
-  --color-border:           #e8ddd3;
-  --color-border-light:     #f0e8e0;
+  --color-bg: #f9f5f0;
+  --color-surface: #ffffff;
+  --color-surface-alt: #fdf9f5;
+  --color-border: #e8ddd3;
+  --color-border-light: #f0e8e0;
 
-  --color-text:             #2c2420;
-  --color-text-secondary:   #7a6860;
-  --color-text-disabled:    #b8a89e;
+  --color-text: #2c2420;
+  --color-text-secondary: #7a6860;
+  --color-text-disabled: #b8a89e;
 
-  --color-accent:           #c17f52;
-  --color-accent-dark:      #a5673e;
-  --color-accent-light:     #f2e4d6;
+  --color-accent: #c17f52;
+  --color-accent-dark: #a5673e;
+  --color-accent-light: #f2e4d6;
 
-  --color-positive:         #5c8f6a;
-  --color-positive-light:   #dff0e5;
-  --color-negative:         #c25e4e;
-  --color-negative-light:   #fbe8e5;
+  --color-positive: #5c8f6a;
+  --color-positive-light: #dff0e5;
+  --color-negative: #c25e4e;
+  --color-negative-light: #fbe8e5;
 
-  --color-progress-bg:      #eedfd2;
-  --color-progress-fill:    #c17f52;
+  --color-progress-bg: #eedfd2;
+  --color-progress-fill: #c17f52;
 
-  --radius-sm:   6px;
-  --radius-md:   12px;
-  --radius-lg:   18px;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
   --radius-full: 9999px;
 
   --shadow-card: 0 2px 12px rgba(44, 36, 32, 0.08);
   --shadow-dialog: 0 8px 40px rgba(44, 36, 32, 0.18);
 
-  --space-xs:  4px;
-  --space-sm:  8px;
-  --space-md:  16px;
-  --space-lg:  24px;
-  --space-xl:  32px;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
 
   --font-family: 'Nunito', system-ui, -apple-system, sans-serif;
-  --font-size-sm:   0.8125rem;
+  --font-size-sm: 0.8125rem;
   --font-size-base: 1rem;
-  --font-size-lg:   1.125rem;
-  --font-size-xl:   1.5rem;
-  --font-size-2xl:  2rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.5rem;
+  --font-size-2xl: 2rem;
 }
 
 /* ============================================================
    Reset & Base
    ============================================================ */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -73,16 +75,34 @@ body {
 /* ============================================================
    Typography
    ============================================================ */
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
   font-family: var(--font-family);
   margin: 0;
   text-align: center;
 }
 
-h1 { font-size: var(--font-size-xl);  font-weight: 700; }
-h2 { font-size: var(--font-size-lg);  font-weight: 700; }
-h3 { font-size: var(--font-size-lg);  font-weight: 600; }
-h4 { font-size: var(--font-size-base); font-weight: 600; }
+h1 {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+}
+
+h2 {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+}
+
+h3 {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+
+h4 {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+}
 
 /* ============================================================
    Card
@@ -273,7 +293,7 @@ h1.no_bottom_space.center_spaced {
   width: 100%;
 }
 
-#tx_table tbody {
+#tx_table tbody.limited_height {
   max-height: 300px;
   overflow-y: auto;
 }
@@ -358,7 +378,7 @@ h1.no_bottom_space.center_spaced {
 }
 
 /* Description div inside transaction row — truncate long names */
-#tx_table td:nth-child(3) > div {
+#tx_table td:nth-child(3)>div {
   flex: 1;
   min-width: 0;
   overflow: hidden;
@@ -368,7 +388,7 @@ h1.no_bottom_space.center_spaced {
 }
 
 /* Goal name div inside goal row */
-#goal_title + table td:first-child > div {
+#goal_title+table td:first-child>div {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -395,7 +415,7 @@ h1.no_bottom_space.center_spaced {
   border-bottom: 1px solid var(--color-border-light);
 }
 
-#goal_title + table {
+#goal_title+table {
   display: block;
   width: 100%;
   margin: 0;
@@ -405,7 +425,7 @@ h1.no_bottom_space.center_spaced {
   overflow: hidden;
 }
 
-#goal_title + table tbody tr {
+#goal_title+table tbody tr {
   display: flex;
   align-items: center;
   padding: var(--space-sm) var(--space-md);
@@ -413,18 +433,18 @@ h1.no_bottom_space.center_spaced {
   min-height: 56px;
 }
 
-#goal_title + table tbody tr:last-child {
+#goal_title+table tbody tr:last-child {
   border-bottom: none;
 }
 
-#goal_title + table td {
+#goal_title+table td {
   border: none;
   padding: var(--space-xs) var(--space-xs);
   vertical-align: middle;
 }
 
 /* Goal name cell */
-#goal_title + table td:first-child {
+#goal_title+table td:first-child {
   flex-shrink: 0;
   min-width: 90px;
   max-width: 110px;
@@ -436,13 +456,13 @@ h1.no_bottom_space.center_spaced {
 }
 
 /* Progress bar cell */
-#goal_title + table td:nth-child(2) {
+#goal_title+table td:nth-child(2) {
   flex: 1;
   padding: 0 var(--space-sm);
 }
 
 /* Contribute button cell */
-#goal_title + table td:nth-child(3) {
+#goal_title+table td:nth-child(3) {
   flex-shrink: 0;
 }
 
@@ -452,7 +472,7 @@ h1.no_bottom_space.center_spaced {
   background: var(--color-surface-alt);
 }
 
-.goal_display_total > td {
+.goal_display_total>td {
   border-bottom: none;
 }
 
@@ -511,7 +531,7 @@ h3.sub_title {
   border-bottom: 1px solid var(--color-border-light);
 }
 
-h3.sub_title + table {
+h3.sub_title+table {
   display: block;
   width: 100%;
   margin: 0;
@@ -521,18 +541,18 @@ h3.sub_title + table {
   overflow: hidden;
 }
 
-h3.sub_title + table td {
+h3.sub_title+table td {
   padding: var(--space-sm) var(--space-md);
   border-bottom: 1px solid var(--color-border-light);
   border-top: none;
   font-size: var(--font-size-sm);
 }
 
-h3.sub_title + table tr:last-child td {
+h3.sub_title+table tr:last-child td {
   border-bottom: none;
 }
 
-h3.sub_title + table input[type="checkbox"] {
+h3.sub_title+table input[type="checkbox"] {
   accent-color: var(--color-accent);
   width: 16px;
   height: 16px;
@@ -557,6 +577,7 @@ h3.sub_title + table input[type="checkbox"] {
   box-shadow: var(--shadow-card);
   padding: var(--space-md);
   overflow: hidden;
+  border-radius: var(--radius-lg);
 }
 
 /* ============================================================
@@ -641,19 +662,19 @@ dialog br {
 }
 
 /* Stack inputs vertically with gap */
-dialog > input,
-dialog > h3 ~ input {
+dialog>input,
+dialog>h3~input {
   margin-bottom: var(--space-md);
 }
 
 /* Style dialog save/cancel buttons.
    Floats on inline styles are no-ops inside flex containers,
    so no override needed — the flex column layout takes over. */
-dialog > button {
+dialog>button {
   flex: 1;
 }
 
-dialog > button:first-of-type {
+dialog>button:first-of-type {
   background: var(--color-accent);
   color: #fff;
   border-radius: var(--radius-full);
@@ -662,11 +683,11 @@ dialog > button:first-of-type {
   font-weight: 700;
 }
 
-dialog > button:first-of-type:hover {
+dialog>button:first-of-type:hover {
   background: var(--color-accent-dark);
 }
 
-dialog > button:last-of-type {
+dialog>button:last-of-type {
   background: transparent;
   color: var(--color-text-secondary);
   border-radius: var(--radius-full);
@@ -675,7 +696,7 @@ dialog > button:last-of-type {
   font-size: var(--font-size-base);
 }
 
-dialog > button:last-of-type:hover {
+dialog>button:last-of-type:hover {
   background: var(--color-surface-alt);
   color: var(--color-text);
 }
@@ -769,7 +790,7 @@ h3.sub_title {
 
 /* Generic section h1s that act as card headers
    (tx_title and goal_title have IDs; Filters h1 does not) */
-h1:not(.no_bottom_space):not(#tx_title):not(#goal_title) {
+h1:not(.no_bottom_space):not(#tx_title):not(#goal_title):not(.chart-wrapper) {
   margin: var(--space-lg) 0 0;
   background: var(--color-surface);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
@@ -781,7 +802,7 @@ h1:not(.no_bottom_space):not(#tx_title):not(#goal_title) {
 }
 
 /* The sub_title follows immediately, so remove its top radius */
-h1 + h3.sub_title {
+h1+h3.sub_title {
   border-radius: 0;
   box-shadow: none;
 }
@@ -844,7 +865,7 @@ dialog input[type="button"]:last-of-type:hover {
 }
 
 /* Float overrides for NewMonthTool — lay them out as a flex row */
-dialog > input[type="button"] {
+dialog>input[type="button"] {
   display: inline-block;
 }
 
