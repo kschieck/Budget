@@ -1,6 +1,34 @@
 import { useRef, useEffect } from "react";
 import { toDollarsNoCents } from "./Utils";
 
+function getDaysInMonth(date) {
+    const d = new Date(date);
+    return new Date(
+        d.getFullYear(),
+        d.getMonth() + 1,
+        0
+    ).getDate();
+}
+
+function getMaxDayOfMonth(dateString) {
+    const inputDate = new Date(dateString);
+    const today = new Date();
+
+    const isCurrentMonth =
+        inputDate.getFullYear() === today.getFullYear() &&
+        inputDate.getMonth() === today.getMonth();
+
+    if (isCurrentMonth) {
+        return today.getDate();
+    }
+
+    return new Date(
+        inputDate.getFullYear(),
+        inputDate.getMonth() + 1,
+        0
+    ).getDate();
+}
+
 export function DrawdownChart({ width, height, transactions = [] }) {
     const canvasRef = useRef(null);
 
@@ -12,12 +40,9 @@ export function DrawdownChart({ width, height, transactions = [] }) {
             transaction.amount,
         ]);
 
-    const dayOfTheMonth = new Date().getDate();
-    const daysInMonth = new Date(
-        new Date().getFullYear(),
-        new Date().getMonth() + 1,
-        0,
-    ).getDate();
+    // Calculate the date the chart should render to and the number of days in the month
+    const dayOfTheMonth = transactions.length === 0 ? 1 : getMaxDayOfMonth(transactions[0].date_added);
+    const daysInMonth = transactions.length === 0 ? 31 : getDaysInMonth(transactions[0].date_added);
 
     function calcChartData(txAmounts) {
         txAmounts.sort(function (a, b) {

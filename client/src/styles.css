@@ -239,6 +239,19 @@ h1.no_bottom_space.center_spaced {
 }
 
 /* ============================================================
+   Recurring Transactions
+   ============================================================ */
+
+.recurring_totals {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  text-align: center;
+  margin: var(--space-xs) 0 0;
+  font-weight: 600;
+  padding: 0 var(--space-md);
+}
+
+/* ============================================================
    Layout utilities (kept from original, repurposed)
    ============================================================ */
 .hidden {

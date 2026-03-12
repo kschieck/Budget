@@ -102,10 +102,6 @@ function BudgetApp() {
             ? transactions
             : transactions.filter((t) => filters.has(t.user));
 
-    let totalTxSpentDollars = transactions
-        .filter((tx) => tx.active && tx.amount > 0)
-        .map((tx) => tx.amount)
-        .reduce((acc, amount) => acc + amount, 0);
     let users = [
         ...new Set(
             transactions
@@ -391,7 +387,7 @@ function BudgetApp() {
             }
 
             {
-                users.length > 0 && !isNextMonth ? (
+                users.length > 1 && !isNextMonth ? (
                     <FiltersSection
                         names={users}
                         filters={filters}
