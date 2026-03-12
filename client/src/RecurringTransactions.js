@@ -187,6 +187,9 @@ export default function RecurringTransactionsSection() {
         setEditingRecurring(rec);
     }
 
+    let totalIncome = recurring.reduce((prev, curr) => { return prev + Math.min(0, curr.amount); }, 0);
+    let totalSpend = recurring.reduce((prev, curr) => { return prev + Math.max(0, curr.amount); }, 0);
+
     return (
         <>
             {showAddDialog && (
@@ -208,10 +211,16 @@ export default function RecurringTransactionsSection() {
             )}
 
             <h1 id="tx_title">
-                Recurring Transactions&nbsp;
-                <button className="btn-icon" onClick={() => setShowAddDialog(true)}>
-                    +
-                </button>
+                <span>
+                    Recurring Transactions&nbsp;
+                    <button className="btn-icon" onClick={() => setShowAddDialog(true)}>
+                        +
+                    </button>
+                    <br />
+                    <div className="recurring_totals">
+                        {toDollars(totalIncome / 100)} income, {toDollars(totalSpend / 100)} spend
+                    </div>
+                </span>
             </h1>
             <table id="tx_table" cellSpacing="0">
                 <tbody>
