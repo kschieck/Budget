@@ -81,7 +81,7 @@ All database access goes through `dao.php`, which provides:
 
 The `amount` table (single-row balance) must always stay in sync with the sum of active transactions. This is enforced at the DB layer using MySQL transactions in `dao.php`:
 
-- `addTransactions()` — INSERT rows + UPDATE amount atomically
+- `addTransaction()` — INSERT row + UPDATE amount atomically
 - `editTransaction()` — UPDATE transaction + UPDATE amount delta atomically
 - `disableTransaction()` — SET active=0 + reverse amount atomically
 - `addGoalTransaction()` — INSERT transaction + UPDATE amount + UPDATE goal atomically
