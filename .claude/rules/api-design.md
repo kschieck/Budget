@@ -69,7 +69,7 @@ if ($amount === 0 || strlen($description) === 0) {
 
 - Never write SQL in endpoint files — call functions from `dao.php`
 - If you need a new query, add a function to `dao.php`
-- Wrap mutations that touch the `amount` table in a MySQL transaction (see `addTransactions()` in `dao.php` as the canonical pattern)
+- Wrap mutations that touch the `amount` table in a MySQL transaction (see `addTransaction()` in `dao.php` as the canonical pattern)
 
 ## Error Handling
 

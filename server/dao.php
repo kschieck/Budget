@@ -102,28 +102,19 @@ function loadGoals($limit) {
 }
 
 function addTransaction($user, $amount, $description) {
-    return addTransactions($user, [array("amount" => $amount, "description" => $description)]);
-}
-
-function addTransactions($user, $transactions) {
-    $amountSum = 0;
-    foreach ($transactions as $tx) {
-        $amount      = $tx["amount"];
-        $description = $tx["description"];
-        $newId       = getNewTransactionId();
-        $_SESSION["budget"]["transactions"][] = [
-            "id"          => $newId,
-            "date_added"  => date('Y-m-d H:i:s'),
-            "amount"      => $amount,
-            "description" => substr($description, 0, 64),
-            "active"      => 1,
-            "user"        => substr($user, 0, 32),
-            "goal_id"     => null
-        ];
-        $amountSum += $amount;
-    }
-    $_SESSION["budget"]["amount"] -= $amountSum;
-    return true;
+    $newId = getNewTransactionId();
+    $tx = [
+        "id"          => $newId,
+        "date_added"  => date('Y-m-d H:i:s'),
+        "amount"      => $amount,
+        "description" => substr($description, 0, 64),
+        "active"      => 1,
+        "user"        => substr($user, 0, 32),
+        "goal_id"     => null
+    ];
+    $_SESSION["budget"]["transactions"][] = $tx;
+    $_SESSION["budget"]["amount"] -= $amount;
+    return $tx;
 }
 
 function editTransaction($user, $transactionId, $amount, $description) {
@@ -169,7 +160,7 @@ function editTransaction($user, $transactionId, $amount, $description) {
     $_SESSION["budget"]["transactions"][$txIndex]["amount"]      = $amount;
     $_SESSION["budget"]["transactions"][$txIndex]["description"] = substr($description, 0, 64);
 
-    return true;
+    return $_SESSION["budget"]["transactions"][$txIndex];
 }
 
 function disableTransaction($user, $transactionId) {
@@ -203,14 +194,15 @@ function disableTransaction($user, $transactionId) {
 
 function addGoal($user, $name, $total, $amount) {
     $newGoalId = getNewGoalId();
-    $_SESSION["budget"]["goals"][] = [
+    $goal = [
         "id"         => $newGoalId,
         "date_added" => date('Y-m-d H:i:s'),
         "total"      => $total,
         "amount"     => $amount,
         "name"       => $name
     ];
-    return $newGoalId;
+    $_SESSION["budget"]["goals"][] = $goal;
+    return $goal;
 }
 
 function addGoalTransaction($user, $goalId, $amount) {
@@ -227,7 +219,7 @@ function addGoalTransaction($user, $goalId, $amount) {
     $description = "Goal $verb: " . $goalName;
 
     $newId = getNewTransactionId();
-    $_SESSION["budget"]["transactions"][] = [
+    $tx = [
         "id"          => $newId,
         "date_added"  => date('Y-m-d H:i:s'),
         "amount"      => $amount,
@@ -236,27 +228,36 @@ function addGoalTransaction($user, $goalId, $amount) {
         "user"        => substr($user, 0, 32),
         "goal_id"     => $goalId
     ];
+    $_SESSION["budget"]["transactions"][] = $tx;
 
     $_SESSION["budget"]["amount"] -= $amount;
 
+    $newGoalAmount = null;
     foreach ($_SESSION["budget"]["goals"] as &$g) {
         if ($g["id"] == $goalId) {
             $g["amount"] += $amount;
+            $newGoalAmount = $g["amount"];
             break;
         }
     }
     unset($g);
 
-    return true;
+    return [
+        "transaction" => $tx,
+        "goalAmount"  => $newGoalAmount,
+    ];
 }
 
 function setGoalTotal($user, $goalId, $total) {
     foreach ($_SESSION["budget"]["goals"] as &$g) {
         if ($g["id"] == $goalId) {
             $g["total"] = $total;
-            return true;
+            $result = $g;
+            unset($g);
+            return $result;
         }
     }
+    unset($g);
     return false;
 }
 
@@ -323,21 +324,22 @@ function getDailyTotals($startDate) {
     return new ArrayDatabaseResult(array_values($groups));
 }
 
-function loadRecurringTransactions() {
+function loadRecurringTransactions($user) {
     return new ArrayDatabaseResult($_SESSION["budget"]["recurring"]);
 }
 
 function addRecurring($user, $amount, $description, $startMonth, $endMonth) {
     $ids   = array_map(function($r) { return $r["id"]; }, $_SESSION["budget"]["recurring"]);
     $newId = empty($ids) ? 1 : max($ids) + 1;
-    $_SESSION["budget"]["recurring"][] = [
+    $recurring = [
         "id"          => $newId,
         "amount"      => $amount,
         "description" => substr($description, 0, 64),
         "start_month" => $startMonth,
         "end_month"   => $endMonth
     ];
-    return $newId;
+    $_SESSION["budget"]["recurring"][] = $recurring;
+    return $recurring;
 }
 
 function editRecurring($user, $id, $amount, $description, $startMonth, $endMonth) {
@@ -347,8 +349,9 @@ function editRecurring($user, $id, $amount, $description, $startMonth, $endMonth
             $r["description"] = substr($description, 0, 64);
             $r["start_month"] = $startMonth;
             $r["end_month"]   = $endMonth;
+            $result = $r;
             unset($r);
-            return true;
+            return $result;
         }
     }
     unset($r);

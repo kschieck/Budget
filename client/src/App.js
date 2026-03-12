@@ -175,13 +175,21 @@ function BudgetApp() {
         API.deleteTransaction(transactionId)
             .then((result) => {
                 if (result.success) {
-                    loadAmountTotal();
-                    if (transaction?.goal_id) {
-                        loadGoals();
-                    }
                     setTransactions((prev) =>
                         prev.filter((t) => t.id !== transactionId),
                     );
+                    if (transaction) {
+                        setAmountTotal((prev) => prev + transaction.amount);
+                        if (transaction.goal_id) {
+                            setGoals((prev) =>
+                                prev.map((g) =>
+                                    g.id === transaction.goal_id
+                                        ? { ...g, amount: g.amount - transaction.amount }
+                                        : g,
+                                ),
+                            );
+                        }
+                    }
                 }
             })
             .catch((e) => {
@@ -199,7 +207,7 @@ function BudgetApp() {
         API.deleteGoal(goalId)
             .then((result) => {
                 if (result.success) {
-                    loadGoals();
+                    setGoals((prev) => prev.filter((g) => g.id !== goalId));
                 } else if (result.message) {
                     alert(result.message);
                 }
@@ -233,8 +241,8 @@ function BudgetApp() {
                         API.saveTransaction(id, amount, description)
                             .then((result) => {
                                 if (result.success) {
-                                    loadAmountTotal();
-                                    loadTransactions();
+                                    setTransactions((prev) => [result.transaction, ...prev]);
+                                    setAmountTotal((prev) => prev - result.transaction.amount);
                                 }
                             })
                             .catch((e) => {
@@ -251,15 +259,27 @@ function BudgetApp() {
                     description={editingTransaction.description}
                     onCancel={() => setEditingTransactionId(null)}
                     onSave={(id, amount, description) => {
-                        const goalId = editingTransaction.goal_id ?? null;
+                        const prevTransaction = editingTransaction;
                         setEditingTransactionId(null);
                         API.saveTransaction(id, amount, description)
                             .then((result) => {
                                 if (result.success) {
-                                    loadAmountTotal();
-                                    loadTransactions();
-                                    if (goalId) {
-                                        loadGoals();
+                                    setTransactions((prev) =>
+                                        prev.map((t) =>
+                                            t.id === result.transaction.id
+                                                ? { ...t, amount: result.transaction.amount, description: result.transaction.description }
+                                                : t,
+                                        ),
+                                    );
+                                    setAmountTotal((prev) => prev + prevTransaction.amount - result.transaction.amount);
+                                    if (result.transaction.goal_id) {
+                                        setGoals((prev) =>
+                                            prev.map((g) =>
+                                                g.id === result.transaction.goal_id
+                                                    ? { ...g, amount: g.amount + result.transaction.amount - prevTransaction.amount }
+                                                    : g,
+                                            ),
+                                        );
                                     }
                                 }
                             })
@@ -278,7 +298,7 @@ function BudgetApp() {
                         API.saveGoal(id, amount, description)
                             .then((result) => {
                                 if (result.success) {
-                                    loadGoals();
+                                    setGoals((prev) => [...prev, result.goal]);
                                 }
                             })
                             .catch((e) => {
@@ -299,7 +319,13 @@ function BudgetApp() {
                         API.saveGoal(id, amount, description)
                             .then((result) => {
                                 if (result.success) {
-                                    loadGoals();
+                                    setGoals((prev) =>
+                                        prev.map((g) =>
+                                            g.id === result.goal.id
+                                                ? { ...g, total: result.goal.total }
+                                                : g,
+                                        ),
+                                    );
                                 }
                             })
                             .catch((e) => {
@@ -314,13 +340,20 @@ function BudgetApp() {
                     id={contributingGoalId}
                     onCancel={() => setContributingGoalId(null)}
                     onSave={(id, amount) => {
+                        const goalId = contributingGoalId;
                         setContributingGoalId(null);
                         API.saveGoalTransaction(id, amount)
                             .then((result) => {
                                 if (result.success) {
-                                    loadAmountTotal();
-                                    loadTransactions();
-                                    loadGoals();
+                                    setTransactions((prev) => [result.transaction, ...prev]);
+                                    setAmountTotal((prev) => prev - result.transaction.amount);
+                                    setGoals((prev) =>
+                                        prev.map((g) =>
+                                            g.id === goalId
+                                                ? { ...g, amount: result.goalAmount }
+                                                : g,
+                                        ),
+                                    );
                                 }
                             })
                             .catch((e) => {

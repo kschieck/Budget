@@ -50,13 +50,18 @@ GET recurring.php
 
 ### POST — Create
 
-Creates a new recurring template. `start_month` is always set server-side to next calendar month (UTC-4) and cannot be supplied by the client.
+Creates a new recurring template. `start_month` is supplied by the client but must be >= the current month (UTC-4).
 
 ```json
-{ "amount": 1500, "description": "gym membership", "end_month": "2025-12" }
+{ "amount": 1500, "description": "gym membership", "start_month": "2026-04", "end_month": "2026-12" }
 ```
 
-`end_month` is optional. If supplied it must match `/^\d{4}-\d{2}$/`.
+`end_month` is optional. If supplied it must match `/^\d{4}-\d{2}$/` and must be strictly after `start_month`.
+
+Response:
+```json
+{ "success": true, "recurring": { "id": 7, "amount": 1500, "description": "gym membership", "start_month": "2026-04", "end_month": "2026-12" } }
+```
 
 ### PUT — Edit
 
@@ -111,13 +116,15 @@ loadRecurringTransactions()
   → GET recurring.php
   → { success, recurring: [...] }
 
-saveRecurringTransaction(id, amount, description, endMonth)
-  // id === -1 → POST (create), otherwise → PUT (update)
-  → { success }
+saveRecurringTransaction(id, amount, description, startMonth, endMonth)
+  // id === -1 → POST (create): returns { success, recurring: { id, amount, description, start_month, end_month } }
+  // otherwise → PUT (update):  returns { success, recurring: { id, amount, description, start_month, end_month } }
+  // On success: local state updated directly — no reload
 
 deleteRecurringTransaction(id)
   → DELETE recurring.php { id }
   → { success }
+  // On success: filters id from local state
 ```
 
 ## Constraints

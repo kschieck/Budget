@@ -2,6 +2,19 @@ import { useState, useEffect, useRef } from "react";
 import { toDollars } from "./Utils.js";
 import * as API from "./API.js";
 
+function sortRecurring(list) {
+    return [...list].sort((a, b) => {
+        const aNeg = a.amount < 0;
+        const bNeg = b.amount < 0;
+        if (aNeg !== bNeg) {
+            return aNeg ? -1 : 1;
+        }
+        return aNeg
+            ? a.amount - b.amount   // negatives: ascending (most negative first)
+            : b.amount - a.amount;  // positives: descending (highest first)
+    });
+}
+
 function getCurrentMonthString() {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
@@ -129,23 +142,7 @@ export default function RecurringTransactionsSection() {
         API.loadRecurringTransactions()
             .then((result) => {
                 if (result.success) {
-
-                    // Sort with negative values first (highest to lowest)
-                    // then positive values (highest to lowest)
-                    result.recurring.sort((a, b) => {
-                        const aNeg = a.amount < 0;
-                        const bNeg = b.amount < 0;
-
-                        if (aNeg !== bNeg) {
-                            return aNeg ? -1 : 1;
-                        }
-
-                        return aNeg
-                            ? a.amount - b.amount   // negatives: ascending
-                            : b.amount - a.amount;  // positives: descending
-                    });
-
-                    setRecurring(result.recurring);
+                    setRecurring(sortRecurring(result.recurring));
                 }
             })
             .catch(console.error);
@@ -159,7 +156,15 @@ export default function RecurringTransactionsSection() {
                 if (result.success) {
                     setShowAddDialog(false);
                     setEditingRecurring(null);
-                    loadRecurring();
+                    if (id === -1) {
+                        setRecurring((prev) => sortRecurring([...prev, result.recurring]));
+                    } else {
+                        setRecurring((prev) =>
+                            sortRecurring(prev.map((r) =>
+                                r.id === result.recurring.id ? result.recurring : r,
+                            )),
+                        );
+                    }
                 }
             })
             .catch((e) => {

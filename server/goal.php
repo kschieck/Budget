@@ -24,8 +24,12 @@ switch($_SERVER['REQUEST_METHOD']) {
         }
         
         try {
-            addGoal($_SESSION["budget_auth"], $name, $total, 0);
-            echo json_encode(["success" => true]);
+            $goal = addGoal($_SESSION["budget_auth"], $name, $total, 0);
+            if (!$goal) {
+                echo json_encode(["success" => false]);
+            } else {
+                echo json_encode(["success" => true, "goal" => $goal]);
+            }
         } catch (Error $e) {
             echo json_encode(["success" => false]);
         }
@@ -68,8 +72,12 @@ switch($_SERVER['REQUEST_METHOD']) {
         $amount = intval(floatval($data["amount"]) * 100); // convert to cents.
         
         try {
-            $success = setGoalTotal($_SESSION["budget_auth"], $id, $amount);
-            echo json_encode(["success" => $success]);
+            $goal = setGoalTotal($_SESSION["budget_auth"], $id, $amount);
+            if (!$goal) {
+                echo json_encode(["success" => false]);
+            } else {
+                echo json_encode(["success" => true, "goal" => $goal]);
+            }
         } catch (Error $e) {
             echo json_encode(["success" => false]);
         }
