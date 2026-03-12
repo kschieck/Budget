@@ -40,17 +40,23 @@ function initDemoSession() {
     $monthDiff = ($now->format('Y') - $maxDate->format('Y')) * 12 + ($now->format('n') - $maxDate->format('n'));
 
     // Shift all transaction dates forward so the latest month aligns with today's month
+    $filteredTransactions = [];
+    error_log("filtering transactions...");
     foreach ($demoData["transactions"] as &$t) {
         $dt = new DateTime($t["date_added"]);
         $dt->modify("+$monthDiff months");
-        $t["date_added"] = $dt->format('Y-m-d H:i:s');
+
+        if ($dt < $now) {
+            $t["date_added"] = $dt->format('Y-m-d H:i:s');
+            $filteredTransactions[] = $t;
+        }
     }
     unset($t);
 
     $_SESSION["budget"] = [
         "amount"       => $demoData["amount"],
         "goals"        => $demoData["goals"],
-        "transactions" => $demoData["transactions"],
+        "transactions" => $filteredTransactions,
         "recurring"    => $demoData["recurring"]
     ];
     
