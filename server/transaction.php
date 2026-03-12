@@ -21,8 +21,12 @@ switch($_SERVER['REQUEST_METHOD']) {
                 exit(1);
             }
             try {
-                addGoalTransaction($_SESSION["budget_auth"], $goalId, $amount);
-                echo json_encode(["success" => true]);
+                $result = addGoalTransaction($_SESSION["budget_auth"], $goalId, $amount);
+                if (!$result) {
+                    echo json_encode(["success" => false]);
+                } else {
+                    echo json_encode(["success" => true, "transaction" => $result["transaction"], "goalAmount" => $result["goalAmount"]]);
+                }
             } catch (Error $e) {
                 echo json_encode(["success" => false]);
             }
@@ -34,16 +38,16 @@ switch($_SERVER['REQUEST_METHOD']) {
                 echo json_encode(["success" => false]);
                 exit(1);
             }
-        
+
             $description = trim($_POST["description"]);
             if (strlen($description) == 0) {
                 echo json_encode(["success" => false]);
                 exit(1);
             }
-            
+
             try {
-                addTransaction($_SESSION["budget_auth"], $amount, $description);
-                echo json_encode(["success" => true]);
+                $tx = addTransaction($_SESSION["budget_auth"], $amount, $description);
+                echo json_encode(["success" => true, "transaction" => $tx]);
             } catch (Error $e) {
                 echo json_encode(["success" => false]);
             }
@@ -87,8 +91,12 @@ switch($_SERVER['REQUEST_METHOD']) {
         }
     
         try {
-            $result = editTransaction($_SESSION["budget_auth"], $id, $amount, $description);
-            echo json_encode(["success" => $result]);
+            $tx = editTransaction($_SESSION["budget_auth"], $id, $amount, $description);
+            if (!$tx) {
+                echo json_encode(["success" => false]);
+            } else {
+                echo json_encode(["success" => true, "transaction" => $tx]);
+            }
         } catch (Error $e) {
             echo json_encode(["success" => false]);
         }

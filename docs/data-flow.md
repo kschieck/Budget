@@ -38,51 +38,63 @@ User fills form → onSave(id=-1, amount, description)
   → POST transaction.php { amount (dollars), description }
   → PHP: intval(floatval(amount) * 100) → cents
   → dao.addTransaction() → INSERT transaction + UPDATE amount (atomic)
-  → { success: true }
-  → loadAmountTotal() + loadTransactions()
+  → { success: true, transaction: { id, user, amount, description, date_added, goal_id, active } }
+  → setTransactions(prev => [transaction, ...prev])
+  → setAmountTotal(prev => prev - transaction.amount)
 ```
 
 ### Edit Transaction
 ```
 User edits form → onSave(id, amount, description)
+  → capture prevTransaction from state before closing dialog
   → API.saveTransaction(id, amount, description)
   → PUT transaction.php { transactionId, amount, description }
   → dao.editTransaction() → calculate delta, UPDATE both (atomic)
-  → { success: true }
-  → loadAmountTotal() + loadTransactions()
+  → { success: true, transaction: { id, amount, description, goal_id } }
+  → setTransactions: merge { amount, description } into matching transaction
+  → setAmountTotal(prev => prev + prevTransaction.amount - transaction.amount)
 ```
 
 ### Delete Transaction
 ```
 User clicks x → startDeleteTransaction(id)
+  → capture transaction from state before API call
   → API.deleteTransaction(id)
   → DELETE transaction.php { id }
   → dao.disableTransaction() → SET active=0 + reverse amount (atomic)
   → { success: true }
-  → loadAmountTotal() + optimistic: filter transaction from state
+  → setTransactions: filter out deleted transaction
+  → setAmountTotal(prev => prev + transaction.amount)
+  → if transaction.goal_id: setGoals: subtract transaction.amount from goal.amount
 ```
 
 ### Goal Contribution
 ```
 User enters amount → onSave(goalId, amount)
+  → capture goalId before closing dialog
   → API.saveGoalTransaction(goalId, amount)
   → POST transaction.php { goalId, amount }
   → dao.addGoalTransaction() → INSERT transaction (with goal_id) + UPDATE amount + UPDATE goal (atomic)
-  → { success: true }
-  → loadAmountTotal() + loadTransactions() + loadGoals()
+  → { success: true, transaction: { id, user, amount, description, date_added, goal_id, active }, goalAmount: int }
+  → setTransactions(prev => [transaction, ...prev])
+  → setAmountTotal(prev => prev - transaction.amount)
+  → setGoals: set goal.amount = goalAmount
 ```
 
 ### Edit Goal Transaction
 ```
 User edits amount on a goal-linked transaction → onSave(id, amount, description)
+  → capture prevTransaction from state before closing dialog
   → API.saveTransaction(id, amount, description)
   → PUT transaction.php { transactionId, amount, description }
   → dao.editTransaction() → load old amount + goal_id
       → delta = newAmount - oldAmount
       → UPDATE transactions + UPDATE amount (-delta) + UPDATE goals (+delta) (atomic)
       → description is rewritten to "Goal contribution/subtraction: <name>" (not user-editable)
-  → { success: true }
-  → loadAmountTotal() + loadTransactions() + loadGoals()
+  → { success: true, transaction: { id, amount, description, goal_id } }
+  → setTransactions: merge { amount, description } into matching transaction
+  → setAmountTotal(prev => prev + prevTransaction.amount - transaction.amount)
+  → setGoals: adjust goal.amount by (transaction.amount - prevTransaction.amount)
 ```
 
 ## API Response Shape
@@ -102,9 +114,39 @@ All endpoints return JSON. Success shape varies by endpoint:
 // GET recurring.php
 { "success": true, "recurring": [{ "id", "amount", "description", "start_month", "end_month" }] }
 
-// Any mutation (POST/PUT/DELETE)
+// POST transaction.php (regular transaction)
+{ "success": true, "transaction": { "id", "user", "amount", "description", "date_added", "goal_id", "active" } }
+
+// PUT transaction.php
+{ "success": true, "transaction": { "id", "amount", "description", "goal_id" } }
+
+// DELETE transaction.php
 { "success": true }
-// or
+
+// POST transaction.php (goal contribution)
+{ "success": true, "transaction": { "id", "user", "amount", "description", "date_added", "goal_id", "active" }, "goalAmount": 12300 }
+
+// POST goal.php
+{ "success": true, "goal": { "id", "user", "name", "total", "amount" } }
+
+// PUT goal.php
+{ "success": true, "goal": { "id", "total" } }
+
+// DELETE goal.php
+{ "success": true }
+// or on validation failure:
+{ "success": false, "message": "Remove all contributions before deleting this goal." }
+
+// POST recurring.php
+{ "success": true, "recurring": { "id", "amount", "description", "start_month", "end_month" } }
+
+// PUT recurring.php
+{ "success": true, "recurring": { "id", "amount", "description", "start_month", "end_month" } }
+
+// DELETE recurring.php
+{ "success": true }
+
+// Any failure
 { "success": false }
 ```
 

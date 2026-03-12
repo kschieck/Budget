@@ -31,7 +31,6 @@ export function reloadTransactions(monthOffset) {
 }
 
 export function saveTransaction(id, amount, description) {
-    console.log("saveTransaction", id, amount, description);
     if (id === -1) {
         return fetch("./transaction.php", {
             method: "POST",
@@ -48,7 +47,6 @@ export function saveTransaction(id, amount, description) {
 }
 
 export function deleteTransaction(id) {
-    console.log("deleteTransaction", id);
     return fetch("./transaction.php", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
@@ -61,7 +59,6 @@ export function loadGoals() {
 }
 
 export function saveGoal(id, total, name) {
-    console.log("saveGoal", id, total, name);
     if (id < 0) {
         return fetch("./goal.php", {
             method: "POST",
@@ -78,7 +75,6 @@ export function saveGoal(id, total, name) {
 }
 
 export function deleteGoal(id) {
-    console.log("deleteGoal", id);
     return fetch("./goal.php", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
@@ -87,7 +83,6 @@ export function deleteGoal(id) {
 }
 
 export function saveGoalTransaction(goalId, amount) {
-    console.log("saveGoalTransaction", goalId, amount);
     return fetch("./transaction.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -96,7 +91,6 @@ export function saveGoalTransaction(goalId, amount) {
 }
 
 export function duplicateTransactions(transactionIds) {
-    console.log("duplicateTransactions", transactionIds);
     return fetch("./transaction-duplicate.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

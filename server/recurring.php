@@ -62,8 +62,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
             $endMonth = null;
         }
 
-        $id = addRecurring($_SESSION["budget_auth"], $amount, $description, $startMonth, $endMonth);
-        if (!($id > 0)) {
+        $recurring = addRecurring($_SESSION["budget_auth"], $amount, $description, $startMonth, $endMonth);
+        if (!$recurring) {
             echo json_encode(["success" => false]);
             break;
         }
@@ -79,7 +79,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
             }
         }
 
-        echo json_encode(["success" => true]);
+        echo json_encode(["success" => true, "recurring" => $recurring]);
         break;
 
     case "PUT":
@@ -125,8 +125,12 @@ switch ($_SERVER['REQUEST_METHOD']) {
             $endMonth = null;
         }
 
-        $result = editRecurring($_SESSION["budget_auth"], $id, $amount, $description, $startMonth, $endMonth);
-        echo json_encode(["success" => (bool)$result]);
+        $recurring = editRecurring($_SESSION["budget_auth"], $id, $amount, $description, $startMonth, $endMonth);
+        if (!$recurring) {
+            echo json_encode(["success" => false]);
+        } else {
+            echo json_encode(["success" => true, "recurring" => $recurring]);
+        }
         break;
 
     case "DELETE":
