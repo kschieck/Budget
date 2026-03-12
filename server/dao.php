@@ -41,7 +41,7 @@ function initDemoSession() {
 
     // Shift all transaction dates forward so the latest month aligns with today's month
     $filteredTransactions = [];
-    error_log("filtering transactions...");
+    $newAmount = $demoData["amount"];
     foreach ($demoData["transactions"] as &$t) {
         $dt = new DateTime($t["date_added"]);
         $dt->modify("+$monthDiff months");
@@ -49,12 +49,14 @@ function initDemoSession() {
         if ($dt < $now) {
             $t["date_added"] = $dt->format('Y-m-d H:i:s');
             $filteredTransactions[] = $t;
+        } else {
+            $newAmount += $t["amount"];
         }
     }
     unset($t);
 
     $_SESSION["budget"] = [
-        "amount"       => $demoData["amount"],
+        "amount"       => $newAmount,
         "goals"        => $demoData["goals"],
         "transactions" => $filteredTransactions,
         "recurring"    => $demoData["recurring"]
