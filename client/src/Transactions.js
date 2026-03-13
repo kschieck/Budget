@@ -11,11 +11,22 @@ function TransactionRow({
 
     let dateString = transaction.date_added.substring(5, 10);
 
+    function handleMouseEnter() {
+        if (readonly) return;
+        if (!window.matchMedia("(hover: hover)").matches) return;
+        setShowActions(true);
+    }
+
+    function handleMouseLeave() {
+        if (!window.matchMedia("(hover: hover)").matches) return;
+        setShowActions(false);
+    }
+
     function clickedTransaction() {
-        if (readonly) {
-            return;
+        if (readonly) return;
+        if (!window.matchMedia("(hover: hover)").matches) {
+            setShowActions(!showActions);
         }
-        setShowActions(!showActions);
     }
 
     function TransactionAmount(num) {
@@ -25,7 +36,7 @@ function TransactionRow({
     }
 
     return (
-        <tr>
+        <tr onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
             <td>{dateString}</td>
             <td>{TransactionAmount(transaction.amount)}</td>
             <td className="small_cell">

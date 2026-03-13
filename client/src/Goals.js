@@ -15,13 +15,25 @@ function GoalRow({
             : toDollarsNoCents(goal.amount / 100);
     let totalString = toDollarsNoCents(goal.total / 100);
 
+    function handleMouseEnter() {
+        if (!window.matchMedia("(hover: hover)").matches) return;
+        setShowActions(true);
+    }
+
+    function handleMouseLeave() {
+        if (!window.matchMedia("(hover: hover)").matches) return;
+        setShowActions(false);
+    }
+
     function handleGoalClick() {
-        setShowActions(!showActions);
+        if (!window.matchMedia("(hover: hover)").matches) {
+            setShowActions(!showActions);
+        }
     }
 
     let percent = Math.min((goal.amount / goal.total) * 100, 100);
     return (
-        <tr>
+        <tr onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
             <td>
                 {showActions ? (
                     <>
