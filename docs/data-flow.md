@@ -16,6 +16,7 @@ BudgetApp
   ├── filteredTransactions → TransactionsSection → TransactionRow  (current/past months only)
   ├── transactions (unfiltered) → DrawdownChart                    (current/past months only)
   ├── goals → GoalsSection → GoalRow                              (current month only)
+  ├── goals → TransactionsSection → TransactionRow (readonly guard for inactive-goal transactions)
   ├── amountTotal → MonthSelector (displayed as balance)
   ├── filters → FiltersSection                                     (current/past months only)
   ├── monthOffset → MonthSelector (controls which month loads)
@@ -172,6 +173,17 @@ App mounts
              → { success: true, token, expire }
              → store token in localStorage → setAuthSuccess(true) → render BudgetApp
 ```
+
+## Transaction Row Interaction (Revealing Edit/Delete)
+
+`TransactionRow` uses a device-aware pattern to reveal its edit and delete buttons:
+
+- **Hover-capable devices** (pointer with hover, e.g. desktop): buttons appear when the mouse enters the row (`onMouseEnter`) and disappear when it leaves (`onMouseLeave`). The row click handler does nothing on these devices.
+- **Touch devices** (no hover): buttons are toggled by tapping the description cell. The `onMouseEnter`/`onMouseLeave` handlers are still present but exit immediately when `window.matchMedia("(hover: hover)")` does not match.
+
+The capability check is performed at event time via `window.matchMedia("(hover: hover)").matches`. Readonly rows (past-month view or inactive-goal transactions) guard against `handleMouseEnter` early so the actions never appear.
+
+`GoalRow` in `Goals.js` follows the same pattern without a readonly guard (goal rows are never readonly).
 
 ## Month Navigation
 

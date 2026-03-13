@@ -13,13 +13,13 @@ switch($_SERVER['REQUEST_METHOD']) {
         $_POST = json_decode(file_get_contents("php://input"), true);
         $name = trim($_POST["name"]);
         if (strlen($name) == 0) {
-            echo json_encode(["success" => false]);
+            echo json_encode(["success" => false, "message" => "Name cannot be empty."]);
             exit(1);
         }
 
         $total = intval(floatval($_POST["total"]) * 100); // convert to cents.
         if ($total === 0) {
-            echo json_encode(["success" => false]);
+            echo json_encode(["success" => false, "message" => "Goal total cannot be zero."]);
             exit(1);
         }
         

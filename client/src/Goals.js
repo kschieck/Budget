@@ -15,13 +15,25 @@ function GoalRow({
             : toDollarsNoCents(goal.amount / 100);
     let totalString = toDollarsNoCents(goal.total / 100);
 
+    function handleMouseEnter() {
+        if (!window.matchMedia("(hover: hover)").matches) return;
+        setShowActions(true);
+    }
+
+    function handleMouseLeave() {
+        if (!window.matchMedia("(hover: hover)").matches) return;
+        setShowActions(false);
+    }
+
     function handleGoalClick() {
-        setShowActions(!showActions);
+        if (!window.matchMedia("(hover: hover)").matches) {
+            setShowActions(!showActions);
+        }
     }
 
     let percent = Math.min((goal.amount / goal.total) * 100, 100);
     return (
-        <tr>
+        <tr onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
             <td>
                 {showActions ? (
                     <>
@@ -117,6 +129,7 @@ export function AddEditGoalDialog({
 }) {
     const [goalAmount, setGoalAmount] = useState(amount);
     const [goalDesc, setGoalDesc] = useState(description);
+    const [saving, setSaving] = useState(false);
     const dialogRef = useRef(null);
 
     useEffect(() => {
@@ -127,13 +140,20 @@ export function AddEditGoalDialog({
 
     let cantEditName = id !== -1;
 
+    function handleSave() {
+        setSaving(true);
+        onSave(id, goalAmount, goalDesc)
+            .then((success) => { if (!success) setSaving(false); })
+            .catch(() => setSaving(false));
+    }
+
     return (
         <dialog ref={dialogRef}>
             <h3 className="form_title">{id === -1 ? "Add" : "Edit"} Goal</h3>
             <input
                 type="text"
                 id="edit_goal_name"
-                disabled={cantEditName}
+                disabled={cantEditName || saving}
                 placeholder="name"
                 value={goalDesc}
                 onChange={(e) => setGoalDesc(e.target.value)}
@@ -144,6 +164,7 @@ export function AddEditGoalDialog({
                 type="number"
                 id="edit_goal_total"
                 placeholder="total"
+                disabled={saving}
                 value={goalAmount}
                 onChange={(e) => setGoalAmount(e.target.value)}
             ></input>
@@ -151,11 +172,12 @@ export function AddEditGoalDialog({
             <br />
             <button
                 style={{ float: "left" }}
-                onClick={() => onSave(id, goalAmount, goalDesc)}
+                disabled={saving}
+                onClick={handleSave}
             >
                 Save
             </button>
-            <button style={{ float: "right" }} onClick={onCancel}>
+            <button style={{ float: "right" }} disabled={saving} onClick={onCancel}>
                 Cancel
             </button>
         </dialog>
@@ -164,6 +186,7 @@ export function AddEditGoalDialog({
 
 export function AddGoalTransactionDialog({ id, onSave, onCancel }) {
     const [amount, setAmount] = useState("");
+    const [saving, setSaving] = useState(false);
     const dialogRef = useRef(null);
 
     useEffect(() => {
@@ -172,6 +195,13 @@ export function AddGoalTransactionDialog({ id, onSave, onCancel }) {
         }
     }, []);
 
+    function handleSave() {
+        setSaving(true);
+        onSave(id, amount)
+            .then((success) => { if (!success) setSaving(false); })
+            .catch(() => setSaving(false));
+    }
+
     return (
         <dialog ref={dialogRef} onCancel={onCancel}>
             <h3 className="form_title">Add Goal Transaction</h3>
@@ -179,6 +209,7 @@ export function AddGoalTransactionDialog({ id, onSave, onCancel }) {
                 type="number"
                 id="add_goal_amount"
                 placeholder="amount"
+                disabled={saving}
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
             ></input>
@@ -193,11 +224,12 @@ export function AddGoalTransactionDialog({ id, onSave, onCancel }) {
             <br />
             <button
                 style={{ float: "left" }}
-                onClick={() => onSave(id, amount)}
+                disabled={saving}
+                onClick={handleSave}
             >
                 Save
             </button>
-            <button style={{ float: "right" }} onClick={onCancel}>
+            <button style={{ float: "right" }} disabled={saving} onClick={onCancel}>
                 Cancel
             </button>
         </dialog>
@@ -226,7 +258,7 @@ export default function GoalsSection({
                 <button className="btn-icon" onClick={startAddGoal}>+</button>
             </h1>
             <table>
-                <tbody>
+                <tbody style={{ width: "100%", display: "table" }}>
                     {goals.map((goal) => (
                         <GoalRow
                             key={goal.id}

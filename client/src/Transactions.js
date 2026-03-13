@@ -11,11 +11,22 @@ function TransactionRow({
 
     let dateString = transaction.date_added.substring(5, 10);
 
+    function handleMouseEnter() {
+        if (readonly) return;
+        if (!window.matchMedia("(hover: hover)").matches) return;
+        setShowActions(true);
+    }
+
+    function handleMouseLeave() {
+        if (!window.matchMedia("(hover: hover)").matches) return;
+        setShowActions(false);
+    }
+
     function clickedTransaction() {
-        if (readonly) {
-            return;
+        if (readonly) return;
+        if (!window.matchMedia("(hover: hover)").matches) {
+            setShowActions(!showActions);
         }
-        setShowActions(!showActions);
     }
 
     function TransactionAmount(num) {
@@ -25,7 +36,7 @@ function TransactionRow({
     }
 
     return (
-        <tr>
+        <tr onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
             <td>{dateString}</td>
             <td>{TransactionAmount(transaction.amount)}</td>
             <td className="small_cell">
@@ -65,6 +76,7 @@ export function AddEditTransactionDialog({
 }) {
     const [txAmount, setTxAmount] = useState(amount);
     const [txDesc, setTxDesc] = useState(description);
+    const [saving, setSaving] = useState(false);
     const dialogRef = useRef(null);
 
     useEffect(() => {
@@ -72,6 +84,13 @@ export function AddEditTransactionDialog({
             dialogRef.current.showModal();
         }
     }, []);
+
+    function handleSave() {
+        setSaving(true);
+        onSave(id, txAmount, txDesc)
+            .then((success) => { if (!success) setSaving(false); })
+            .catch(() => setSaving(false));
+    }
 
     return (
         <dialog ref={dialogRef}>
@@ -99,13 +118,15 @@ export function AddEditTransactionDialog({
             <br />
             <button
                 style={{ float: "left" }}
-                onClick={() => onSave(id, txAmount, txDesc)}
+                disabled={saving}
+                onClick={handleSave}
             >
                 Save
             </button>
             <button
                 style={{ float: "right" }}
                 value="cancel"
+                disabled={saving}
                 onClick={onCancel}
             >
                 Cancel
@@ -117,6 +138,7 @@ export function AddEditTransactionDialog({
 export default function TransactionsSection({
     readonly,
     transactions = [],
+    goals = [],
     startAddTransaction,
     startEditTransaction,
     startDeleteTransaction,
@@ -141,7 +163,7 @@ export default function TransactionsSection({
                         .map((transaction) => (
                             <TransactionRow
                                 key={transaction.id}
-                                readonly={readonly}
+                                readonly={readonly || (transaction.goal_id != null && !goals.some((g) => g.id === transaction.goal_id))}
                                 transaction={transaction}
                                 onTransactionClicked={startEditTransaction}
                                 onDeleteClicked={startDeleteTransaction}

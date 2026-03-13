@@ -19,7 +19,7 @@ Use the appropriate helper. Only reach for `getConnection()` when you need atomi
 
 ## Multi-Step Operations (amount table)
 
-Any operation that modifies both `transactions` and `amount` must be atomic. Follow this pattern from `addTransactions()`:
+Any operation that modifies both `transactions` and `amount` must be atomic. Follow this pattern from `addTransaction()`:
 
 ```php
 $conn = getConnection();

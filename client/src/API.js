@@ -90,14 +90,6 @@ export function saveGoalTransaction(goalId, amount) {
     }).then((response) => response.json());
 }
 
-export function duplicateTransactions(transactionIds) {
-    return fetch("./transaction-duplicate.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ transactionIds }),
-    }).then((response) => response.json());
-}
-
 export function loadRecurringTransactions() {
     return fetch("./recurring.php").then((response) => response.json());
 }

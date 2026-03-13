@@ -75,6 +75,7 @@ export function AddEditRecurringDialog({
     const [txDesc, setTxDesc] = useState(description);
     const [txStartMonth, setTxStartMonth] = useState(startMonth);
     const [txEndMonth, setTxEndMonth] = useState(endMonth);
+    const [saving, setSaving] = useState(false);
     const dialogRef = useRef(null);
 
     useEffect(() => {
@@ -82,6 +83,13 @@ export function AddEditRecurringDialog({
             dialogRef.current.showModal();
         }
     }, []);
+
+    function handleSave() {
+        setSaving(true);
+        onSave(id, txAmount, txDesc, txStartMonth, txEndMonth || null)
+            .then((success) => { if (!success) setSaving(false); })
+            .catch(() => setSaving(false));
+    }
 
     return (
         <dialog ref={dialogRef}>
@@ -91,6 +99,7 @@ export function AddEditRecurringDialog({
             <input
                 type="number"
                 placeholder="amount"
+                disabled={saving}
                 value={txAmount}
                 onChange={(e) => setTxAmount(e.target.value)}
             />
@@ -99,6 +108,7 @@ export function AddEditRecurringDialog({
             <input
                 type="text"
                 placeholder="description"
+                disabled={saving}
                 value={txDesc}
                 onChange={(e) => setTxDesc(e.target.value)}
             />
@@ -107,6 +117,7 @@ export function AddEditRecurringDialog({
             <input
                 type="text"
                 placeholder="start month (YYYY-MM)"
+                disabled={saving}
                 value={txStartMonth}
                 onChange={(e) => setTxStartMonth(e.target.value)}
             />
@@ -115,6 +126,7 @@ export function AddEditRecurringDialog({
             <input
                 type="text"
                 placeholder="end month (YYYY-MM, optional)"
+                disabled={saving}
                 value={txEndMonth}
                 onChange={(e) => setTxEndMonth(e.target.value)}
             />
@@ -122,11 +134,12 @@ export function AddEditRecurringDialog({
             <br />
             <button
                 style={{ float: "left" }}
-                onClick={() => onSave(id, txAmount, txDesc, txStartMonth, txEndMonth || null)}
+                disabled={saving}
+                onClick={handleSave}
             >
                 Save
             </button>
-            <button style={{ float: "right" }} onClick={onCancel}>
+            <button style={{ float: "right" }} disabled={saving} onClick={onCancel}>
                 Cancel
             </button>
         </dialog>
@@ -143,15 +156,17 @@ export default function RecurringTransactionsSection() {
             .then((result) => {
                 if (result.success) {
                     setRecurring(sortRecurring(result.recurring));
+                } else {
+                    alert("Failed to load data");
                 }
             })
-            .catch(console.error);
+            .catch(() => alert("Failed to load data"));
     }
 
     useEffect(loadRecurring, []);
 
     function handleSave(id, amount, description, startMonth, endMonth) {
-        API.saveRecurringTransaction(id, amount, description, startMonth, endMonth)
+        return API.saveRecurringTransaction(id, amount, description, startMonth, endMonth)
             .then((result) => {
                 if (result.success) {
                     setShowAddDialog(false);
@@ -165,11 +180,16 @@ export default function RecurringTransactionsSection() {
                             )),
                         );
                     }
+                    return true;
+                } else {
+                    alert(result.message || "Failed to save recurring transaction");
+                    return false;
                 }
             })
             .catch((e) => {
                 console.error(e);
                 alert("Failed to save recurring transaction");
+                return false;
             });
     }
 
@@ -178,6 +198,8 @@ export default function RecurringTransactionsSection() {
             .then((result) => {
                 if (result.success) {
                     setRecurring((prev) => prev.filter((r) => r.id !== id));
+                } else {
+                    alert(result.message || "Failed to delete recurring transaction");
                 }
             })
             .catch((e) => {

@@ -115,18 +115,22 @@ function BudgetApp() {
             .then((json) => {
                 if (json.success) {
                     setAmountTotal(json.amount);
+                } else {
+                    alert("Failed to load data");
                 }
             })
-            .catch(console.error);
+            .catch(() => alert("Failed to load data"));
     }
     function loadGoals() {
         API.loadGoals()
             .then((json) => {
                 if (json.success) {
                     setGoals(json.goals);
+                } else {
+                    alert("Failed to load data");
                 }
             })
-            .catch(console.error);
+            .catch(() => alert("Failed to load data"));
     }
     function loadTransactions() {
         if (isNextMonth) return;
@@ -135,9 +139,11 @@ function BudgetApp() {
             .then((json) => {
                 if (json.success) {
                     setTransactions(json.transactions);
+                } else {
+                    alert("Failed to load data");
                 }
             })
-            .catch(console.error);
+            .catch(() => alert("Failed to load data"));
     }
 
     useEffect(loadAmountTotal, []);
@@ -190,11 +196,13 @@ function BudgetApp() {
                             );
                         }
                     }
+                } else {
+                    alert(result.message || "Failed to delete transaction");
                 }
             })
             .catch((e) => {
                 console.error(e);
-                alert("Failed to delete");
+                alert("Failed to delete transaction");
             });
     }
     function startAddGoal() {
@@ -208,13 +216,13 @@ function BudgetApp() {
             .then((result) => {
                 if (result.success) {
                     setGoals((prev) => prev.filter((g) => g.id !== goalId));
-                } else if (result.message) {
-                    alert(result.message);
+                } else {
+                    alert(result.message || "Failed to delete goal");
                 }
             })
             .catch((e) => {
                 console.error(e);
-                alert("Failed to delete");
+                alert("Failed to delete goal");
             });
     }
     function startContributeGoal(goalId) {
@@ -237,17 +245,22 @@ function BudgetApp() {
                 <AddEditTransactionDialog
                     onCancel={() => setShowAddTransaction(false)}
                     onSave={(id, amount, description) => {
-                        setShowAddTransaction(false);
-                        API.saveTransaction(id, amount, description)
+                        return API.saveTransaction(id, amount, description)
                             .then((result) => {
                                 if (result.success) {
+                                    setShowAddTransaction(false);
                                     setTransactions((prev) => [result.transaction, ...prev]);
                                     setAmountTotal((prev) => prev - result.transaction.amount);
+                                    return true;
+                                } else {
+                                    alert(result.message || "Failed to save transaction");
+                                    return false;
                                 }
                             })
                             .catch((e) => {
                                 console.error(e);
-                                alert("Failed to save");
+                                alert("Failed to save transaction");
+                                return false;
                             });
                     }}
                 />
@@ -260,10 +273,10 @@ function BudgetApp() {
                     onCancel={() => setEditingTransactionId(null)}
                     onSave={(id, amount, description) => {
                         const prevTransaction = editingTransaction;
-                        setEditingTransactionId(null);
-                        API.saveTransaction(id, amount, description)
+                        return API.saveTransaction(id, amount, description)
                             .then((result) => {
                                 if (result.success) {
+                                    setEditingTransactionId(null);
                                     setTransactions((prev) =>
                                         prev.map((t) =>
                                             t.id === result.transaction.id
@@ -281,11 +294,16 @@ function BudgetApp() {
                                             ),
                                         );
                                     }
+                                    return true;
+                                } else {
+                                    alert(result.message || "Failed to save transaction");
+                                    return false;
                                 }
                             })
                             .catch((e) => {
                                 console.error(e);
-                                alert("Failed to save");
+                                alert("Failed to save transaction");
+                                return false;
                             });
                     }}
                 />
@@ -294,16 +312,21 @@ function BudgetApp() {
                 <AddEditGoalDialog
                     onCancel={() => setShowAddGoal(false)}
                     onSave={(id, amount, description) => {
-                        setShowAddGoal(false);
-                        API.saveGoal(id, amount, description)
+                        return API.saveGoal(id, amount, description)
                             .then((result) => {
                                 if (result.success) {
+                                    setShowAddGoal(false);
                                     setGoals((prev) => [...prev, result.goal]);
+                                    return true;
+                                } else {
+                                    alert(result.message || "Failed to save goal");
+                                    return false;
                                 }
                             })
                             .catch((e) => {
                                 console.error(e);
-                                alert("Failed to save");
+                                alert("Failed to save goal");
+                                return false;
                             });
                     }}
                 />
@@ -315,10 +338,10 @@ function BudgetApp() {
                     amount={editingGoal.total / 100}
                     onCancel={() => setEditingGoalId(null)}
                     onSave={(id, amount, description) => {
-                        setEditingGoalId(null);
-                        API.saveGoal(id, amount, description)
+                        return API.saveGoal(id, amount, description)
                             .then((result) => {
                                 if (result.success) {
+                                    setEditingGoalId(null);
                                     setGoals((prev) =>
                                         prev.map((g) =>
                                             g.id === result.goal.id
@@ -326,11 +349,16 @@ function BudgetApp() {
                                                 : g,
                                         ),
                                     );
+                                    return true;
+                                } else {
+                                    alert(result.message || "Failed to save goal");
+                                    return false;
                                 }
                             })
                             .catch((e) => {
                                 console.error(e);
-                                alert("Failed to save");
+                                alert("Failed to save goal");
+                                return false;
                             });
                     }}
                 />
@@ -341,10 +369,10 @@ function BudgetApp() {
                     onCancel={() => setContributingGoalId(null)}
                     onSave={(id, amount) => {
                         const goalId = contributingGoalId;
-                        setContributingGoalId(null);
-                        API.saveGoalTransaction(id, amount)
+                        return API.saveGoalTransaction(id, amount)
                             .then((result) => {
                                 if (result.success) {
+                                    setContributingGoalId(null);
                                     setTransactions((prev) => [result.transaction, ...prev]);
                                     setAmountTotal((prev) => prev - result.transaction.amount);
                                     setGoals((prev) =>
@@ -354,11 +382,16 @@ function BudgetApp() {
                                                 : g,
                                         ),
                                     );
+                                    return true;
+                                } else {
+                                    alert(result.message || "Failed to save goal contribution");
+                                    return false;
                                 }
                             })
                             .catch((e) => {
                                 console.error(e);
-                                alert("Failed to save");
+                                alert("Failed to save goal contribution");
+                                return false;
                             });
                     }}
                 />
@@ -400,6 +433,7 @@ function BudgetApp() {
                     <TransactionsSection
                         readonly={!isCurrentMonth}
                         transactions={filteredTransactions}
+                        goals={goals}
                         startAddTransaction={startAddTransaction}
                         startEditTransaction={startEditTransaction}
                         startDeleteTransaction={startDeleteTransaction}
