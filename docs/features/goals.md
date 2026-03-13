@@ -47,6 +47,15 @@ goals.forEach((goal) => {
 <GoalTotalRow amount={goalAmountSum} total={goalTotalSum} />
 ```
 
+## Row Interaction (Revealing Edit/Delete)
+
+`GoalRow` uses a device-aware pattern to reveal its edit and delete buttons:
+
+- **Hover-capable devices** (pointer with hover, e.g. desktop): buttons appear when the mouse enters the row (`onMouseEnter`) and disappear when it leaves (`onMouseLeave`). The row click handler does nothing on these devices.
+- **Touch devices** (no hover): buttons are toggled by tapping the row's description cell. The `onMouseEnter`/`onMouseLeave` handlers are still present but exit immediately when `window.matchMedia("(hover: hover)")` does not match.
+
+The capability check is performed at event time via `window.matchMedia("(hover: hover)").matches`, so it adapts to the current pointer environment rather than being fixed at mount.
+
 ## Constraints
 
 - A goal cannot be deleted while it has a non-zero `amount` — the server returns `{ success: false, message: "Remove all contributions before deleting this goal." }`
