@@ -433,6 +433,7 @@ function BudgetApp() {
                     <TransactionsSection
                         readonly={!isCurrentMonth}
                         transactions={filteredTransactions}
+                        goals={goals}
                         startAddTransaction={startAddTransaction}
                         startEditTransaction={startEditTransaction}
                         startDeleteTransaction={startDeleteTransaction}

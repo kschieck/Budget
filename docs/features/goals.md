@@ -52,3 +52,4 @@ goals.forEach((goal) => {
 - A goal cannot be deleted while it has a non-zero `amount` — the server returns `{ success: false, message: "Remove all contributions before deleting this goal." }`
 - Goal names cannot be changed after creation (the name input is disabled in the edit dialog)
 - Goal `total` (the target) can be updated independently via `PUT goal.php { goalId, amount }`
+- Transactions linked to an inactive (soft-deleted) goal are **readonly in the UI** — edit and delete buttons are hidden. `TransactionsSection` receives the `goals` list and marks a `TransactionRow` readonly when its `goal_id` is non-null and does not match any entry in `goals` (inactive goals are not returned by `GET goal.php`). This mirrors the server-side protection that already blocks edits/deletes on such transactions.

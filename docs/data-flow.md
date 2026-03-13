@@ -16,6 +16,7 @@ BudgetApp
   ├── filteredTransactions → TransactionsSection → TransactionRow  (current/past months only)
   ├── transactions (unfiltered) → DrawdownChart                    (current/past months only)
   ├── goals → GoalsSection → GoalRow                              (current month only)
+  ├── goals → TransactionsSection → TransactionRow (readonly guard for inactive-goal transactions)
   ├── amountTotal → MonthSelector (displayed as balance)
   ├── filters → FiltersSection                                     (current/past months only)
   ├── monthOffset → MonthSelector (controls which month loads)

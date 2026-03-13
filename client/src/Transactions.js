@@ -127,6 +127,7 @@ export function AddEditTransactionDialog({
 export default function TransactionsSection({
     readonly,
     transactions = [],
+    goals = [],
     startAddTransaction,
     startEditTransaction,
     startDeleteTransaction,
@@ -151,7 +152,7 @@ export default function TransactionsSection({
                         .map((transaction) => (
                             <TransactionRow
                                 key={transaction.id}
-                                readonly={readonly}
+                                readonly={readonly || (transaction.goal_id != null && !goals.some((g) => g.id === transaction.goal_id))}
                                 transaction={transaction}
                                 onTransactionClicked={startEditTransaction}
                                 onDeleteClicked={startDeleteTransaction}
