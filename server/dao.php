@@ -250,11 +250,16 @@ function editTransaction($user, $transactionId, $amount, $description) {
 
             if ($goalId !== null) {
                 $updateGoalStmt = prepStatement($conn,
-                    "UPDATE `goals` SET amount = amount + ? WHERE id = ?", "ii", [$deltaAmount, $goalId]);
+                    "UPDATE `goals` SET amount = amount + ? WHERE id = ? AND `active` = 1", "ii", [$deltaAmount, $goalId]);
                 if (!$updateGoalStmt->execute()) {
                     error_log("Failed to execute update goal");
                     error_log("MySQL Execution Error: " . $updateGoalStmt->error);
                     throw new mysqli_sql_exception("Update statement execution failed.");
+                } else if ($updateGoalStmt->affected_rows === 0) {
+                    // If the goal cannot be updated, the transaction cannot be edited or deleted
+                    $conn->rollback();
+                    $conn->close();
+                    return false;
                 }
             }
         }
@@ -319,11 +324,16 @@ function disableTransaction($user, $transactionId) {
 
         if ($goalId !== null) {
             $updateGoalStmt = prepStatement($conn,
-                "UPDATE `goals` SET amount = amount - ? WHERE id = ?", "ii", [$amount, $goalId]);
+                "UPDATE `goals` SET amount = amount - ? WHERE id = ? AND `active` = 1", "ii", [$amount, $goalId]);
             if (!$updateGoalStmt->execute()) {
                 error_log("Failed to execute update goal");
                 error_log("MySQL Execution Error: " . $updateGoalStmt->error);
                 throw new mysqli_sql_exception("Update statement execution failed.");
+            } else if ($updateGoalStmt->affected_rows === 0) {
+                // If the goal cannot be updated, the transaction cannot be edited or deleted
+                $conn->rollback();
+                $conn->close();
+                return false;
             }
         }
 
@@ -381,7 +391,7 @@ function addGoalTransaction($user, $goalId, $amount) {
             "UPDATE amount SET amount = amount - ? LIMIT 1", "i", [$amount]);
 
         $updateGoalStmt = prepStatement($conn,
-            "UPDATE `goals` SET amount = amount + ? WHERE id = ?", "ii", [$amount, $goalId]);
+            "UPDATE `goals` SET amount = amount + ? WHERE id = ? AND `active` = 1", "ii", [$amount, $goalId]);
 
         if (!$createTxStmt->execute()) {
             error_log("Failed to execute create tx");
@@ -398,6 +408,11 @@ function addGoalTransaction($user, $goalId, $amount) {
             error_log("Failed to execute update goal");
             error_log("MySQL Execution Error: " . $updateGoalStmt->error);
             throw new mysqli_sql_exception("Update statement execution failed.");
+        } else if ($updateGoalStmt->affected_rows === 0) {
+            // If the goal cannot be updated, the transaction cannot be added
+            $conn->rollback();
+            $conn->close();
+            return false;
         }
 
         $conn->commit();
