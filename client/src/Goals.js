@@ -226,7 +226,7 @@ export default function GoalsSection({
                 <button className="btn-icon" onClick={startAddGoal}>+</button>
             </h1>
             <table>
-                <tbody>
+                <tbody style={{ width: "100%", display: "table" }}>
                     {goals.map((goal) => (
                         <GoalRow
                             key={goal.id}
