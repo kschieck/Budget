@@ -839,65 +839,6 @@ h1+h3.sub_title {
   border-color: var(--color-accent);
 }
 
-/* NewMonthTool uses input[type="button"] instead of <button> */
-dialog input[type="button"] {
-  font-family: var(--font-family);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
-  border-radius: var(--radius-full);
-  padding: var(--space-sm) var(--space-md);
-  float: none !important;
-}
-
-dialog input[type="button"]:first-of-type {
-  background: var(--color-accent);
-  color: #fff;
-}
-
-dialog input[type="button"]:first-of-type:hover {
-  background: var(--color-accent-dark);
-}
-
-dialog input[type="button"]:first-of-type:disabled {
-  background: var(--color-border);
-  color: var(--color-text-disabled);
-  cursor: default;
-}
-
-dialog input[type="button"]:last-of-type {
-  background: transparent;
-  color: var(--color-text-secondary);
-  border: 1.5px solid var(--color-border);
-}
-
-dialog input[type="button"]:last-of-type:hover {
-  background: var(--color-surface-alt);
-  color: var(--color-text);
-}
-
-/* Float overrides for NewMonthTool — lay them out as a flex row */
-dialog>input[type="button"] {
-  display: inline-block;
-}
-
-/* Table inside new month tool dialog */
-dialog table {
-  width: 100%;
-  margin: var(--space-md) 0;
-}
-
-dialog table td {
-  padding: var(--space-xs) var(--space-sm);
-  border-bottom: 1px solid var(--color-border-light);
-  font-size: var(--font-size-sm);
-  vertical-align: middle;
-}
-
-dialog table tr:last-child td {
-  border-bottom: none;
-}
 
 /* ============================================================
    Soft underline utility (kept)

@@ -17,7 +17,7 @@ switch($_SERVER['REQUEST_METHOD']) {
             $goalId = intval($_POST["goalId"]);
             $amount = intval(floatval($_POST["amount"]) * 100); // convert to cents.
             if ($amount === 0) {
-                echo json_encode(["success" => false]);
+                echo json_encode(["success" => false, "message" => "Contribution amount cannot be zero."]);
                 exit(1);
             }
             try {
@@ -35,13 +35,13 @@ switch($_SERVER['REQUEST_METHOD']) {
 
             $amount = intval(floatval($_POST["amount"]) * 100); // convert to cents.
             if ($amount === 0) {
-                echo json_encode(["success" => false]);
+                echo json_encode(["success" => false, "message" => "Amount cannot be zero."]);
                 exit(1);
             }
 
             $description = trim($_POST["description"]);
             if (strlen($description) == 0) {
-                echo json_encode(["success" => false]);
+                echo json_encode(["success" => false, "message" => "Description cannot be empty."]);
                 exit(1);
             }
 
@@ -80,13 +80,13 @@ switch($_SERVER['REQUEST_METHOD']) {
         $id = intval($data["transactionId"]);
         $amount = intval(floatval($data["amount"]) * 100); // convert to cents.
         if ($amount === 0) {
-            echo json_encode(["success" => false]);
+            echo json_encode(["success" => false, "message" => "Amount cannot be zero."]);
             exit(1);
         }
-    
+
         $description = trim($data["description"]);
         if (strlen($description) == 0) {
-            echo json_encode(["success" => false]);
+            echo json_encode(["success" => false, "message" => "Description cannot be empty."]);
             exit(1);
         }
     

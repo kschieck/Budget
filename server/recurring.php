@@ -29,24 +29,24 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
         $amount = intval(floatval($_POST["amount"]) * 100);
         if ($amount === 0) {
-            echo json_encode(["success" => false]);
+            echo json_encode(["success" => false, "message" => "Amount cannot be zero."]);
             exit(1);
         }
 
         $description = trim($_POST["description"]);
         if (strlen($description) === 0) {
-            echo json_encode(["success" => false]);
+            echo json_encode(["success" => false, "message" => "Description cannot be empty."]);
             exit(1);
         }
 
         $startMonthRaw = isset($_POST["start_month"]) ? trim($_POST["start_month"]) : "";
         if (!preg_match('/^\d{4}-\d{2}$/', $startMonthRaw)) {
-            echo json_encode(["success" => false]);
+            echo json_encode(["success" => false, "message" => "Invalid start month (use YYYY-MM)."]);
             exit(1);
         }
         $currentMonth = date("Y-m", strtotime("-4 hours"));
         if ($startMonthRaw < $currentMonth) {
-            echo json_encode(["success" => false]);
+            echo json_encode(["success" => false, "message" => "Start month cannot be in the past."]);
             exit(1);
         }
         $startMonth = $startMonthRaw;
@@ -54,7 +54,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
         $endMonthRaw = isset($_POST["end_month"]) ? trim($_POST["end_month"]) : "";
         if (strlen($endMonthRaw) > 0) {
             if (!preg_match('/^\d{4}-\d{2}$/', $endMonthRaw) || $endMonthRaw <= $startMonth) {
-                echo json_encode(["success" => false]);
+                echo json_encode(["success" => false, "message" => "End month must be after start month."]);
                 exit(1);
             }
             $endMonth = $endMonthRaw;
@@ -97,19 +97,19 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
         $amount = intval(floatval($data["amount"]) * 100);
         if ($amount === 0) {
-            echo json_encode(["success" => false]);
+            echo json_encode(["success" => false, "message" => "Amount cannot be zero."]);
             exit(1);
         }
 
         $description = trim($data["description"]);
         if (strlen($description) === 0) {
-            echo json_encode(["success" => false]);
+            echo json_encode(["success" => false, "message" => "Description cannot be empty."]);
             exit(1);
         }
 
         $startMonthRaw = isset($data["start_month"]) ? trim($data["start_month"]) : "";
         if (!preg_match('/^\d{4}-\d{2}$/', $startMonthRaw)) {
-            echo json_encode(["success" => false]);
+            echo json_encode(["success" => false, "message" => "Invalid start month (use YYYY-MM)."]);
             exit(1);
         }
         $startMonth = $startMonthRaw;
@@ -117,7 +117,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
         $endMonthRaw = isset($data["end_month"]) ? trim($data["end_month"]) : "";
         if (strlen($endMonthRaw) > 0) {
             if (!preg_match('/^\d{4}-\d{2}$/', $endMonthRaw) || $endMonthRaw <= $startMonth) {
-                echo json_encode(["success" => false]);
+                echo json_encode(["success" => false, "message" => "End month must be after start month."]);
                 exit(1);
             }
             $endMonth = $endMonthRaw;

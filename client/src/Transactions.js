@@ -65,6 +65,7 @@ export function AddEditTransactionDialog({
 }) {
     const [txAmount, setTxAmount] = useState(amount);
     const [txDesc, setTxDesc] = useState(description);
+    const [saving, setSaving] = useState(false);
     const dialogRef = useRef(null);
 
     useEffect(() => {
@@ -72,6 +73,13 @@ export function AddEditTransactionDialog({
             dialogRef.current.showModal();
         }
     }, []);
+
+    function handleSave() {
+        setSaving(true);
+        onSave(id, txAmount, txDesc)
+            .then((success) => { if (!success) setSaving(false); })
+            .catch(() => setSaving(false));
+    }
 
     return (
         <dialog ref={dialogRef}>
@@ -99,13 +107,15 @@ export function AddEditTransactionDialog({
             <br />
             <button
                 style={{ float: "left" }}
-                onClick={() => onSave(id, txAmount, txDesc)}
+                disabled={saving}
+                onClick={handleSave}
             >
                 Save
             </button>
             <button
                 style={{ float: "right" }}
                 value="cancel"
+                disabled={saving}
                 onClick={onCancel}
             >
                 Cancel
