@@ -214,7 +214,7 @@ export default function RecurringTransactionsSection() {
         setEditingRecurring(rec);
     }
 
-    let totalIncome = recurring.reduce((prev, curr) => { return prev + Math.min(0, curr.amount); }, 0);
+    let totalIncome = recurring.reduce((prev, curr) => { return prev - Math.min(0, curr.amount); }, 0);
     let totalSpend = recurring.reduce((prev, curr) => { return prev + Math.max(0, curr.amount); }, 0);
 
     return (
