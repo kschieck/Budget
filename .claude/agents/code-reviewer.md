@@ -44,7 +44,6 @@ If the change touches tech debt areas, flag it:
 - `activeDialog` JSX-in-state pattern in `App.js` (change should move toward state flags)
 - Prop drilling in `BudgetApp` (new features should use context, not extend the chain)
 - Inverted filter logic — `filters` Set should contain *visible*, not *hidden*, usernames
-- `GoalTotalRow` hardcoded `amount={50} total={100}` in `Goals.js`
 - UTC-4 hardcoded in SQL queries
 
 ## Output Format

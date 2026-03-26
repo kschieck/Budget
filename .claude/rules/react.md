@@ -25,11 +25,6 @@ paths:
 - Render dialogs conditionally: `{showAddTx && <AddEditTransactionDialog ... />}`
 - Use native `<dialog>` with `ref.current.showModal()` in a `useEffect([], [])`
 
-## Data Loading
-
-- After any mutation, reload affected data by calling the appropriate load function
-- Load functions (`loadTransactions`, `loadGoals`, `loadAmountTotal`) are defined in `BudgetApp` and passed as callbacks — call them on successful API response
-
 ## Amounts
 
 - State and API always use integers in cents
