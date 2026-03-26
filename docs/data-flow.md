@@ -10,16 +10,19 @@ useEffect → loadGoals()       → API.loadGoals()   → GET goal.php   → set
 useEffect(monthOffset) → loadTransactions() → API.reloadTransactions(offset) → GET transaction.php?past=N → setTransactions([...])
 ```
 
-State flows down as props:
+State flows down as props or via context:
 ```
-BudgetApp
+BudgetApp (props)
   ├── filteredTransactions → TransactionsSection → TransactionRow  (current/past months only)
   ├── transactions (unfiltered) → DrawdownChart                    (current/past months only)
   ├── goals → GoalsSection → GoalRow                              (current month only)
   ├── goals → TransactionsSection → TransactionRow (readonly guard for inactive-goal transactions)
-  ├── amountTotal → MonthSelector (displayed as balance)
-  ├── filters → FiltersSection                                     (current/past months only)
-  ├── monthOffset → MonthSelector (controls which month loads)
+  └── amountTotal → MonthSelector (displayed as balance)
+
+BudgetContext (consumed via useBudget())
+  ├── monthOffset → MonthSelector, TransactionsSection (computes readonly = monthOffset !== 0)
+  ├── previousMonth, nextMonth → MonthSelector
+  ├── filters, changeFilterState → FiltersSection
   └── (next month: RecurringTransactionsSection self-loads, no transactions/filters)
 ```
 

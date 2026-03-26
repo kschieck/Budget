@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { toDollars } from "./Utils.js";
+import { useBudget } from "./BudgetContext.js";
 
 function TransactionRow({
     readonly,
@@ -136,13 +137,14 @@ export function AddEditTransactionDialog({
 }
 
 export default function TransactionsSection({
-    readonly,
     transactions = [],
     goals = [],
     startAddTransaction,
     startEditTransaction,
     startDeleteTransaction,
 }) {
+    const { monthOffset } = useBudget();
+    const readonly = monthOffset !== 0;
 
     transactions.sort((a, b) => {
         return new Date(b.date_added) - new Date(a.date_added);

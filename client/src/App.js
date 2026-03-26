@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import BudgetContext, { useBudgetNavigation } from "./BudgetContext.js";
 import TransactionsSection, {
     AddEditTransactionDialog,
 } from "./Transactions.js";
@@ -14,8 +15,8 @@ import RecurringTransactionsSection from "./RecurringTransactions.js";
 import MonthSelector from "./MonthSelector.js";
 
 function LoginForm({ onTryLogin, disabled }) {
-    let [username, setUsername] = useState("");
-    let [password, setPassword] = useState("");
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
 
     function doSubmit(e) {
         e.preventDefault();
@@ -46,11 +47,12 @@ function LoginForm({ onTryLogin, disabled }) {
 }
 
 function BudgetApp() {
-    const [monthOffset, setMonthOffset] = useState(0);
-    const [filters, setFilters] = useState(null);
     const [goals, setGoals] = useState([]);
     const [transactions, setTransactions] = useState([]);
     const [amountTotal, setAmountTotal] = useState(0);
+
+    const { monthOffset, filters, previousMonth, nextMonth, changeFilterState } =
+        useBudgetNavigation(transactions, setTransactions);
 
     const [showAddTransaction, setShowAddTransaction] = useState(false);
     const [editingTransactionId, setEditingTransactionId] = useState(null);
@@ -148,28 +150,8 @@ function BudgetApp() {
 
     useEffect(loadAmountTotal, []);
     useEffect(loadGoals, []);
-    useEffect(() => {
-        setFilters(null);
-        loadTransactions();
-    }, [monthOffset]);
-    useEffect(() => {
-        if (filters === null && transactions.length > 0) {
-            setFilters(
-                new Set(
-                    transactions
-                        .map((t) => t.user)
-                        .filter((u) => u && u.length > 0),
-                ),
-            );
-        }
-    }, [filters, transactions]);
+    useEffect(loadTransactions, [monthOffset]);
 
-    function previousMonth() {
-        setMonthOffset(monthOffset + 1);
-    }
-    function nextMonth() {
-        setMonthOffset(Math.max(-1, monthOffset - 1));
-    }
     function startAddTransaction() {
         setShowAddTransaction(true);
     }
@@ -228,19 +210,10 @@ function BudgetApp() {
     function startContributeGoal(goalId) {
         setContributingGoalId(goalId);
     }
-    function changeFilterState(name, showTransactions) {
-        setFilters((prev) => {
-            const newFilters = new Set(prev ?? users);
-            if (showTransactions) {
-                newFilters.add(name);
-            } else {
-                newFilters.delete(name);
-            }
-            return newFilters;
-        });
-    }
     return (
-        <>
+        <BudgetContext.Provider
+            value={{ monthOffset, filters, previousMonth, nextMonth, changeFilterState }}
+        >
             {showAddTransaction && (
                 <AddEditTransactionDialog
                     onCancel={() => setShowAddTransaction(false)}
@@ -397,11 +370,7 @@ function BudgetApp() {
                 />
             )}
 
-            <MonthSelector
-                previousMonth={previousMonth}
-                nextMonth={nextMonth}
-                showNextMonth={monthOffset > -1}
-            >
+            <MonthSelector>
                 <span>
                     {isCurrentMonth
                         ? toDollars(amountTotal / 100)
@@ -431,7 +400,6 @@ function BudgetApp() {
                     <RecurringTransactionsSection />
                 ) : (
                     <TransactionsSection
-                        readonly={!isCurrentMonth}
                         transactions={filteredTransactions}
                         goals={goals}
                         startAddTransaction={startAddTransaction}
@@ -457,12 +425,10 @@ function BudgetApp() {
                 users.length > 1 && !isNextMonth ? (
                     <FiltersSection
                         names={users}
-                        filters={filters}
-                        changeFilterState={changeFilterState}
                     />
                 ) : null
             }
-        </>
+        </BudgetContext.Provider>
     );
 }
 
