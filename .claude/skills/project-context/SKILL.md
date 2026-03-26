@@ -50,7 +50,6 @@ A personal budgeting web app for tracking spending and savings goals. Multiple u
 
 ## Known Tech Debt
 
-- `activeDialog` in `BudgetApp` stores live JSX — should be state flags + conditional rendering
 - Deep prop drilling in `BudgetApp` — handlers passed through multiple levels
 - Filter Set contains *hidden* usernames (inverted logic)
 - UTC-4 timezone hardcoded in SQL queries

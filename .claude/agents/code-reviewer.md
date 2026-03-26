@@ -41,7 +41,6 @@ Read the changed files. Look for:
 
 ### Tech Debt Interactions
 If the change touches tech debt areas, flag it:
-- `activeDialog` JSX-in-state pattern in `App.js` (change should move toward state flags)
 - Prop drilling in `BudgetApp` (new features should use context, not extend the chain)
 - Inverted filter logic — `filters` Set should contain *visible*, not *hidden*, usernames
 - UTC-4 hardcoded in SQL queries

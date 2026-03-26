@@ -20,7 +20,6 @@ paths:
 
 ## Dialogs
 
-- Do NOT store JSX in `activeDialog` state (that is tech debt)
 - Use a boolean state flag per dialog: `const [showAddTx, setShowAddTx] = useState(false)`
 - Render dialogs conditionally: `{showAddTx && <AddEditTransactionDialog ... />}`
 - Use native `<dialog>` with `ref.current.showModal()` in a `useEffect([], [])`
