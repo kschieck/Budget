@@ -3,7 +3,7 @@ import BudgetContext, { useBudgetNavigation } from "./BudgetContext.js";
 import TransactionsSection, {
     AddEditTransactionDialog,
 } from "./Transactions.js";
-import { toDollars, toDollarsNoCents } from "./Utils.js";
+import { toDollars } from "./Utils.js";
 import GoalsSection, {
     AddEditGoalDialog,
     AddGoalTransactionDialog,
@@ -13,6 +13,7 @@ import * as API from "./API.js";
 import { DrawdownChart } from "./Charts.js";
 import RecurringTransactionsSection from "./RecurringTransactions.js";
 import MonthSelector from "./MonthSelector.js";
+import { LineChart } from "./LineChart.js";
 
 function LoginForm({ onTryLogin, disabled }) {
     const [username, setUsername] = useState("");
@@ -59,6 +60,7 @@ function BudgetApp() {
     const [showAddGoal, setShowAddGoal] = useState(false);
     const [editingGoalId, setEditingGoalId] = useState(null);
     const [contributingGoalId, setContributingGoalId] = useState(null);
+    const [chartToggle, setChartToggle] = useState(true);
 
     const editingTransaction =
         editingTransactionId !== null
@@ -209,6 +211,9 @@ function BudgetApp() {
     }
     function startContributeGoal(goalId) {
         setContributingGoalId(goalId);
+    }
+    function toggleChart() {
+        setChartToggle(!chartToggle);
     }
     return (
         <BudgetContext.Provider
@@ -385,14 +390,23 @@ function BudgetApp() {
             </MonthSelector>
 
             {!isNextMonth ? (
-                <h1 className="chart-wrapper">
-                    <DrawdownChart
-                        transactions={transactions}
-                        width={300}
-                        height={100}
-                    />
-                    <br />
-                </h1>
+                <div onClick={toggleChart}>
+                    {chartToggle ?
+                        <h1 className="chart-wrapper">
+                            Drawdown
+                            <DrawdownChart
+                                transactions={transactions}
+                                width={300}
+                                height={100}
+                            />
+                            <br />
+                        </h1> :
+                        <h1 className="chart-wrapper">
+                            Monthly Income/Expenses
+                            <LineChart width={400} height={200} />
+                            <br />
+                        </h1>}
+                </div>
             ) : null}
 
             {
@@ -421,13 +435,6 @@ function BudgetApp() {
                 ) : null
             }
 
-            {
-                users.length > 1 && !isNextMonth ? (
-                    <FiltersSection
-                        names={users}
-                    />
-                ) : null
-            }
         </BudgetContext.Provider>
     );
 }

@@ -117,3 +117,7 @@ export function deleteRecurringTransaction(id) {
         body: JSON.stringify({ id }),
     }).then((response) => response.json());
 }
+
+export function loadChartData() {
+    return fetch("./chart-data.php").then((response) => response.json());
+}

@@ -589,8 +589,8 @@ h3.sub_title+table input[type="checkbox"] {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
   padding: var(--space-md);
-  overflow: hidden;
   border-radius: var(--radius-lg);
+  font-size: var(--font-size-lg);
 }
 
 /* ============================================================
