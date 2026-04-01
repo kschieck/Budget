@@ -391,13 +391,13 @@ function BudgetApp() {
 
             {!isNextMonth ? (
                 <div onClick={toggleChart}>
-                    {chartToggle ?
+                    {!isCurrentMonth || chartToggle ?
                         <h1 className="chart-wrapper">
                             Drawdown
                             <DrawdownChart
                                 transactions={transactions}
                                 width={300}
-                                height={100}
+                                height={166}
                             />
                             <br />
                         </h1> :
