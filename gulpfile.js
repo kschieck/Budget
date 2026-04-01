@@ -21,15 +21,16 @@ gulp.task("build-client", shell.task([
 
 // Copy client build files
 gulp.task("copy-client", function () {
-    return gulp.src(`${paths.client}/build/**/*`).pipe(gulp.dest(`${paths.output}/public`));
+    return gulp.src(`${paths.client}/build/**/*`).pipe(gulp.dest(`${paths.output}`));
 });
 
 // Copy server files (only necessary ones)
 gulp.task("copy-server", function () {
     return gulp.src([
         `${paths.server}/**/*`,
-        `!${paths.server}/**/*.template` // Exclude node_modules
-    ], { base: paths.server }).pipe(gulp.dest(`${paths.output}/public`));
+        `!${paths.server}/**/*.template`,
+        `!${paths.server}/**/config.php`
+    ], { base: paths.server }).pipe(gulp.dest(`${paths.output}`));
 });
 
 // Install server dependencies in the output folder
@@ -40,7 +41,7 @@ gulp.task("install-server-dependencies", shell.task([
 // Create a zip file
 gulp.task("zip", function () {
     return gulp.src(`${paths.output}/**/*`)
-        .pipe(zip("deployment.zip"))
+        .pipe(zip("deploy.zip"))
         .pipe(gulp.dest("."));
 });
 
