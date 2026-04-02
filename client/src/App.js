@@ -8,11 +8,10 @@ import GoalsSection, {
     AddEditGoalDialog,
     AddGoalTransactionDialog,
 } from "./Goals.js";
-import FiltersSection from "./Filters.js";
 import * as API from "./API.js";
 import { DrawdownChart } from "./Charts.js";
 import RecurringTransactionsSection from "./RecurringTransactions.js";
-import UpcomingTransactionsSection from "./UpcomingTransactions.js";
+import UpcomingTransactionsSection, { getNextMonthString } from "./UpcomingTransactions.js";
 import MonthSelector from "./MonthSelector.js";
 import { LineChart } from "./LineChart.js";
 
@@ -394,57 +393,70 @@ function BudgetApp() {
 
             </MonthSelector>
 
-            {!isNextMonth ? (
-                <div onClick={toggleChart}>
-                    {!isCurrentMonth || chartToggle ?
-                        <h1 className="chart-wrapper">
-                            Drawdown
-                            <DrawdownChart
-                                transactions={transactions}
-                                width={300}
-                                height={166}
-                            />
-                            <br />
-                        </h1> :
-                        <h1 className="chart-wrapper">
-                            Monthly Income/Expenses
-                            <LineChart width={400} height={200} />
-                            <br />
-                        </h1>}
+            <div className="main-grid">
+                <div className="col-primary">
+                    {!isNextMonth && (
+                        <div onClick={toggleChart}>
+                            {!isCurrentMonth || chartToggle ?
+                                <h1 className="chart-wrapper">
+                                    Drawdown
+                                    <DrawdownChart
+                                        transactions={transactions}
+                                        width={300}
+                                        height={166}
+                                    />
+                                    <br />
+                                </h1> :
+                                <h1 className="chart-wrapper">
+                                    Monthly Income/Expenses
+                                    <LineChart width={400} height={200} />
+                                    <br />
+                                </h1>}
+                        </div>
+                    )}
+
+                    {isNextMonth && <RecurringTransactionsSection />}
+                    {isCurrentMonth && (
+                        <TransactionsSection
+                            transactions={filteredTransactions}
+                            goals={goals}
+                            startAddTransaction={startAddTransaction}
+                            startEditTransaction={startEditTransaction}
+                            startDeleteTransaction={startDeleteTransaction}
+                        />
+                    )}
                 </div>
-            ) : null}
 
-            {
-                isNextMonth ? (
-                    <RecurringTransactionsSection />
-                ) : (
-                    <TransactionsSection
-                        transactions={filteredTransactions}
-                        goals={goals}
-                        startAddTransaction={startAddTransaction}
-                        startEditTransaction={startEditTransaction}
-                        startDeleteTransaction={startDeleteTransaction}
-                    />
-                )
-            }
-
-            {
-                isCurrentMonth ? (
-                    <UpcomingTransactionsSection reloadKey={upcomingReloadKey} />
-                ) : null
-            }
-
-            {
-                isCurrentMonth ? (
-                    <GoalsSection
-                        goals={goals}
-                        startAddGoal={startAddGoal}
-                        startEditGoal={startEditGoal}
-                        startDeleteGoal={startDeleteGoal}
-                        startContributeGoal={startContributeGoal}
-                    />
-                ) : null
-            }
+                <div className="col-sidebar">
+                    {isCurrentMonth && (
+                        <>
+                            <UpcomingTransactionsSection reloadKey={upcomingReloadKey} />
+                            <GoalsSection
+                                goals={goals}
+                                startAddGoal={startAddGoal}
+                                startEditGoal={startEditGoal}
+                                startDeleteGoal={startDeleteGoal}
+                                startContributeGoal={startContributeGoal}
+                            />
+                        </>
+                    )}
+                    {isNextMonth && (
+                        <UpcomingTransactionsSection
+                            filterMonth={getNextMonthString()}
+                            reloadKey={upcomingReloadKey}
+                        />
+                    )}
+                    {!isCurrentMonth && !isNextMonth && (
+                        <TransactionsSection
+                            transactions={filteredTransactions}
+                            goals={goals}
+                            startAddTransaction={startAddTransaction}
+                            startEditTransaction={startEditTransaction}
+                            startDeleteTransaction={startDeleteTransaction}
+                        />
+                    )}
+                </div>
+            </div>
 
         </BudgetContext.Provider>
     );

@@ -866,3 +866,46 @@ td {
 .small_button {
   padding: 0;
 }
+
+/* ============================================================
+   Desktop two-column layout
+   ============================================================ */
+
+/* display: contents makes these divs invisible to the box model on mobile,
+   so children flow exactly as if the wrapper divs did not exist.
+   Do NOT add padding/margin/background to .col-primary or .col-sidebar —
+   those properties are ignored on display:contents elements. */
+.main-grid {
+  display: contents;
+}
+
+.col-primary,
+.col-sidebar {
+  display: contents;
+}
+
+/* SVG charts scale down to fit their container via viewBox + this rule.
+   The canvas DrawdownChart is already constrained by #chart { max-width: 100% }. */
+.chart-wrapper svg {
+  max-width: 100%;
+  height: auto;
+}
+
+@media (min-width: 768px) {
+  #root {
+    max-width: 960px;
+    padding: var(--space-md) var(--space-xl) var(--space-xl);
+  }
+
+  .main-grid {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: var(--space-lg);
+    align-items: start;
+  }
+
+  .col-primary,
+  .col-sidebar {
+    display: block;
+  }
+}

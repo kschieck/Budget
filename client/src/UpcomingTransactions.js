@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { toDollars } from "./Utils.js";
 import * as API from "./API.js";
 
-function getNextMonthString() {
+export function getNextMonthString() {
     const now = new Date();
     const next = new Date(now.getFullYear(), now.getMonth() + 1, 1);
     return `${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, "0")}`;
@@ -127,7 +127,7 @@ export function AddEditUpcomingDialog({
     );
 }
 
-export default function UpcomingTransactionsSection({ reloadKey }) {
+export default function UpcomingTransactionsSection({ reloadKey, filterMonth = null }) {
     const [upcoming, setUpcoming] = useState([]);
     const [showAddDialog, setShowAddDialog] = useState(false);
     const [editingUpcoming, setEditingUpcoming] = useState(null);
@@ -195,6 +195,10 @@ export default function UpcomingTransactionsSection({ reloadKey }) {
         setEditingUpcoming(item);
     }
 
+    const displayed = filterMonth
+        ? upcoming.filter((u) => u.target_month === filterMonth)
+        : upcoming;
+
     return (
         <>
             {showAddDialog && (
@@ -224,7 +228,7 @@ export default function UpcomingTransactionsSection({ reloadKey }) {
             </h1>
             <table id="tx_table" cellSpacing="0">
                 <tbody>
-                    {upcoming.map((item) => (
+                    {displayed.map((item) => (
                         <UpcomingTransactionRow
                             key={item.id}
                             upcoming={item}
@@ -232,7 +236,7 @@ export default function UpcomingTransactionsSection({ reloadKey }) {
                             onDeleteClicked={handleDelete}
                         />
                     ))}
-                    {upcoming.length === 0 && (
+                    {displayed.length === 0 && (
                         <tr>
                             <td colSpan="3" style={{ textAlign: "center", opacity: 0.5 }}>
                                 No upcoming transactions
