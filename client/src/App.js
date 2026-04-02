@@ -12,6 +12,7 @@ import FiltersSection from "./Filters.js";
 import * as API from "./API.js";
 import { DrawdownChart } from "./Charts.js";
 import RecurringTransactionsSection from "./RecurringTransactions.js";
+import UpcomingTransactionsSection from "./UpcomingTransactions.js";
 import MonthSelector from "./MonthSelector.js";
 import { LineChart } from "./LineChart.js";
 
@@ -61,6 +62,7 @@ function BudgetApp() {
     const [editingGoalId, setEditingGoalId] = useState(null);
     const [contributingGoalId, setContributingGoalId] = useState(null);
     const [chartToggle, setChartToggle] = useState(true);
+    const [upcomingReloadKey, setUpcomingReloadKey] = useState(0);
 
     const editingTransaction =
         editingTransactionId !== null
@@ -143,6 +145,9 @@ function BudgetApp() {
             .then((json) => {
                 if (json.success) {
                     setTransactions(json.transactions);
+                    if (monthOffset === 0) {
+                        setUpcomingReloadKey((k) => k + 1);
+                    }
                 } else {
                     alert("Failed to load data");
                 }
@@ -421,6 +426,12 @@ function BudgetApp() {
                         startDeleteTransaction={startDeleteTransaction}
                     />
                 )
+            }
+
+            {
+                isCurrentMonth ? (
+                    <UpcomingTransactionsSection reloadKey={upcomingReloadKey} />
+                ) : null
             }
 
             {

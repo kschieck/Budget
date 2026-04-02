@@ -56,3 +56,15 @@ CREATE TABLE `recurring_processed` (
     PRIMARY KEY (`id`),
     UNIQUE KEY `month` (`month`)
 );
+
+CREATE TABLE `upcoming_transactions` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `user` varchar(32) NOT NULL,
+    `amount` int(11) NOT NULL,
+    `description` varchar(64) NOT NULL,
+    `active` tinyint(1) NOT NULL DEFAULT 1,
+    `target_month` varchar(7) NOT NULL,
+    `processed` tinyint(1) NOT NULL DEFAULT 0,
+    PRIMARY KEY (`id`),
+    KEY `user_active` (`user`, `active`)
+);
