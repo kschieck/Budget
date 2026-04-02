@@ -11,7 +11,7 @@ import GoalsSection, {
 import * as API from "./API.js";
 import { DrawdownChart } from "./Charts.js";
 import RecurringTransactionsSection from "./RecurringTransactions.js";
-import UpcomingTransactionsSection from "./UpcomingTransactions.js";
+import UpcomingTransactionsSection, { getNextMonthString } from "./UpcomingTransactions.js";
 import MonthSelector from "./MonthSelector.js";
 import { LineChart } from "./LineChart.js";
 
@@ -395,7 +395,7 @@ function BudgetApp() {
 
             <div className="main-grid">
                 <div className="col-primary">
-                    {!isNextMonth ? (
+                    {!isNextMonth && (
                         <div onClick={toggleChart}>
                             {!isCurrentMonth || chartToggle ?
                                 <h1 className="chart-wrapper">
@@ -413,35 +413,49 @@ function BudgetApp() {
                                     <br />
                                 </h1>}
                         </div>
-                    ) : null}
+                    )}
 
-                    {
-                        isNextMonth ? (
-                            <RecurringTransactionsSection />
-                        ) : (
-                            <TransactionsSection
-                                transactions={filteredTransactions}
-                                goals={goals}
-                                startAddTransaction={startAddTransaction}
-                                startEditTransaction={startEditTransaction}
-                                startDeleteTransaction={startDeleteTransaction}
-                            />
-                        )
-                    }
+                    {isNextMonth && <RecurringTransactionsSection />}
+                    {isCurrentMonth && (
+                        <TransactionsSection
+                            transactions={filteredTransactions}
+                            goals={goals}
+                            startAddTransaction={startAddTransaction}
+                            startEditTransaction={startEditTransaction}
+                            startDeleteTransaction={startDeleteTransaction}
+                        />
+                    )}
                 </div>
 
-                {isCurrentMonth && (
-                    <div className="col-sidebar">
-                        <UpcomingTransactionsSection reloadKey={upcomingReloadKey} />
-                        <GoalsSection
-                            goals={goals}
-                            startAddGoal={startAddGoal}
-                            startEditGoal={startEditGoal}
-                            startDeleteGoal={startDeleteGoal}
-                            startContributeGoal={startContributeGoal}
+                <div className="col-sidebar">
+                    {isCurrentMonth && (
+                        <>
+                            <UpcomingTransactionsSection reloadKey={upcomingReloadKey} />
+                            <GoalsSection
+                                goals={goals}
+                                startAddGoal={startAddGoal}
+                                startEditGoal={startEditGoal}
+                                startDeleteGoal={startDeleteGoal}
+                                startContributeGoal={startContributeGoal}
+                            />
+                        </>
+                    )}
+                    {isNextMonth && (
+                        <UpcomingTransactionsSection
+                            filterMonth={getNextMonthString()}
+                            reloadKey={upcomingReloadKey}
                         />
-                    </div>
-                )}
+                    )}
+                    {!isCurrentMonth && !isNextMonth && (
+                        <TransactionsSection
+                            transactions={filteredTransactions}
+                            goals={goals}
+                            startAddTransaction={startAddTransaction}
+                            startEditTransaction={startEditTransaction}
+                            startDeleteTransaction={startDeleteTransaction}
+                        />
+                    )}
+                </div>
             </div>
 
         </BudgetContext.Provider>
