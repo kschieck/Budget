@@ -217,7 +217,12 @@ export function LineChart({ width = 600, height = 250 }) {
 
     return (
         <div style={{ position: "relative", display: "inline-block" }}>
-            <svg ref={svgRef} width={width} height={height} />
+            <svg
+                ref={svgRef}
+                width={width}
+                height={height}
+                viewBox={`0 0 ${width} ${height}`}
+            />
             {tooltip.visible && (
                 <div
                     style={{
