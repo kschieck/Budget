@@ -16,7 +16,7 @@ function GoalRow({
             : toDollarsNoCents(goal.amount / 100);
     let totalString = toDollarsNoCents(goal.total / 100);
 
-    let percent = Math.min((goal.amount / goal.total) * 100, 100);
+    let percent = Math.max(0, Math.min((goal.amount / goal.total) * 100, 100));
     return (
         <tr onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
             <td>
@@ -76,7 +76,7 @@ function GoalTotalRow({ amount, total }) {
     let amountString = toDollarsNoCents(amount / 100);
     let totalString = toDollarsNoCents(total / 100);
 
-    let ratio = Math.min(amount / total, 1);
+    let ratio = Math.max(0, Math.min(amount / total, 1));
     return (
         <tr className="goal_display_total">
             <td></td>
