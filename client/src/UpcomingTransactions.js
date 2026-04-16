@@ -68,7 +68,7 @@ export function AddEditUpcomingDialog({
     const [txDesc, setTxDesc] = useState(description);
     const [txTargetMonth, setTxTargetMonth] = useState(targetMonth);
     const [saving, setSaving] = useState(false);
-    const dialogRef = useDialog();
+    const dialogRef = useDialog(onCancel, () => !saving);
 
     function handleSave() {
         setSaving(true);

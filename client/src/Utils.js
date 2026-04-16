@@ -1,12 +1,40 @@
 import { useState, useRef, useEffect } from "react";
 
-export function useDialog() {
+export function useDialog(onCancel, canClose = () => true) {
     const dialogRef = useRef(null);
+    const onCancelRef = useRef(onCancel);
+    onCancelRef.current = onCancel;
+    const canCloseRef = useRef(canClose);
+    canCloseRef.current = canClose;
+    const closedByHistory = useRef(false);
+
     useEffect(() => {
         if (dialogRef.current && !dialogRef.current.open) {
             dialogRef.current.showModal();
         }
     }, []);
+
+    useEffect(() => {
+        history.pushState({ dialog: true }, "");
+
+        function handlePopState() {
+            if (!canCloseRef.current()) {
+                history.pushState({ dialog: true }, "");
+                return;
+            }
+            closedByHistory.current = true;
+            onCancelRef.current();
+        }
+
+        window.addEventListener("popstate", handlePopState);
+        return () => {
+            window.removeEventListener("popstate", handlePopState);
+            if (!closedByHistory.current) {
+                history.back();
+            }
+        };
+    }, []);
+
     return dialogRef;
 }
 
