@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from "react";
-import { toDollars, useRowActions } from "./Utils.js";
+import { useState } from "react";
+import { toDollars, useRowActions, useDialog } from "./Utils.js";
 import { useBudget } from "./BudgetContext.js";
 
 function TransactionRow({
@@ -61,13 +61,7 @@ export function AddEditTransactionDialog({
     const [txAmount, setTxAmount] = useState(amount);
     const [txDesc, setTxDesc] = useState(description);
     const [saving, setSaving] = useState(false);
-    const dialogRef = useRef(null);
-
-    useEffect(() => {
-        if (dialogRef.current && !dialogRef.current.open) {
-            dialogRef.current.showModal();
-        }
-    }, []);
+    const dialogRef = useDialog();
 
     function handleSave() {
         setSaving(true);
@@ -77,7 +71,7 @@ export function AddEditTransactionDialog({
     }
 
     return (
-        <dialog ref={dialogRef}>
+        <dialog ref={dialogRef} onCancel={(e) => { if (saving) e.preventDefault(); else onCancel(); }}>
             <h3 className="form_title">
                 {id == -1 ? "Add" : "Edit"} Transaction
             </h3>

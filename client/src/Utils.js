@@ -1,4 +1,14 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+
+export function useDialog() {
+    const dialogRef = useRef(null);
+    useEffect(() => {
+        if (dialogRef.current && !dialogRef.current.open) {
+            dialogRef.current.showModal();
+        }
+    }, []);
+    return dialogRef;
+}
 
 export function useRowActions({ disabled = false } = {}) {
     const [showActions, setShowActions] = useState(false);
