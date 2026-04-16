@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { toDollars } from "./Utils.js";
+import { toDollars, useRowActions } from "./Utils.js";
 import { useBudget } from "./BudgetContext.js";
 
 function TransactionRow({
@@ -8,27 +8,10 @@ function TransactionRow({
     onTransactionClicked,
     onDeleteClicked,
 }) {
-    const [showActions, setShowActions] = useState(false);
+    const { showActions, handleMouseEnter, handleMouseLeave, handleClick } =
+        useRowActions({ disabled: readonly });
 
     let dateString = transaction.date_added.substring(5, 10);
-
-    function handleMouseEnter() {
-        if (readonly) return;
-        if (!window.matchMedia("(hover: hover)").matches) return;
-        setShowActions(true);
-    }
-
-    function handleMouseLeave() {
-        if (!window.matchMedia("(hover: hover)").matches) return;
-        setShowActions(false);
-    }
-
-    function clickedTransaction() {
-        if (readonly) return;
-        if (!window.matchMedia("(hover: hover)").matches) {
-            setShowActions(!showActions);
-        }
-    }
 
     function TransactionAmount(num) {
         return num > 0
@@ -59,7 +42,7 @@ function TransactionRow({
                 ) : null}
                 <div
                     style={{ display: "inline-block" }}
-                    onClick={clickedTransaction}
+                    onClick={handleClick}
                 >
                     {transaction.description}
                 </div>

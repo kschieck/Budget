@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { toDollars } from "./Utils.js";
+import { toDollars, useRowActions } from "./Utils.js";
 import * as API from "./API.js";
 
 export function getNextMonthString() {
@@ -18,23 +18,8 @@ function sortUpcoming(list) {
 }
 
 function UpcomingTransactionRow({ upcoming, onEditClicked, onDeleteClicked }) {
-    const [showActions, setShowActions] = useState(false);
-
-    function handleMouseEnter() {
-        if (!window.matchMedia("(hover: hover)").matches) return;
-        setShowActions(true);
-    }
-
-    function handleMouseLeave() {
-        if (!window.matchMedia("(hover: hover)").matches) return;
-        setShowActions(false);
-    }
-
-    function clickedRow() {
-        if (!window.matchMedia("(hover: hover)").matches) {
-            setShowActions(!showActions);
-        }
-    }
+    const { showActions, handleMouseEnter, handleMouseLeave, handleClick } =
+        useRowActions();
 
     function formatAmount(num) {
         return num > 0
@@ -63,7 +48,7 @@ function UpcomingTransactionRow({ upcoming, onEditClicked, onDeleteClicked }) {
                         </button>
                     </>
                 ) : null}
-                <div style={{ display: "inline-block" }} onClick={clickedRow}>
+                <div style={{ display: "inline-block" }} onClick={handleClick}>
                     {upcoming.description}
                 </div>
             </td>
