@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { toDollars, toDollarsNoCents } from "./Utils";
+import { toDollars, toDollarsNoCents, useRowActions } from "./Utils";
 
 function GoalRow({
     goal,
@@ -7,29 +7,14 @@ function GoalRow({
     startDeleteGoal,
     startContributeGoal,
 }) {
-    const [showActions, setShowActions] = useState(false);
+    const { showActions, handleMouseEnter, handleMouseLeave, handleClick } =
+        useRowActions();
 
     let amountString =
         goal.amount !== 0 && Math.floor(Math.abs(goal.amount) / 100) === 0
             ? toDollars(goal.amount / 100)
             : toDollarsNoCents(goal.amount / 100);
     let totalString = toDollarsNoCents(goal.total / 100);
-
-    function handleMouseEnter() {
-        if (!window.matchMedia("(hover: hover)").matches) return;
-        setShowActions(true);
-    }
-
-    function handleMouseLeave() {
-        if (!window.matchMedia("(hover: hover)").matches) return;
-        setShowActions(false);
-    }
-
-    function handleGoalClick() {
-        if (!window.matchMedia("(hover: hover)").matches) {
-            setShowActions(!showActions);
-        }
-    }
 
     let percent = Math.min((goal.amount / goal.total) * 100, 100);
     return (
@@ -54,7 +39,7 @@ function GoalRow({
                 <div
                     className="small_cell"
                     style={{ display: "inline-block" }}
-                    onClick={handleGoalClick}
+                    onClick={handleClick}
                 >
                     {goal.name}
                 </div>
