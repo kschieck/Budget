@@ -20,6 +20,22 @@ function sortUpcoming(list) {
 function UpcomingTransactionRow({ upcoming, onEditClicked, onDeleteClicked }) {
     const [showActions, setShowActions] = useState(false);
 
+    function handleMouseEnter() {
+        if (!window.matchMedia("(hover: hover)").matches) return;
+        setShowActions(true);
+    }
+
+    function handleMouseLeave() {
+        if (!window.matchMedia("(hover: hover)").matches) return;
+        setShowActions(false);
+    }
+
+    function clickedRow() {
+        if (!window.matchMedia("(hover: hover)").matches) {
+            setShowActions(!showActions);
+        }
+    }
+
     function formatAmount(num) {
         return num > 0
             ? toDollars(num / 100)
@@ -27,7 +43,7 @@ function UpcomingTransactionRow({ upcoming, onEditClicked, onDeleteClicked }) {
     }
 
     return (
-        <tr>
+        <tr onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
             <td>{upcoming.target_month}</td>
             <td>{formatAmount(upcoming.amount)}</td>
             <td className="small_cell">
@@ -47,7 +63,7 @@ function UpcomingTransactionRow({ upcoming, onEditClicked, onDeleteClicked }) {
                         </button>
                     </>
                 ) : null}
-                <div style={{ display: "inline-block" }} onClick={() => setShowActions(!showActions)}>
+                <div style={{ display: "inline-block" }} onClick={clickedRow}>
                     {upcoming.description}
                 </div>
             </td>
