@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from "react";
-import { toDollars, toDollarsNoCents, useRowActions } from "./Utils";
+import { useState } from "react";
+import { toDollars, toDollarsNoCents, useRowActions, useDialog } from "./Utils";
 
 function GoalRow({
     goal,
@@ -115,13 +115,7 @@ export function AddEditGoalDialog({
     const [goalAmount, setGoalAmount] = useState(amount);
     const [goalDesc, setGoalDesc] = useState(description);
     const [saving, setSaving] = useState(false);
-    const dialogRef = useRef(null);
-
-    useEffect(() => {
-        if (dialogRef.current && !dialogRef.current.open) {
-            dialogRef.current.showModal();
-        }
-    }, []);
+    const dialogRef = useDialog();
 
     let cantEditName = id !== -1;
 
@@ -133,7 +127,7 @@ export function AddEditGoalDialog({
     }
 
     return (
-        <dialog ref={dialogRef}>
+        <dialog ref={dialogRef} onCancel={(e) => { if (saving) e.preventDefault(); else onCancel(); }}>
             <h3 className="form_title">{id === -1 ? "Add" : "Edit"} Goal</h3>
             <input
                 type="text"
@@ -172,13 +166,7 @@ export function AddEditGoalDialog({
 export function AddGoalTransactionDialog({ id, onSave, onCancel }) {
     const [amount, setAmount] = useState("");
     const [saving, setSaving] = useState(false);
-    const dialogRef = useRef(null);
-
-    useEffect(() => {
-        if (dialogRef.current && !dialogRef.current.open) {
-            dialogRef.current.showModal();
-        }
-    }, []);
+    const dialogRef = useDialog();
 
     function handleSave() {
         setSaving(true);
@@ -188,7 +176,7 @@ export function AddGoalTransactionDialog({ id, onSave, onCancel }) {
     }
 
     return (
-        <dialog ref={dialogRef} onCancel={onCancel}>
+        <dialog ref={dialogRef} onCancel={(e) => { if (saving) e.preventDefault(); else onCancel(); }}>
             <h3 className="form_title">Add Goal Transaction</h3>
             <input
                 type="number"
