@@ -23,8 +23,20 @@ function getCurrentMonthString() {
 function RecurringTransactionRow({ recurring, onEditClicked, onDeleteClicked }) {
     const [showActions, setShowActions] = useState(false);
 
+    function handleMouseEnter() {
+        if (!window.matchMedia("(hover: hover)").matches) return;
+        setShowActions(true);
+    }
+
+    function handleMouseLeave() {
+        if (!window.matchMedia("(hover: hover)").matches) return;
+        setShowActions(false);
+    }
+
     function clickedRow() {
-        setShowActions(!showActions);
+        if (!window.matchMedia("(hover: hover)").matches) {
+            setShowActions(!showActions);
+        }
     }
 
     function TransactionAmount(num) {
@@ -34,7 +46,7 @@ function RecurringTransactionRow({ recurring, onEditClicked, onDeleteClicked }) 
     }
 
     return (
-        <tr>
+        <tr onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
             <td>{recurring.end_month ? "until " + recurring.end_month : ""}</td>
             <td>{TransactionAmount(recurring.amount)}</td>
             <td className="small_cell">
