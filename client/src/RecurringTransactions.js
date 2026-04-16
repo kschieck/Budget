@@ -73,7 +73,7 @@ export function AddEditRecurringDialog({
     const [txStartMonth, setTxStartMonth] = useState(startMonth);
     const [txEndMonth, setTxEndMonth] = useState(endMonth);
     const [saving, setSaving] = useState(false);
-    const dialogRef = useDialog();
+    const dialogRef = useDialog(onCancel, () => !saving);
 
     function handleSave() {
         setSaving(true);

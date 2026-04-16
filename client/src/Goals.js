@@ -115,7 +115,7 @@ export function AddEditGoalDialog({
     const [goalAmount, setGoalAmount] = useState(amount);
     const [goalDesc, setGoalDesc] = useState(description);
     const [saving, setSaving] = useState(false);
-    const dialogRef = useDialog();
+    const dialogRef = useDialog(onCancel, () => !saving);
 
     let cantEditName = id !== -1;
 
@@ -166,7 +166,7 @@ export function AddEditGoalDialog({
 export function AddGoalTransactionDialog({ id, onSave, onCancel }) {
     const [amount, setAmount] = useState("");
     const [saving, setSaving] = useState(false);
-    const dialogRef = useDialog();
+    const dialogRef = useDialog(onCancel, () => !saving);
 
     function handleSave() {
         setSaving(true);

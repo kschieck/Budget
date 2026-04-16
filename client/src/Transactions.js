@@ -61,7 +61,7 @@ export function AddEditTransactionDialog({
     const [txAmount, setTxAmount] = useState(amount);
     const [txDesc, setTxDesc] = useState(description);
     const [saving, setSaving] = useState(false);
-    const dialogRef = useDialog();
+    const dialogRef = useDialog(onCancel, () => !saving);
 
     function handleSave() {
         setSaving(true);
