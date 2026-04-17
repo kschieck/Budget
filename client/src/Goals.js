@@ -20,22 +20,6 @@ function GoalRow({
     return (
         <tr onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
             <td>
-                {showActions ? (
-                    <>
-                        <button
-                            className="btn-icon-sm space_right"
-                            onClick={() => startEditGoal(goal.id)}
-                        >
-                            ✎
-                        </button>
-                        <button
-                            className="btn-icon-sm space_right"
-                            onClick={() => startDeleteGoal(goal.id)}
-                        >
-                            ✕
-                        </button>
-                    </>
-                ) : null}
                 <div
                     className="small_cell"
                     style={{ display: "inline-block" }}
@@ -43,6 +27,22 @@ function GoalRow({
                 >
                     {goal.name}
                 </div>
+                {showActions ? (
+                    <div className="row-actions">
+                        <button
+                            className="btn-icon-sm"
+                            onClick={() => startEditGoal(goal.id)}
+                        >
+                            ✎
+                        </button>
+                        <button
+                            className="btn-icon-sm"
+                            onClick={() => startDeleteGoal(goal.id)}
+                        >
+                            ✕
+                        </button>
+                    </div>
+                ) : null}
             </td>
             <td>
                 <div

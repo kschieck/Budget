@@ -24,28 +24,28 @@ function TransactionRow({
             <td>{dateString}</td>
             <td>{TransactionAmount(transaction.amount)}</td>
             <td className="small_cell">
-                {showActions ? (
-                    <>
-                        <button
-                            className="btn-icon-sm space_right"
-                            onClick={() => onTransactionClicked(transaction.id)}
-                        >
-                            ✎
-                        </button>
-                        <button
-                            className="btn-icon-sm space_right"
-                            onClick={() => onDeleteClicked(transaction.id)}
-                        >
-                            ✕
-                        </button>
-                    </>
-                ) : null}
                 <div
                     style={{ display: "inline-block" }}
                     onClick={handleClick}
                 >
                     {transaction.description}
                 </div>
+                {showActions ? (
+                    <div className="row-actions">
+                        <button
+                            className="btn-icon-sm"
+                            onClick={() => onTransactionClicked(transaction.id)}
+                        >
+                            ✎
+                        </button>
+                        <button
+                            className="btn-icon-sm"
+                            onClick={() => onDeleteClicked(transaction.id)}
+                        >
+                            ✕
+                        </button>
+                    </div>
+                ) : null}
             </td>
         </tr>
     );

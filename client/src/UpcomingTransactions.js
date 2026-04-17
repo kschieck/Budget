@@ -32,25 +32,25 @@ function UpcomingTransactionRow({ upcoming, onEditClicked, onDeleteClicked }) {
             <td>{upcoming.target_month}</td>
             <td>{formatAmount(upcoming.amount)}</td>
             <td className="small_cell">
+                <div style={{ display: "inline-block" }} onClick={handleClick}>
+                    {upcoming.description}
+                </div>
                 {showActions ? (
-                    <>
+                    <div className="row-actions">
                         <button
-                            className="btn-icon-sm space_right"
+                            className="btn-icon-sm"
                             onClick={() => onEditClicked(upcoming.id)}
                         >
                             ✎
                         </button>
                         <button
-                            className="btn-icon-sm space_right"
+                            className="btn-icon-sm"
                             onClick={() => onDeleteClicked(upcoming.id)}
                         >
                             ✕
                         </button>
-                    </>
+                    </div>
                 ) : null}
-                <div style={{ display: "inline-block" }} onClick={handleClick}>
-                    {upcoming.description}
-                </div>
             </td>
         </tr>
     );
