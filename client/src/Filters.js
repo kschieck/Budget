@@ -1,3 +1,5 @@
+import { useBudget } from "./BudgetContext.js";
+
 function FilterRow({ name, checked, changeFilterState }) {
     return (
         <tr>
@@ -15,11 +17,8 @@ function FilterRow({ name, checked, changeFilterState }) {
     );
 }
 
-export default function FiltersSection({
-    names = [],
-    filters,
-    changeFilterState,
-}) {
+export default function FiltersSection({ names = [] }) {
+    const { filters, changeFilterState } = useBudget();
     return (
         <>
             <h1>Filters</h1>

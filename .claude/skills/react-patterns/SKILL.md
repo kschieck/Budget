@@ -22,7 +22,7 @@ user-invocable: false
 
 ## Dialogs
 
-Do NOT store JSX in state (`activeDialog` is tech debt). Instead:
+Use state flags and conditional rendering for dialogs:
 
 ```jsx
 // Correct pattern

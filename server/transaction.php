@@ -110,7 +110,7 @@ switch($_SERVER['REQUEST_METHOD']) {
             $dateOffset .= " -$monthAdjust months";
         }
 
-        // On current-month loads, materialize any due recurring transactions
+        // On current-month loads, materialize any due recurring and upcoming transactions
         if ($monthAdjust === 0) {
             $currentMonth = date("Y-m", strtotime("-4 hours"));
             if (!hasProcessedRecurring($currentMonth)) {
@@ -119,6 +119,11 @@ switch($_SERVER['REQUEST_METHOD']) {
                 } catch (Exception $e) {
                     error_log("Failed to process recurring transactions: " . $e->getMessage());
                 }
+            }
+            try {
+                processUpcomingForMonth($currentMonth);
+            } catch (Exception $e) {
+                error_log("Failed to process upcoming transactions: " . $e->getMessage());
             }
         }
 

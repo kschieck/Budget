@@ -64,6 +64,7 @@ if ($amount === 0 || strlen($description) === 0) {
 - On success with data: `["success" => true, "transactions" => $transactions]`
 - On any failure: `["success" => false]`
 - No error details in the response body — use `error_log()` for server-side logging
+- Include error reason when available: `["success" => false, "reason" => "invalid amount"]`
 
 ## Database Access
 

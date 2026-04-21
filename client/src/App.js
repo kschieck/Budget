@@ -1,21 +1,23 @@
 import { useState, useEffect } from "react";
+import BudgetContext, { useBudgetNavigation } from "./BudgetContext.js";
 import TransactionsSection, {
     AddEditTransactionDialog,
 } from "./Transactions.js";
-import { toDollars, toDollarsNoCents } from "./Utils.js";
+import { toDollars } from "./Utils.js";
 import GoalsSection, {
     AddEditGoalDialog,
     AddGoalTransactionDialog,
 } from "./Goals.js";
-import FiltersSection from "./Filters.js";
 import * as API from "./API.js";
 import { DrawdownChart } from "./Charts.js";
 import RecurringTransactionsSection from "./RecurringTransactions.js";
+import UpcomingTransactionsSection, { getNextMonthString } from "./UpcomingTransactions.js";
 import MonthSelector from "./MonthSelector.js";
+import { LineChart } from "./LineChart.js";
 
 function LoginForm({ onTryLogin, disabled }) {
-    let [username, setUsername] = useState("");
-    let [password, setPassword] = useState("");
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
 
     function doSubmit(e) {
         e.preventDefault();
@@ -46,17 +48,20 @@ function LoginForm({ onTryLogin, disabled }) {
 }
 
 function BudgetApp() {
-    const [monthOffset, setMonthOffset] = useState(0);
-    const [filters, setFilters] = useState(null);
     const [goals, setGoals] = useState([]);
     const [transactions, setTransactions] = useState([]);
     const [amountTotal, setAmountTotal] = useState(0);
+
+    const { monthOffset, filters, previousMonth, nextMonth, changeFilterState } =
+        useBudgetNavigation(transactions, setTransactions);
 
     const [showAddTransaction, setShowAddTransaction] = useState(false);
     const [editingTransactionId, setEditingTransactionId] = useState(null);
     const [showAddGoal, setShowAddGoal] = useState(false);
     const [editingGoalId, setEditingGoalId] = useState(null);
     const [contributingGoalId, setContributingGoalId] = useState(null);
+    const [chartToggle, setChartToggle] = useState(true);
+    const [upcomingReloadKey, setUpcomingReloadKey] = useState(0);
 
     const editingTransaction =
         editingTransactionId !== null
@@ -139,6 +144,9 @@ function BudgetApp() {
             .then((json) => {
                 if (json.success) {
                     setTransactions(json.transactions);
+                    if (monthOffset === 0) {
+                        setUpcomingReloadKey((k) => k + 1);
+                    }
                 } else {
                     alert("Failed to load data");
                 }
@@ -148,28 +156,8 @@ function BudgetApp() {
 
     useEffect(loadAmountTotal, []);
     useEffect(loadGoals, []);
-    useEffect(() => {
-        setFilters(null);
-        loadTransactions();
-    }, [monthOffset]);
-    useEffect(() => {
-        if (filters === null && transactions.length > 0) {
-            setFilters(
-                new Set(
-                    transactions
-                        .map((t) => t.user)
-                        .filter((u) => u && u.length > 0),
-                ),
-            );
-        }
-    }, [filters, transactions]);
+    useEffect(loadTransactions, [monthOffset]);
 
-    function previousMonth() {
-        setMonthOffset(monthOffset + 1);
-    }
-    function nextMonth() {
-        setMonthOffset(Math.max(-1, monthOffset - 1));
-    }
     function startAddTransaction() {
         setShowAddTransaction(true);
     }
@@ -228,19 +216,13 @@ function BudgetApp() {
     function startContributeGoal(goalId) {
         setContributingGoalId(goalId);
     }
-    function changeFilterState(name, showTransactions) {
-        setFilters((prev) => {
-            const newFilters = new Set(prev ?? users);
-            if (showTransactions) {
-                newFilters.add(name);
-            } else {
-                newFilters.delete(name);
-            }
-            return newFilters;
-        });
+    function toggleChart() {
+        setChartToggle(!chartToggle);
     }
     return (
-        <>
+        <BudgetContext.Provider
+            value={{ monthOffset, filters, previousMonth, nextMonth, changeFilterState }}
+        >
             {showAddTransaction && (
                 <AddEditTransactionDialog
                     onCancel={() => setShowAddTransaction(false)}
@@ -397,11 +379,7 @@ function BudgetApp() {
                 />
             )}
 
-            <MonthSelector
-                previousMonth={previousMonth}
-                nextMonth={nextMonth}
-                showNextMonth={monthOffset > -1}
-            >
+            <MonthSelector>
                 <span>
                     {isCurrentMonth
                         ? toDollars(amountTotal / 100)
@@ -415,54 +393,73 @@ function BudgetApp() {
 
             </MonthSelector>
 
-            {!isNextMonth ? (
-                <h1 className="chart-wrapper">
-                    <DrawdownChart
-                        transactions={transactions}
-                        width={300}
-                        height={100}
-                    />
-                    <br />
-                </h1>
-            ) : null}
+            <div className="main-grid">
+                <div className="col-primary">
+                    {!isNextMonth && (
+                        <div onClick={toggleChart}>
+                            {!isCurrentMonth || chartToggle ?
+                                <h1 className="chart-wrapper">
+                                    Drawdown
+                                    <DrawdownChart
+                                        transactions={transactions}
+                                        width={300}
+                                        height={166}
+                                    />
+                                    <br />
+                                </h1> :
+                                <h1 className="chart-wrapper">
+                                    Monthly Income/Expenses
+                                    <LineChart width={400} height={200} />
+                                    <br />
+                                </h1>}
+                        </div>
+                    )}
 
-            {
-                isNextMonth ? (
-                    <RecurringTransactionsSection />
-                ) : (
-                    <TransactionsSection
-                        readonly={!isCurrentMonth}
-                        transactions={filteredTransactions}
-                        goals={goals}
-                        startAddTransaction={startAddTransaction}
-                        startEditTransaction={startEditTransaction}
-                        startDeleteTransaction={startDeleteTransaction}
-                    />
-                )
-            }
 
-            {
-                isCurrentMonth ? (
-                    <GoalsSection
-                        goals={goals}
-                        startAddGoal={startAddGoal}
-                        startEditGoal={startEditGoal}
-                        startDeleteGoal={startDeleteGoal}
-                        startContributeGoal={startContributeGoal}
-                    />
-                ) : null
-            }
+                    {isNextMonth && (
+                        <UpcomingTransactionsSection
+                            filterMonth={getNextMonthString()}
+                            reloadKey={upcomingReloadKey}
+                        />
+                    )}
+                    {isCurrentMonth && (
+                        <TransactionsSection
+                            transactions={filteredTransactions}
+                            goals={goals}
+                            startAddTransaction={startAddTransaction}
+                            startEditTransaction={startEditTransaction}
+                            startDeleteTransaction={startDeleteTransaction}
+                        />
+                    )}
+                </div>
 
-            {
-                users.length > 1 && !isNextMonth ? (
-                    <FiltersSection
-                        names={users}
-                        filters={filters}
-                        changeFilterState={changeFilterState}
-                    />
-                ) : null
-            }
-        </>
+                <div className="col-sidebar">
+                    {isCurrentMonth && (
+                        <>
+                            <UpcomingTransactionsSection reloadKey={upcomingReloadKey} />
+                            <GoalsSection
+                                goals={goals}
+                                startAddGoal={startAddGoal}
+                                startEditGoal={startEditGoal}
+                                startDeleteGoal={startDeleteGoal}
+                                startContributeGoal={startContributeGoal}
+                            />
+                        </>
+                    )}
+                    {isNextMonth && <RecurringTransactionsSection />}
+                    {!isCurrentMonth && !isNextMonth && (
+                        <TransactionsSection
+                            transactions={filteredTransactions}
+                            goals={goals}
+                            startAddTransaction={startAddTransaction}
+                            startEditTransaction={startEditTransaction}
+                            startDeleteTransaction={startDeleteTransaction}
+                        />
+                    )}
+                </div>
+            </div>
+
+        </BudgetContext.Provider>
     );
 }
 

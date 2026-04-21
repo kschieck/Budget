@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from "react";
-import { toDollars } from "./Utils.js";
+import { useState } from "react";
+import { toDollars, useRowActions, useDialog } from "./Utils.js";
+import { useBudget } from "./BudgetContext.js";
 
 function TransactionRow({
     readonly,
@@ -7,27 +8,10 @@ function TransactionRow({
     onTransactionClicked,
     onDeleteClicked,
 }) {
-    const [showActions, setShowActions] = useState(false);
+    const { showActions, handleMouseEnter, handleMouseLeave, handleClick } =
+        useRowActions({ disabled: readonly });
 
     let dateString = transaction.date_added.substring(5, 10);
-
-    function handleMouseEnter() {
-        if (readonly) return;
-        if (!window.matchMedia("(hover: hover)").matches) return;
-        setShowActions(true);
-    }
-
-    function handleMouseLeave() {
-        if (!window.matchMedia("(hover: hover)").matches) return;
-        setShowActions(false);
-    }
-
-    function clickedTransaction() {
-        if (readonly) return;
-        if (!window.matchMedia("(hover: hover)").matches) {
-            setShowActions(!showActions);
-        }
-    }
 
     function TransactionAmount(num) {
         return num > 0
@@ -40,28 +24,28 @@ function TransactionRow({
             <td>{dateString}</td>
             <td>{TransactionAmount(transaction.amount)}</td>
             <td className="small_cell">
+                <div
+                    style={{ display: "inline-block" }}
+                    onClick={handleClick}
+                >
+                    {transaction.description}
+                </div>
                 {showActions ? (
-                    <>
+                    <div className="row-actions">
                         <button
-                            className="btn-icon-sm space_right"
+                            className="btn-icon-sm"
                             onClick={() => onTransactionClicked(transaction.id)}
                         >
                             ✎
                         </button>
                         <button
-                            className="btn-icon-sm space_right"
+                            className="btn-icon-sm"
                             onClick={() => onDeleteClicked(transaction.id)}
                         >
                             ✕
                         </button>
-                    </>
+                    </div>
                 ) : null}
-                <div
-                    style={{ display: "inline-block" }}
-                    onClick={clickedTransaction}
-                >
-                    {transaction.description}
-                </div>
             </td>
         </tr>
     );
@@ -77,13 +61,7 @@ export function AddEditTransactionDialog({
     const [txAmount, setTxAmount] = useState(amount);
     const [txDesc, setTxDesc] = useState(description);
     const [saving, setSaving] = useState(false);
-    const dialogRef = useRef(null);
-
-    useEffect(() => {
-        if (dialogRef.current && !dialogRef.current.open) {
-            dialogRef.current.showModal();
-        }
-    }, []);
+    const dialogRef = useDialog(onCancel, () => !saving);
 
     function handleSave() {
         setSaving(true);
@@ -93,7 +71,7 @@ export function AddEditTransactionDialog({
     }
 
     return (
-        <dialog ref={dialogRef}>
+        <dialog ref={dialogRef} onCancel={(e) => { if (saving) e.preventDefault(); else onCancel(); }}>
             <h3 className="form_title">
                 {id == -1 ? "Add" : "Edit"} Transaction
             </h3>
@@ -136,13 +114,14 @@ export function AddEditTransactionDialog({
 }
 
 export default function TransactionsSection({
-    readonly,
     transactions = [],
     goals = [],
     startAddTransaction,
     startEditTransaction,
     startDeleteTransaction,
 }) {
+    const { monthOffset } = useBudget();
+    const readonly = monthOffset !== 0;
 
     transactions.sort((a, b) => {
         return new Date(b.date_added) - new Date(a.date_added);

@@ -2,29 +2,26 @@ import { useState, useEffect } from "react";
 import { toDollars, useRowActions, useDialog } from "./Utils.js";
 import * as API from "./API.js";
 
-function sortRecurring(list) {
+export function getNextMonthString() {
+    const now = new Date();
+    const next = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    return `${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function sortUpcoming(list) {
     return [...list].sort((a, b) => {
-        const aNeg = a.amount < 0;
-        const bNeg = b.amount < 0;
-        if (aNeg !== bNeg) {
-            return aNeg ? -1 : 1;
+        if (a.target_month !== b.target_month) {
+            return a.target_month < b.target_month ? -1 : 1;
         }
-        return aNeg
-            ? a.amount - b.amount   // negatives: ascending (most negative first)
-            : b.amount - a.amount;  // positives: descending (highest first)
+        return b.id - a.id;
     });
 }
 
-function getCurrentMonthString() {
-    const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-}
-
-function RecurringTransactionRow({ recurring, onEditClicked, onDeleteClicked }) {
+function UpcomingTransactionRow({ upcoming, onEditClicked, onDeleteClicked }) {
     const { showActions, handleMouseEnter, handleMouseLeave, handleClick } =
         useRowActions();
 
-    function TransactionAmount(num) {
+    function formatAmount(num) {
         return num > 0
             ? toDollars(num / 100)
             : `(${toDollars(Math.abs(num / 100))})`;
@@ -32,23 +29,23 @@ function RecurringTransactionRow({ recurring, onEditClicked, onDeleteClicked }) 
 
     return (
         <tr onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-            <td>{recurring.end_month ? "until " + recurring.end_month : ""}</td>
-            <td>{TransactionAmount(recurring.amount)}</td>
+            <td>{upcoming.target_month}</td>
+            <td>{formatAmount(upcoming.amount)}</td>
             <td className="small_cell">
                 <div style={{ display: "inline-block" }} onClick={handleClick}>
-                    {recurring.description}
+                    {upcoming.description}
                 </div>
                 {showActions ? (
                     <div className="row-actions">
                         <button
                             className="btn-icon-sm"
-                            onClick={() => onEditClicked(recurring.id)}
+                            onClick={() => onEditClicked(upcoming.id)}
                         >
                             ✎
                         </button>
                         <button
                             className="btn-icon-sm"
-                            onClick={() => onDeleteClicked(recurring.id)}
+                            onClick={() => onDeleteClicked(upcoming.id)}
                         >
                             ✕
                         </button>
@@ -59,25 +56,23 @@ function RecurringTransactionRow({ recurring, onEditClicked, onDeleteClicked }) 
     );
 }
 
-export function AddEditRecurringDialog({
+export function AddEditUpcomingDialog({
     id = -1,
     amount = "",
     description = "",
-    startMonth = getCurrentMonthString(),
-    endMonth = "",
+    targetMonth = getNextMonthString(),
     onSave,
     onCancel,
 }) {
     const [txAmount, setTxAmount] = useState(amount);
     const [txDesc, setTxDesc] = useState(description);
-    const [txStartMonth, setTxStartMonth] = useState(startMonth);
-    const [txEndMonth, setTxEndMonth] = useState(endMonth);
+    const [txTargetMonth, setTxTargetMonth] = useState(targetMonth);
     const [saving, setSaving] = useState(false);
     const dialogRef = useDialog(onCancel, () => !saving);
 
     function handleSave() {
         setSaving(true);
-        onSave(id, txAmount, txDesc, txStartMonth, txEndMonth || null)
+        onSave(id, txAmount, txDesc, txTargetMonth)
             .then((success) => { if (!success) setSaving(false); })
             .catch(() => setSaving(false));
     }
@@ -85,7 +80,7 @@ export function AddEditRecurringDialog({
     return (
         <dialog ref={dialogRef} onCancel={(e) => { if (saving) e.preventDefault(); else onCancel(); }}>
             <h3 className="form_title">
-                {id === -1 ? "Add" : "Edit"} Recurring Transaction
+                {id === -1 ? "Add" : "Edit"} Upcoming Transaction
             </h3>
             <input
                 type="number"
@@ -106,20 +101,10 @@ export function AddEditRecurringDialog({
             <br />
             <br />
             <input
-                type="text"
-                placeholder="start month (YYYY-MM)"
+                type="month"
                 disabled={saving}
-                value={txStartMonth}
-                onChange={(e) => setTxStartMonth(e.target.value)}
-            />
-            <br />
-            <br />
-            <input
-                type="text"
-                placeholder="end month (YYYY-MM, optional)"
-                disabled={saving}
-                value={txEndMonth}
-                onChange={(e) => setTxEndMonth(e.target.value)}
+                value={txTargetMonth}
+                onChange={(e) => setTxTargetMonth(e.target.value)}
             />
             <br />
             <br />
@@ -137,16 +122,16 @@ export function AddEditRecurringDialog({
     );
 }
 
-export default function RecurringTransactionsSection() {
-    const [recurring, setRecurring] = useState([]);
+export default function UpcomingTransactionsSection({ reloadKey, filterMonth = null }) {
+    const [upcoming, setUpcoming] = useState([]);
     const [showAddDialog, setShowAddDialog] = useState(false);
-    const [editingRecurring, setEditingRecurring] = useState(null);
+    const [editingUpcoming, setEditingUpcoming] = useState(null);
 
-    function loadRecurring() {
-        API.loadRecurringTransactions()
+    function loadUpcoming() {
+        API.loadUpcomingTransactions()
             .then((result) => {
                 if (result.success) {
-                    setRecurring(sortRecurring(result.recurring));
+                    setUpcoming(sortUpcoming(result.upcoming));
                 } else {
                     alert("Failed to load data");
                 }
@@ -154,102 +139,105 @@ export default function RecurringTransactionsSection() {
             .catch(() => alert("Failed to load data"));
     }
 
-    useEffect(loadRecurring, []);
+    useEffect(loadUpcoming, [reloadKey]);
 
-    function handleSave(id, amount, description, startMonth, endMonth) {
-        return API.saveRecurringTransaction(id, amount, description, startMonth, endMonth)
+    function handleSave(id, amount, description, targetMonth) {
+        return API.saveUpcomingTransaction(id, amount, description, targetMonth)
             .then((result) => {
                 if (result.success) {
                     setShowAddDialog(false);
-                    setEditingRecurring(null);
+                    setEditingUpcoming(null);
                     if (id === -1) {
-                        setRecurring((prev) => sortRecurring([...prev, result.recurring]));
+                        setUpcoming((prev) => sortUpcoming([...prev, result.upcoming]));
                     } else {
-                        setRecurring((prev) =>
-                            sortRecurring(prev.map((r) =>
-                                r.id === result.recurring.id ? result.recurring : r,
+                        setUpcoming((prev) =>
+                            sortUpcoming(prev.map((u) =>
+                                u.id === result.upcoming.id ? result.upcoming : u,
                             )),
                         );
                     }
                     return true;
                 } else {
-                    alert(result.message || "Failed to save recurring transaction");
+                    alert(result.message || "Failed to save upcoming transaction");
                     return false;
                 }
             })
             .catch((e) => {
                 console.error(e);
-                alert("Failed to save recurring transaction");
+                alert("Failed to save upcoming transaction");
                 return false;
             });
     }
 
     function handleDelete(id) {
-        API.deleteRecurringTransaction(id)
+        API.deleteUpcomingTransaction(id)
             .then((result) => {
                 if (result.success) {
-                    setRecurring((prev) => prev.filter((r) => r.id !== id));
+                    setUpcoming((prev) => prev.filter((u) => u.id !== id));
                 } else {
-                    alert(result.message || "Failed to delete recurring transaction");
+                    alert(result.message || "Failed to delete upcoming transaction");
                 }
             })
             .catch((e) => {
                 console.error(e);
-                alert("Failed to delete recurring transaction");
+                alert("Failed to delete upcoming transaction");
             });
     }
 
     function startEdit(id) {
-        const rec = recurring.find((r) => r.id === id) || null;
-        if (rec === null) return;
-        setEditingRecurring(rec);
+        const item = upcoming.find((u) => u.id === id) || null;
+        if (item === null) return;
+        setEditingUpcoming(item);
     }
 
-    let totalIncome = recurring.reduce((prev, curr) => { return prev - Math.min(0, curr.amount); }, 0);
-    let totalSpend = recurring.reduce((prev, curr) => { return prev + Math.max(0, curr.amount); }, 0);
+    const displayed = filterMonth
+        ? upcoming.filter((u) => u.target_month === filterMonth)
+        : upcoming;
 
     return (
         <>
             {showAddDialog && (
-                <AddEditRecurringDialog
+                <AddEditUpcomingDialog
                     onCancel={() => setShowAddDialog(false)}
                     onSave={handleSave}
                 />
             )}
-            {editingRecurring && (
-                <AddEditRecurringDialog
-                    id={editingRecurring.id}
-                    amount={editingRecurring.amount / 100}
-                    description={editingRecurring.description}
-                    startMonth={editingRecurring.start_month}
-                    endMonth={editingRecurring.end_month || ""}
-                    onCancel={() => setEditingRecurring(null)}
+            {editingUpcoming && (
+                <AddEditUpcomingDialog
+                    id={editingUpcoming.id}
+                    amount={editingUpcoming.amount / 100}
+                    description={editingUpcoming.description}
+                    targetMonth={editingUpcoming.target_month}
+                    onCancel={() => setEditingUpcoming(null)}
                     onSave={handleSave}
                 />
             )}
 
             <h1 id="tx_title">
                 <span>
-                    Recurring Transactions&nbsp;
+                    Upcoming Transactions&nbsp;
                     <button className="btn-icon" onClick={() => setShowAddDialog(true)}>
                         +
                     </button>
-                    <br />
-                    <div className="recurring_totals">
-                        {toDollars(totalIncome / 100)} income, {toDollars(totalSpend / 100)} spend
-                    </div>
                 </span>
             </h1>
             <table id="tx_table" cellSpacing="0">
                 <tbody>
-                    {recurring.map((rec) => (
-                        <RecurringTransactionRow
-                            key={rec.id}
-                            recurring={rec}
+                    {displayed.map((item) => (
+                        <UpcomingTransactionRow
+                            key={item.id}
+                            upcoming={item}
                             onEditClicked={startEdit}
                             onDeleteClicked={handleDelete}
                         />
                     ))}
+                    {displayed.length === 0 && (
+                        <tr>
+                            <td colSpan="3" style={{ textAlign: "center", opacity: 0.5 }}>
+                                No upcoming transactions
+                            </td>
+                        </tr>
+                    )}
                 </tbody>
             </table>
         </>

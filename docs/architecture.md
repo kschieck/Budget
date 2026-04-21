@@ -37,31 +37,40 @@ The React app uses `homepage: "./"` so asset paths are relative, allowing it to 
 ```
 App (auth state)
 └── BudgetApp (all shared state)
-    ├── MonthSelector
-    ├── DrawdownChart           (hidden on next-month view)
-    ├── TransactionsSection     (shown when monthOffset >= 0)
-    │   └── TransactionRow (×N)
-    │   [AddEditTransactionDialog] (modal)
-    ├── RecurringTransactionsSection  (shown when monthOffset === -1)
-    │   └── RecurringTransactionRow (×N)
-    │   [AddEditRecurringDialog] (modal)
-    ├── GoalsSection            (current month only)
-    │   └── GoalRow (×N)
-    │   └── GoalTotalRow
-    │   [AddEditGoalDialog] (modal)
-    │   [AddGoalTransactionDialog] (modal)
-    ├── FiltersSection          (hidden on next-month view)
-    └── [NewMonthToolDialog] (modal, hidden on next-month view)
+    └── BudgetContext.Provider (monthOffset, filters, navigation handlers)
+        ├── MonthSelector
+        ├── DrawdownChart           (hidden on next-month view)
+        ├── TransactionsSection     (shown when monthOffset >= 0)
+        │   └── TransactionRow (×N)
+        │   [AddEditTransactionDialog] (modal)
+        ├── RecurringTransactionsSection  (shown when monthOffset === -1)
+        │   └── RecurringTransactionRow (×N)
+        │   [AddEditRecurringDialog] (modal)
+        ├── GoalsSection            (current month only)
+        │   └── GoalRow (×N)
+        │   └── GoalTotalRow
+        │   [AddEditGoalDialog] (modal)
+        │   [AddGoalTransactionDialog] (modal)
+        ├── FiltersSection          (hidden on next-month view)
+        └── [NewMonthToolDialog] (modal, hidden on next-month view)
 ```
 
 State ownership:
 - `App`: auth state (`loggingIn`, `authSuccess`)
-- `BudgetApp`: all domain state (`transactions`, `goals`, `amountTotal`, `monthOffset`, `filters`) plus dialog flags (`showAddTransaction`, `editingTransactionId`, `showAddGoal`, `editingGoalId`, `contributingGoalId`)
+- `BudgetApp`: transaction/goal domain state (`transactions`, `goals`, `amountTotal`) and dialog flags (`showAddTransaction`, `editingTransactionId`, `showAddGoal`, `editingGoalId`, `contributingGoalId`)
+- `useBudgetNavigation` hook (in `BudgetContext.js`): `monthOffset` and `filters` state, their effects, and the handlers `previousMonth`, `nextMonth`, `changeFilterState`
 - Components: local UI state only (`showActions`, form input values)
+
+`BudgetContext.js` exports:
+- `BudgetContext` — the context object (default export), provides `{ monthOffset, filters, previousMonth, nextMonth, changeFilterState }`
+- `useBudget()` — consumer hook; throws if called outside a `BudgetContext.Provider`
+- `useBudgetNavigation(transactions, setTransactions)` — called by `BudgetApp` to produce the context value; owns `monthOffset`/`filters` state and the effects that reload transactions when the month changes or reset filters when transactions reload
 
 Dialog rendering uses boolean/ID flags with conditional rendering in JSX — dialogs are never stored as live JSX in state.
 
-`filters` is a `Set` of visible usernames, or `null` when not yet initialized. A `useEffect` watching `[filters, transactions]` initializes it to all current users whenever it is `null` and transactions have loaded. `TransactionsSection` receives a pre-filtered `filteredTransactions` derived value; `DrawdownChart` receives the raw `transactions`.
+`filters` is a `Set` of visible usernames, or `null` when not yet initialized. A `useEffect` watching `[filters, transactions]` initializes it to all current users whenever it is `null` and transactions have loaded. `TransactionsSection` receives a pre-filtered `filteredTransactions` derived value (computed in `BudgetApp`); `DrawdownChart` receives the raw `transactions`.
+
+`TransactionsSection` reads `monthOffset` from context and computes `readonly = monthOffset !== 0` locally rather than receiving it as a prop.
 
 ## Server Architecture
 

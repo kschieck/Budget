@@ -117,3 +117,35 @@ export function deleteRecurringTransaction(id) {
         body: JSON.stringify({ id }),
     }).then((response) => response.json());
 }
+
+export function loadUpcomingTransactions() {
+    return fetch("./upcoming.php").then((response) => response.json());
+}
+
+export function saveUpcomingTransaction(id, amount, description, targetMonth) {
+    if (id === -1) {
+        return fetch("./upcoming.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ amount, description, target_month: targetMonth }),
+        }).then((response) => response.json());
+    } else {
+        return fetch("./upcoming.php", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id, amount, description, target_month: targetMonth }),
+        }).then((response) => response.json());
+    }
+}
+
+export function deleteUpcomingTransaction(id) {
+    return fetch("./upcoming.php", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+    }).then((response) => response.json());
+}
+
+export function loadChartData() {
+    return fetch("./chart-data.php").then((response) => response.json());
+}

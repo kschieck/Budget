@@ -50,10 +50,8 @@ A personal budgeting web app for tracking spending and savings goals. Multiple u
 
 ## Known Tech Debt
 
-- `activeDialog` in `BudgetApp` stores live JSX — should be state flags + conditional rendering
 - Deep prop drilling in `BudgetApp` — handlers passed through multiple levels
 - Filter Set contains *hidden* usernames (inverted logic)
-- `GoalTotalRow` in `Goals.js` uses hardcoded `amount={50} total={100}`
 - UTC-4 timezone hardcoded in SQL queries
 
 ---

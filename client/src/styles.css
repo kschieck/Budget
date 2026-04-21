@@ -380,6 +380,7 @@ h1.no_bottom_space.center_spaced {
   display: flex;
   align-items: center;
   gap: var(--space-xs);
+  position: relative;
 }
 
 .small_cell {
@@ -388,6 +389,24 @@ h1.no_bottom_space.center_spaced {
   white-space: nowrap;
   cursor: pointer;
   max-width: 100%;
+}
+
+/* Absolutely-positioned action buttons — overlays the right edge of a cell
+   without shifting any surrounding content */
+.row-actions {
+  position: absolute;
+  right: var(--space-xs);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--color-surface-alt) 35%
+  );
+  padding-left: var(--space-xl);
 }
 
 /* Description div inside transaction row — truncate long names */
@@ -466,6 +485,8 @@ h1.no_bottom_space.center_spaced {
   gap: var(--space-xs);
   font-weight: 600;
   font-size: var(--font-size-sm);
+  position: relative;
+  overflow: hidden;
 }
 
 /* Progress bar cell */
@@ -589,8 +610,8 @@ h3.sub_title+table input[type="checkbox"] {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
   padding: var(--space-md);
-  overflow: hidden;
   border-radius: var(--radius-lg);
+  font-size: var(--font-size-lg);
 }
 
 /* ============================================================
@@ -865,4 +886,47 @@ td {
 /* Small button kept as fallback */
 .small_button {
   padding: 0;
+}
+
+/* ============================================================
+   Desktop two-column layout
+   ============================================================ */
+
+/* display: contents makes these divs invisible to the box model on mobile,
+   so children flow exactly as if the wrapper divs did not exist.
+   Do NOT add padding/margin/background to .col-primary or .col-sidebar —
+   those properties are ignored on display:contents elements. */
+.main-grid {
+  display: contents;
+}
+
+.col-primary,
+.col-sidebar {
+  display: contents;
+}
+
+/* SVG charts scale down to fit their container via viewBox + this rule.
+   The canvas DrawdownChart is already constrained by #chart { max-width: 100% }. */
+.chart-wrapper svg {
+  max-width: 100%;
+  height: auto;
+}
+
+@media (min-width: 768px) {
+  #root {
+    max-width: 960px;
+    padding: var(--space-md) var(--space-xl) var(--space-xl);
+  }
+
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+    align-items: start;
+  }
+
+  .col-primary,
+  .col-sidebar {
+    display: block;
+  }
 }

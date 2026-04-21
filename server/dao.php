@@ -370,6 +370,129 @@ function hasProcessedRecurring($month) {
     return true;
 }
 
+function loadUpcomingTransactions() {
+    $sql = "SELECT id, amount, description, target_month FROM `upcoming_transactions`
+            WHERE active = 1 AND processed = 0 ORDER BY target_month ASC, id DESC";
+    return select($sql, "", []);
+}
+
+function addUpcoming($user, $amount, $description, $targetMonth) {
+    $user = substr($user, 0, 32);
+    $description = substr($description, 0, 64);
+    $id = insert(
+        "INSERT INTO `upcoming_transactions` (user, amount, description, target_month) VALUES (?,?,?,?)",
+        "siss", [$user, $amount, $description, $targetMonth]
+    );
+    if (!$id) {
+        return false;
+    }
+    return [
+        'id' => $id,
+        'amount' => $amount,
+        'description' => $description,
+        'target_month' => $targetMonth,
+    ];
+}
+
+function editUpcoming($user, $id, $amount, $description, $targetMonth) {
+    $description = substr($description, 0, 64);
+    $result = query(
+        "UPDATE `upcoming_transactions` SET amount = ?, description = ?, target_month = ?
+         WHERE id = ? AND user = ? AND active = 1 AND processed = 0",
+        "issis", [$amount, $description, $targetMonth, $id, $user]
+    );
+    if (!$result) {
+        return false;
+    }
+    return [
+        'id' => $id,
+        'amount' => $amount,
+        'description' => $description,
+        'target_month' => $targetMonth,
+    ];
+}
+
+function disableUpcoming($user, $id) {
+    return query(
+        "UPDATE `upcoming_transactions` SET active = 0
+         WHERE id = ? AND user = ? AND processed = 0",
+        "is", [$id, $user]
+    );
+}
+
+function processUpcomingForMonth($month) {
+    $conn = getConnection();
+    $conn->begin_transaction();
+    try {
+        $conn->autocommit(false);
+
+        $selectStmt = prepStatement($conn,
+            "SELECT id, user, amount, description FROM `upcoming_transactions`
+             WHERE active = 1 AND processed = 0 AND target_month <= ?",
+            "s", [$month]);
+
+        if (!$selectStmt->execute()) {
+            error_log("Failed to fetch due upcoming transactions");
+            throw new mysqli_sql_exception("Failed to fetch upcoming transactions.");
+        }
+
+        $rows = [];
+        $upcomingResult = $selectStmt->get_result();
+        while ($row = $upcomingResult->fetch_assoc()) {
+            $rows[] = $row;
+        }
+
+        $amountSum = 0;
+
+        foreach ($rows as $upcoming) {
+            // Atomically claim this upcoming transaction to prevent double-processing
+            $claimStmt = prepStatement($conn,
+                "UPDATE `upcoming_transactions` SET processed = 1
+                 WHERE id = ? AND processed = 0 AND active = 1",
+                "i", [$upcoming["id"]]);
+
+            if (!$claimStmt->execute()) {
+                error_log("Failed to claim upcoming transaction id=" . $upcoming["id"]);
+                throw new mysqli_sql_exception("Failed to claim upcoming transaction.");
+            }
+
+            if ($conn->affected_rows === 0) {
+                continue;
+            }
+
+            $description = substr($upcoming["description"], 0, 64);
+            $createStmt = prepStatement($conn,
+                "INSERT INTO `transactions` (user, amount, description) VALUES (?, ?, ?)",
+                "sis", [substr($upcoming["user"], 0, 32), $upcoming["amount"], $description]);
+
+            if (!$createStmt->execute()) {
+                error_log("Failed to create upcoming transaction id=" . $upcoming["id"]);
+                throw new mysqli_sql_exception("Failed to create upcoming transaction.");
+            }
+            $amountSum += $upcoming["amount"];
+        }
+
+        if ($amountSum !== 0) {
+            $updateAmountStmt = prepStatement($conn,
+                "UPDATE amount SET amount = amount - ? LIMIT 1", "i", [$amountSum]);
+
+            if (!$updateAmountStmt->execute()) {
+                error_log("Failed to update amount for upcoming transactions");
+                throw new mysqli_sql_exception("Update amount failed for upcoming transactions.");
+            }
+        }
+
+        $conn->commit();
+    } catch (mysqli_sql_exception $exception) {
+        error_log("Failed to process upcoming transactions: " . $exception->getMessage());
+        $conn->rollback();
+        throw $exception;
+    }
+
+    $conn->close();
+    return true;
+}
+
 function processRecurringForMonth($month) {
     return true;
 }

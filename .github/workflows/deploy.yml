@@ -1,0 +1,58 @@
+name: Deploy App
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: Prod
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build app
+        run: npm run build
+
+      - name: Upload deploy.zip
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SSH_PASSPHRASE }}
+          port: ${{ secrets.SERVER_PORT }}
+          source: "deploy.zip"
+          target: "${{ vars.DEPLOY_PATH }}"
+
+      - name: Upload and deploy on server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SSH_PASSPHRASE }}
+          port: ${{ secrets.SERVER_PORT }}
+          script: |
+            cd ${{ vars.DEPLOY_PATH }}
+
+            # Unzip the deployment
+            unzip -o deploy.zip
+            rm deploy.zip
+
+            echo "<?php
+            \$servername = '${{ secrets.DB_SERVER }}';
+            \$username = '${{ secrets.DB_USER }}';
+            \$password = '${{ secrets.DB_PASSWD }}';
+            \$dbname = '${{ secrets.DB_NAME }}';
+            
+            \$secretkey = '${{ secrets.SECRET_KEY }}';
+            
+            \$authusers = [
+                \"kyle\" => '${{ secrets.USER_KYLE }}',
+                \"lexie\" => '${{ secrets.USER_LEXIE }}'
+            ];
+            ?>" > config.php

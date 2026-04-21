@@ -51,10 +51,8 @@ Then review each changed file against the checklist below.
 
 ### Known Tech Debt Interactions
 Flag (don't necessarily fix) if the change interacts with:
-- [ ] `activeDialog` JSX-in-state pattern in `BudgetApp` (`App.js`)
 - [ ] Prop drilling in `BudgetApp` (new features should use React context)
 - [ ] Inverted filter logic (`filters` Set of hidden users)
-- [ ] `GoalTotalRow` hardcoded values in `Goals.js`
 - [ ] UTC-4 hardcoded in SQL queries
 
 ## Output Format

@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from "react";
-import { toDollars, toDollarsNoCents } from "./Utils";
+import { useState } from "react";
+import { toDollars, toDollarsNoCents, useRowActions, useDialog } from "./Utils";
 
 function GoalRow({
     goal,
@@ -7,7 +7,8 @@ function GoalRow({
     startDeleteGoal,
     startContributeGoal,
 }) {
-    const [showActions, setShowActions] = useState(false);
+    const { showActions, handleMouseEnter, handleMouseLeave, handleClick } =
+        useRowActions();
 
     let amountString =
         goal.amount !== 0 && Math.floor(Math.abs(goal.amount) / 100) === 0
@@ -15,49 +16,33 @@ function GoalRow({
             : toDollarsNoCents(goal.amount / 100);
     let totalString = toDollarsNoCents(goal.total / 100);
 
-    function handleMouseEnter() {
-        if (!window.matchMedia("(hover: hover)").matches) return;
-        setShowActions(true);
-    }
-
-    function handleMouseLeave() {
-        if (!window.matchMedia("(hover: hover)").matches) return;
-        setShowActions(false);
-    }
-
-    function handleGoalClick() {
-        if (!window.matchMedia("(hover: hover)").matches) {
-            setShowActions(!showActions);
-        }
-    }
-
-    let percent = Math.min((goal.amount / goal.total) * 100, 100);
+    let percent = Math.max(0, Math.min((goal.amount / goal.total) * 100, 100));
     return (
         <tr onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
             <td>
+                <div
+                    className="small_cell"
+                    style={{ display: "inline-block" }}
+                    onClick={handleClick}
+                >
+                    {goal.name}
+                </div>
                 {showActions ? (
-                    <>
+                    <div className="row-actions">
                         <button
-                            className="btn-icon-sm space_right"
+                            className="btn-icon-sm"
                             onClick={() => startEditGoal(goal.id)}
                         >
                             ✎
                         </button>
                         <button
-                            className="btn-icon-sm space_right"
+                            className="btn-icon-sm"
                             onClick={() => startDeleteGoal(goal.id)}
                         >
                             ✕
                         </button>
-                    </>
+                    </div>
                 ) : null}
-                <div
-                    className="small_cell"
-                    style={{ display: "inline-block" }}
-                    onClick={handleGoalClick}
-                >
-                    {goal.name}
-                </div>
             </td>
             <td>
                 <div
@@ -91,7 +76,7 @@ function GoalTotalRow({ amount, total }) {
     let amountString = toDollarsNoCents(amount / 100);
     let totalString = toDollarsNoCents(total / 100);
 
-    let ratio = Math.min(amount / total, 1);
+    let ratio = Math.max(0, Math.min(amount / total, 1));
     return (
         <tr className="goal_display_total">
             <td></td>
@@ -130,13 +115,7 @@ export function AddEditGoalDialog({
     const [goalAmount, setGoalAmount] = useState(amount);
     const [goalDesc, setGoalDesc] = useState(description);
     const [saving, setSaving] = useState(false);
-    const dialogRef = useRef(null);
-
-    useEffect(() => {
-        if (dialogRef.current && !dialogRef.current.open) {
-            dialogRef.current.showModal();
-        }
-    }, []);
+    const dialogRef = useDialog(onCancel, () => !saving);
 
     let cantEditName = id !== -1;
 
@@ -148,7 +127,7 @@ export function AddEditGoalDialog({
     }
 
     return (
-        <dialog ref={dialogRef}>
+        <dialog ref={dialogRef} onCancel={(e) => { if (saving) e.preventDefault(); else onCancel(); }}>
             <h3 className="form_title">{id === -1 ? "Add" : "Edit"} Goal</h3>
             <input
                 type="text"
@@ -187,13 +166,7 @@ export function AddEditGoalDialog({
 export function AddGoalTransactionDialog({ id, onSave, onCancel }) {
     const [amount, setAmount] = useState("");
     const [saving, setSaving] = useState(false);
-    const dialogRef = useRef(null);
-
-    useEffect(() => {
-        if (dialogRef.current && !dialogRef.current.open) {
-            dialogRef.current.showModal();
-        }
-    }, []);
+    const dialogRef = useDialog(onCancel, () => !saving);
 
     function handleSave() {
         setSaving(true);
@@ -203,7 +176,7 @@ export function AddGoalTransactionDialog({ id, onSave, onCancel }) {
     }
 
     return (
-        <dialog ref={dialogRef} onCancel={onCancel}>
+        <dialog ref={dialogRef} onCancel={(e) => { if (saving) e.preventDefault(); else onCancel(); }}>
             <h3 className="form_title">Add Goal Transaction</h3>
             <input
                 type="number"
