@@ -415,7 +415,13 @@ function BudgetApp() {
                         </div>
                     )}
 
-                    {isNextMonth && <RecurringTransactionsSection />}
+
+                    {isNextMonth && (
+                        <UpcomingTransactionsSection
+                            filterMonth={getNextMonthString()}
+                            reloadKey={upcomingReloadKey}
+                        />
+                    )}
                     {isCurrentMonth && (
                         <TransactionsSection
                             transactions={filteredTransactions}
@@ -440,12 +446,7 @@ function BudgetApp() {
                             />
                         </>
                     )}
-                    {isNextMonth && (
-                        <UpcomingTransactionsSection
-                            filterMonth={getNextMonthString()}
-                            reloadKey={upcomingReloadKey}
-                        />
-                    )}
+                    {isNextMonth && <RecurringTransactionsSection />}
                     {!isCurrentMonth && !isNextMonth && (
                         <TransactionsSection
                             transactions={filteredTransactions}
