@@ -14,8 +14,8 @@ if ($_SERVER['REQUEST_METHOD'] !== "GET") {
 }
 
 try {
-    // Load monthly totals for the last 6 months
-    $startDate = date('Y-m-d', strtotime('-3 months'));
+    // Load monthly totals for the last 4 full months (start of month 3 months ago)
+    $startDate = date('Y-m-t', strtotime('-4 months'));
     $result = getMonthlyTotals($startDate);
     $months = [];
     while ($row = $result->fetch_assoc()) {
