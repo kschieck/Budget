@@ -35,25 +35,25 @@ function RecurringTransactionRow({ recurring, onEditClicked, onDeleteClicked }) 
             <td>{recurring.end_month ? "until " + recurring.end_month : ""}</td>
             <td>{TransactionAmount(recurring.amount)}</td>
             <td className="small_cell">
+                <div style={{ display: "inline-block" }} onClick={handleClick}>
+                    {recurring.description}
+                </div>
                 {showActions ? (
-                    <>
+                    <div className="row-actions">
                         <button
-                            className="btn-icon-sm space_right"
+                            className="btn-icon-sm"
                             onClick={() => onEditClicked(recurring.id)}
                         >
                             ✎
                         </button>
                         <button
-                            className="btn-icon-sm space_right"
+                            className="btn-icon-sm"
                             onClick={() => onDeleteClicked(recurring.id)}
                         >
                             ✕
                         </button>
-                    </>
+                    </div>
                 ) : null}
-                <div style={{ display: "inline-block" }} onClick={handleClick}>
-                    {recurring.description}
-                </div>
             </td>
         </tr>
     );

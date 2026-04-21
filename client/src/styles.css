@@ -380,6 +380,7 @@ h1.no_bottom_space.center_spaced {
   display: flex;
   align-items: center;
   gap: var(--space-xs);
+  position: relative;
 }
 
 .small_cell {
@@ -388,6 +389,24 @@ h1.no_bottom_space.center_spaced {
   white-space: nowrap;
   cursor: pointer;
   max-width: 100%;
+}
+
+/* Absolutely-positioned action buttons — overlays the right edge of a cell
+   without shifting any surrounding content */
+.row-actions {
+  position: absolute;
+  right: var(--space-xs);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--color-surface-alt) 35%
+  );
+  padding-left: var(--space-xl);
 }
 
 /* Description div inside transaction row — truncate long names */
@@ -466,6 +485,8 @@ h1.no_bottom_space.center_spaced {
   gap: var(--space-xs);
   font-weight: 600;
   font-size: var(--font-size-sm);
+  position: relative;
+  overflow: hidden;
 }
 
 /* Progress bar cell */
