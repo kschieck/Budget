@@ -3472,5 +3472,37 @@
             "start_month": "2026-04",
             "end_month": null
         }
+    ],
+    "upcoming": [
+        {
+            "id": 1,
+            "amount": 180000,
+            "description": "Car insurance (annual)",
+            "target_month": "2025-09"
+        },
+        {
+            "id": 2,
+            "amount": 45000,
+            "description": "Dentist appointment",
+            "target_month": "2025-10"
+        },
+        {
+            "id": 3,
+            "amount": 125000,
+            "description": "Vacation deposit",
+            "target_month": "2025-11"
+        },
+        {
+            "id": 4,
+            "amount": 30000,
+            "description": "Birthday gift",
+            "target_month": "2026-01"
+        },
+        {
+            "id": 5,
+            "amount": 350000,
+            "description": "Home repair estimate",
+            "target_month": "2026-02"
+        }
     ]
 }
