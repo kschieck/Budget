@@ -4,11 +4,12 @@ on:
   push:
     branches:
       - master
+      - demo
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: Prod
+    environment: ${{ github.ref == 'refs/heads/master' && 'Prod' || 'Demo' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
