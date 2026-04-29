@@ -146,6 +146,14 @@ export function deleteUpcomingTransaction(id) {
     }).then((response) => response.json());
 }
 
+export function paidUpcoming(id, amount, description) {
+    return fetch("./paid-upcoming.php", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, amount, description }),
+    }).then((response) => response.json());
+}
+
 export function loadChartData() {
     return fetch("./chart-data.php").then((response) => response.json());
 }

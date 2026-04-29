@@ -613,6 +613,60 @@ function disableUpcoming($user, $id) {
     );
 }
 
+function paidUpcoming($user, $id, $amount, $description) {
+
+    $user = substr($user, 0, 32);
+    $description = substr($description, 0, 64);
+
+    $conn = getConnection();
+    $conn->begin_transaction();
+    try {
+        $conn->autocommit(false);
+
+        // Create new transaction using upcoming transaction data
+        $createTxStmt = prepStatement($conn,
+            "INSERT INTO `transactions` (user, amount, `description`) VALUES (?,?,?)",
+            "sis", [$user, $amount, $description]);
+
+        if (!$createTxStmt->execute()) {
+            error_log("Failed to execute transaction");
+            error_log("MySQL Execution Error: " . $createTxStmt->error);
+            throw new mysqli_sql_exception("Execution failed for transaction.");
+        }
+
+        // Update the amount for transaction change
+        $updateAmountStmt = prepStatement($conn,
+            "UPDATE amount SET amount = amount - ? LIMIT 1", "i", [$amount]);
+
+        if (!$updateAmountStmt->execute()) {
+            error_log("Failed to execute update statement");
+            error_log("MySQL Execution Error: " . $updateAmountStmt->error);
+            throw new mysqli_sql_exception("Update statement execution failed.");
+        }
+
+        // Mark the upcoming transaction as processed
+        $disableUpcomingStmt = prepStatement($conn,
+            "UPDATE `upcoming_transactions` SET amount = ?, description = ?, processed = 1
+            WHERE id = ? AND user = ? AND active = 1 AND processed = 0", "isis", [$amount, $description, $id, $user]);
+
+        if (!$disableUpcomingStmt->execute()) {
+            error_log("Failed to execute update statement");
+            error_log("MySQL Execution Error: " . $disableUpcomingStmt->error);
+            throw new mysqli_sql_exception("Update statement execution failed.");
+        }
+
+        $conn->commit();
+    } catch (mysqli_sql_exception $exception) {
+        error_log("Failed to add transaction: " . $exception->getMessage());
+        $conn->rollback();
+        throw $exception;
+    }
+
+    $conn->close();
+
+    return true;
+}
+
 function processUpcomingForMonth($month) {
     $conn = getConnection();
     $conn->begin_transaction();

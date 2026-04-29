@@ -62,6 +62,7 @@ export function AddEditUpcomingDialog({
     description = "",
     targetMonth = getNextMonthString(),
     onSave,
+    onConvert,
     onCancel,
 }) {
     const [txAmount, setTxAmount] = useState(amount);
@@ -73,6 +74,13 @@ export function AddEditUpcomingDialog({
     function handleSave() {
         setSaving(true);
         onSave(id, txAmount, txDesc, txTargetMonth)
+            .then((success) => { if (!success) setSaving(false); })
+            .catch(() => setSaving(false));
+    }
+
+    function handleConvert() {
+        setSaving(true);
+        onConvert(id, txAmount, txDesc)
             .then((success) => { if (!success) setSaving(false); })
             .catch(() => setSaving(false));
     }
@@ -118,11 +126,20 @@ export function AddEditUpcomingDialog({
             <button style={{ float: "right" }} disabled={saving} onClick={onCancel}>
                 Cancel
             </button>
+
+            <br />
+            <br />
+            {id !== -1 ? (
+                <button style={{ float: "right" }} disabled={saving} onClick={handleConvert}>
+                    Convert to transaction
+                </button>
+            ) : null}
+
         </dialog>
     );
 }
 
-export default function UpcomingTransactionsSection({ reloadKey, filterMonth = null }) {
+export default function UpcomingTransactionsSection({ reloadKey, handleTransactionCreated, filterMonth = null }) {
     const [upcoming, setUpcoming] = useState([]);
     const [showAddDialog, setShowAddDialog] = useState(false);
     const [editingUpcoming, setEditingUpcoming] = useState(null);
@@ -169,6 +186,26 @@ export default function UpcomingTransactionsSection({ reloadKey, filterMonth = n
             });
     }
 
+    function handleConvert(id, amount, description) {
+        return API.paidUpcoming(id, amount, description)
+            .then((result) => {
+                if (result.success) {
+                    setEditingUpcoming(null);
+                    setUpcoming((prev) => prev.filter((u) => u.id !== id));
+                    handleTransactionCreated();
+                    return true;
+                } else {
+                    alert(result.message || "Failed to convert upcoming transaction");
+                    return false;
+                }
+            })
+            .catch((e) => {
+                console.error(e);
+                alert("Failed to convert upcoming transaction");
+                return false;
+            });
+    }
+
     function handleDelete(id) {
         API.deleteUpcomingTransaction(id)
             .then((result) => {
@@ -209,6 +246,7 @@ export default function UpcomingTransactionsSection({ reloadKey, filterMonth = n
                     description={editingUpcoming.description}
                     targetMonth={editingUpcoming.target_month}
                     onCancel={() => setEditingUpcoming(null)}
+                    onConvert={handleConvert}
                     onSave={handleSave}
                 />
             )}
