@@ -15,6 +15,12 @@ export function useDialog(onCancel, canClose = () => true) {
     }, []);
 
     useEffect(() => {
+        // reallyMounted is set via setTimeout so it's false during StrictMode's
+        // synchronous cleanup/remount cycle, preventing history.back() from
+        // firing and triggering onCancel on the re-mounted listener.
+        let reallyMounted = false;
+        const mountTimer = setTimeout(() => { reallyMounted = true; }, 0);
+
         history.pushState({ dialog: true }, "");
 
         function handlePopState() {
@@ -28,8 +34,9 @@ export function useDialog(onCancel, canClose = () => true) {
 
         window.addEventListener("popstate", handlePopState);
         return () => {
+            clearTimeout(mountTimer);
             window.removeEventListener("popstate", handlePopState);
-            if (!closedByHistory.current) {
+            if (!closedByHistory.current && reallyMounted) {
                 history.back();
             }
         };
