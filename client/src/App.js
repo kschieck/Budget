@@ -158,6 +158,14 @@ function BudgetApp() {
     useEffect(loadGoals, []);
     useEffect(loadTransactions, [monthOffset]);
 
+    function handleTransactionCreated() {
+        loadAmountTotal();
+        loadTransactions();
+        if (isNextMonth) {
+            setUpcomingReloadKey((k) => k + 1);
+        }
+    }
+
     function startAddTransaction() {
         setShowAddTransaction(true);
     }
@@ -420,6 +428,7 @@ function BudgetApp() {
                         <UpcomingTransactionsSection
                             filterMonth={getNextMonthString()}
                             reloadKey={upcomingReloadKey}
+                            handleTransactionCreated={handleTransactionCreated}
                         />
                     )}
                     {isCurrentMonth && (
@@ -436,7 +445,7 @@ function BudgetApp() {
                 <div className="col-sidebar">
                     {isCurrentMonth && (
                         <>
-                            <UpcomingTransactionsSection reloadKey={upcomingReloadKey} />
+                            <UpcomingTransactionsSection reloadKey={upcomingReloadKey} handleTransactionCreated={handleTransactionCreated} />
                             <GoalsSection
                                 goals={goals}
                                 startAddGoal={startAddGoal}
