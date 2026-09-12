@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { toDollars, useRowActions, useDialog } from "./Utils.js";
 import * as API from "./API.js";
+import { useAdvancedMode } from "./AdvancedModeContext.js";
+import { useCategories } from "./CategoriesContext.js";
+import { CategorySelect } from "./Categories.js";
 
 function sortRecurring(list) {
     return [...list].sort((a, b) => {
@@ -10,8 +13,8 @@ function sortRecurring(list) {
             return aNeg ? -1 : 1;
         }
         return aNeg
-            ? a.amount - b.amount   // negatives: ascending (most negative first)
-            : b.amount - a.amount;  // positives: descending (highest first)
+            ? a.amount - b.amount // negatives: ascending (most negative first)
+            : b.amount - a.amount; // positives: descending (highest first)
     });
 }
 
@@ -20,9 +23,16 @@ function getCurrentMonthString() {
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 }
 
-function RecurringTransactionRow({ recurring, onEditClicked, onDeleteClicked }) {
+function RecurringTransactionRow({
+    recurring,
+    onEditClicked,
+    onDeleteClicked,
+}) {
     const { showActions, handleMouseEnter, handleMouseLeave, handleClick } =
         useRowActions();
+    const advanced = useAdvancedMode();
+    const { categoryById } = useCategories();
+    const category = advanced ? categoryById(recurring.category_id) : null;
 
     function TransactionAmount(num) {
         return num > 0
@@ -31,7 +41,15 @@ function RecurringTransactionRow({ recurring, onEditClicked, onDeleteClicked }) 
     }
 
     return (
-        <tr onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+        <tr
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            style={
+                category
+                    ? { borderLeft: `4px solid ${category.color}` }
+                    : undefined
+            }
+        >
             <td>{recurring.end_month ? "until " + recurring.end_month : ""}</td>
             <td>{TransactionAmount(recurring.amount)}</td>
             <td className="small_cell">
@@ -65,6 +83,7 @@ export function AddEditRecurringDialog({
     description = "",
     startMonth = getCurrentMonthString(),
     endMonth = "",
+    categoryId = null,
     onSave,
     onCancel,
 }) {
@@ -72,18 +91,35 @@ export function AddEditRecurringDialog({
     const [txDesc, setTxDesc] = useState(description);
     const [txStartMonth, setTxStartMonth] = useState(startMonth);
     const [txEndMonth, setTxEndMonth] = useState(endMonth);
+    const [txCategoryId, setTxCategoryId] = useState(categoryId);
     const [saving, setSaving] = useState(false);
+    const advanced = useAdvancedMode();
     const dialogRef = useDialog(onCancel, () => !saving);
 
     function handleSave() {
         setSaving(true);
-        onSave(id, txAmount, txDesc, txStartMonth, txEndMonth || null)
-            .then((success) => { if (!success) setSaving(false); })
+        onSave(
+            id,
+            txAmount,
+            txDesc,
+            txStartMonth,
+            txEndMonth || null,
+            txCategoryId,
+        )
+            .then((success) => {
+                if (!success) setSaving(false);
+            })
             .catch(() => setSaving(false));
     }
 
     return (
-        <dialog ref={dialogRef} onCancel={(e) => { if (saving) e.preventDefault(); else onCancel(); }}>
+        <dialog
+            ref={dialogRef}
+            onCancel={(e) => {
+                if (saving) e.preventDefault();
+                else onCancel();
+            }}
+        >
             <h3 className="form_title">
                 {id === -1 ? "Add" : "Edit"} Recurring Transaction
             </h3>
@@ -123,6 +159,17 @@ export function AddEditRecurringDialog({
             />
             <br />
             <br />
+            {advanced && (
+                <>
+                    <CategorySelect
+                        value={txCategoryId}
+                        onChange={setTxCategoryId}
+                        disabled={saving}
+                    />
+                    <br />
+                    <br />
+                </>
+            )}
             <button
                 style={{ float: "left" }}
                 disabled={saving}
@@ -130,7 +177,11 @@ export function AddEditRecurringDialog({
             >
                 Save
             </button>
-            <button style={{ float: "right" }} disabled={saving} onClick={onCancel}>
+            <button
+                style={{ float: "right" }}
+                disabled={saving}
+                onClick={onCancel}
+            >
                 Cancel
             </button>
         </dialog>
@@ -156,24 +207,47 @@ export default function RecurringTransactionsSection() {
 
     useEffect(loadRecurring, []);
 
-    function handleSave(id, amount, description, startMonth, endMonth) {
-        return API.saveRecurringTransaction(id, amount, description, startMonth, endMonth)
+    function handleSave(
+        id,
+        amount,
+        description,
+        startMonth,
+        endMonth,
+        categoryId,
+    ) {
+        return API.saveRecurringTransaction(
+            id,
+            amount,
+            description,
+            startMonth,
+            endMonth,
+            categoryId,
+        )
             .then((result) => {
                 if (result.success) {
                     setShowAddDialog(false);
                     setEditingRecurring(null);
                     if (id === -1) {
-                        setRecurring((prev) => sortRecurring([...prev, result.recurring]));
+                        setRecurring((prev) =>
+                            sortRecurring([...prev, result.recurring]),
+                        );
                     } else {
                         setRecurring((prev) =>
-                            sortRecurring(prev.map((r) =>
-                                r.id === result.recurring.id ? result.recurring : r,
-                            )),
+                            sortRecurring(
+                                prev.map((r) =>
+                                    r.id === result.recurring.id
+                                        ? result.recurring
+                                        : r,
+                                ),
+                            ),
                         );
                     }
                     return true;
                 } else {
-                    alert(result.message || "Failed to save recurring transaction");
+                    alert(
+                        result.message ||
+                            "Failed to save recurring transaction",
+                    );
                     return false;
                 }
             })
@@ -190,7 +264,10 @@ export default function RecurringTransactionsSection() {
                 if (result.success) {
                     setRecurring((prev) => prev.filter((r) => r.id !== id));
                 } else {
-                    alert(result.message || "Failed to delete recurring transaction");
+                    alert(
+                        result.message ||
+                            "Failed to delete recurring transaction",
+                    );
                 }
             })
             .catch((e) => {
@@ -205,8 +282,12 @@ export default function RecurringTransactionsSection() {
         setEditingRecurring(rec);
     }
 
-    let totalIncome = recurring.reduce((prev, curr) => { return prev - Math.min(0, curr.amount); }, 0);
-    let totalSpend = recurring.reduce((prev, curr) => { return prev + Math.max(0, curr.amount); }, 0);
+    let totalIncome = recurring.reduce((prev, curr) => {
+        return prev - Math.min(0, curr.amount);
+    }, 0);
+    let totalSpend = recurring.reduce((prev, curr) => {
+        return prev + Math.max(0, curr.amount);
+    }, 0);
 
     return (
         <>
@@ -223,6 +304,7 @@ export default function RecurringTransactionsSection() {
                     description={editingRecurring.description}
                     startMonth={editingRecurring.start_month}
                     endMonth={editingRecurring.end_month || ""}
+                    categoryId={editingRecurring.category_id ?? null}
                     onCancel={() => setEditingRecurring(null)}
                     onSave={handleSave}
                 />
@@ -231,12 +313,16 @@ export default function RecurringTransactionsSection() {
             <h1 id="tx_title">
                 <span>
                     Recurring Transactions&nbsp;
-                    <button className="btn-icon" onClick={() => setShowAddDialog(true)}>
+                    <button
+                        className="btn-icon"
+                        onClick={() => setShowAddDialog(true)}
+                    >
                         +
                     </button>
                     <br />
                     <div className="recurring_totals">
-                        {toDollars(totalIncome / 100)} income, {toDollars(totalSpend / 100)} spend
+                        {toDollars(totalIncome / 100)} income,{" "}
+                        {toDollars(totalSpend / 100)} spend
                     </div>
                 </span>
             </h1>

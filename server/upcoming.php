@@ -51,7 +51,12 @@ switch ($_SERVER['REQUEST_METHOD']) {
         }
         $targetMonth = $targetMonthRaw;
 
-        $upcoming = addUpcoming($_SESSION["budget_auth"], $amount, $description, $targetMonth);
+        $categoryId = isset($_POST["category_id"]) && $_POST["category_id"] !== null ? intval($_POST["category_id"]) : null;
+        if ($categoryId !== null && !categoryExists($categoryId)) {
+            $categoryId = null;
+        }
+
+        $upcoming = addUpcoming($_SESSION["budget_auth"], $amount, $description, $targetMonth, $categoryId);
         if (!$upcoming) {
             echo json_encode(["success" => false]);
             break;
@@ -97,7 +102,12 @@ switch ($_SERVER['REQUEST_METHOD']) {
         }
         $targetMonth = $targetMonthRaw;
 
-        $upcoming = editUpcoming($_SESSION["budget_auth"], $id, $amount, $description, $targetMonth);
+        $categoryId = isset($data["category_id"]) && $data["category_id"] !== null ? intval($data["category_id"]) : null;
+        if ($categoryId !== null && !categoryExists($categoryId)) {
+            $categoryId = null;
+        }
+
+        $upcoming = editUpcoming($_SESSION["budget_auth"], $id, $amount, $description, $targetMonth, $categoryId);
         if (!$upcoming) {
             echo json_encode(["success" => false]);
         } else {

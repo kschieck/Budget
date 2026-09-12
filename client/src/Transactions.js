@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { toDollars, useRowActions, useDialog } from "./Utils.js";
 import { useBudget } from "./BudgetContext.js";
+import { useAdvancedMode } from "./AdvancedModeContext.js";
+import { useCategories } from "./CategoriesContext.js";
+import { CategorySelect } from "./Categories.js";
 
 function TransactionRow({
     readonly,
@@ -10,6 +13,9 @@ function TransactionRow({
 }) {
     const { showActions, handleMouseEnter, handleMouseLeave, handleClick } =
         useRowActions({ disabled: readonly });
+    const advanced = useAdvancedMode();
+    const { categoryById } = useCategories();
+    const category = advanced ? categoryById(transaction.category_id) : null;
 
     let dateString = transaction.date_added.substring(5, 10);
 
@@ -20,14 +26,19 @@ function TransactionRow({
     }
 
     return (
-        <tr onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+        <tr
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            style={
+                category
+                    ? { borderLeft: `4px solid ${category.color}` }
+                    : undefined
+            }
+        >
             <td>{dateString}</td>
             <td>{TransactionAmount(transaction.amount)}</td>
             <td className="small_cell">
-                <div
-                    style={{ display: "inline-block" }}
-                    onClick={handleClick}
-                >
+                <div style={{ display: "inline-block" }} onClick={handleClick}>
                     {transaction.description}
                 </div>
                 {showActions ? (
@@ -55,23 +66,35 @@ export function AddEditTransactionDialog({
     id = -1,
     amount = "",
     description = "",
+    categoryId = null,
+    isGoalTransaction = false,
     onSave,
     onCancel,
 }) {
     const [txAmount, setTxAmount] = useState(amount);
     const [txDesc, setTxDesc] = useState(description);
+    const [txCategoryId, setTxCategoryId] = useState(categoryId);
     const [saving, setSaving] = useState(false);
+    const advanced = useAdvancedMode();
     const dialogRef = useDialog(onCancel, () => !saving);
 
     function handleSave() {
         setSaving(true);
-        onSave(id, txAmount, txDesc)
-            .then((success) => { if (!success) setSaving(false); })
+        onSave(id, txAmount, txDesc, txCategoryId)
+            .then((success) => {
+                if (!success) setSaving(false);
+            })
             .catch(() => setSaving(false));
     }
 
     return (
-        <dialog ref={dialogRef} onCancel={(e) => { if (saving) e.preventDefault(); else onCancel(); }}>
+        <dialog
+            ref={dialogRef}
+            onCancel={(e) => {
+                if (saving) e.preventDefault();
+                else onCancel();
+            }}
+        >
             <h3 className="form_title">
                 {id == -1 ? "Add" : "Edit"} Transaction
             </h3>
@@ -94,6 +117,17 @@ export function AddEditTransactionDialog({
             />
             <br />
             <br />
+            {advanced && !isGoalTransaction && (
+                <>
+                    <CategorySelect
+                        value={txCategoryId}
+                        onChange={setTxCategoryId}
+                        disabled={saving}
+                    />
+                    <br />
+                    <br />
+                </>
+            )}
             <button
                 style={{ float: "left" }}
                 disabled={saving}
@@ -132,7 +166,9 @@ export default function TransactionsSection({
             <h1 id="tx_title">
                 Transactions&nbsp;
                 {!readonly ? (
-                    <button className="btn-icon" onClick={startAddTransaction}>+</button>
+                    <button className="btn-icon" onClick={startAddTransaction}>
+                        +
+                    </button>
                 ) : null}
             </h1>
             <table id="tx_table" cellSpacing="0">
@@ -142,7 +178,13 @@ export default function TransactionsSection({
                         .map((transaction) => (
                             <TransactionRow
                                 key={transaction.id}
-                                readonly={readonly || (transaction.goal_id != null && !goals.some((g) => g.id === transaction.goal_id))}
+                                readonly={
+                                    readonly ||
+                                    (transaction.goal_id != null &&
+                                        !goals.some(
+                                            (g) => g.id === transaction.goal_id,
+                                        ))
+                                }
                                 transaction={transaction}
                                 onTransactionClicked={startEditTransaction}
                                 onDeleteClicked={startDeleteTransaction}

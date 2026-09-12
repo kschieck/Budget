@@ -68,3 +68,29 @@ CREATE TABLE `upcoming_transactions` (
     PRIMARY KEY (`id`),
     KEY `user_active` (`user`, `active`)
 );
+
+CREATE TABLE `categories` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `name` varchar(64) NOT NULL,
+    `color` varchar(7) NOT NULL DEFAULT '#c17f52',
+    `active` tinyint(1) NOT NULL DEFAULT 1,
+    PRIMARY KEY (`id`),
+    KEY `active` (`active`)
+);
+
+-- Separate table (rather than a column on `transactions`) so a transaction
+-- could reference multiple categories in the future without a schema change.
+-- The UNIQUE key enforces today's one-category-per-transaction rule at the
+-- DB level; drop it if/when multiple categories per transaction are supported
+-- (loadTransactionsStartEndDate's LEFT JOIN would also need to change then).
+CREATE TABLE `transaction_categories` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `transaction_id` int(11) NOT NULL,
+    `category_id` int(11) NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `transaction_id` (`transaction_id`),
+    KEY `category_id` (`category_id`)
+);
+
+ALTER TABLE `recurring_transactions` ADD COLUMN `category_id` int(11) NULL DEFAULT NULL;
+ALTER TABLE `upcoming_transactions` ADD COLUMN `category_id` int(11) NULL DEFAULT NULL;

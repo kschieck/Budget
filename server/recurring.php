@@ -62,7 +62,12 @@ switch ($_SERVER['REQUEST_METHOD']) {
             $endMonth = null;
         }
 
-        $recurring = addRecurring($_SESSION["budget_auth"], $amount, $description, $startMonth, $endMonth);
+        $categoryId = isset($_POST["category_id"]) && $_POST["category_id"] !== null ? intval($_POST["category_id"]) : null;
+        if ($categoryId !== null && !categoryExists($categoryId)) {
+            $categoryId = null;
+        }
+
+        $recurring = addRecurring($_SESSION["budget_auth"], $amount, $description, $startMonth, $endMonth, $categoryId);
         if (!$recurring) {
             echo json_encode(["success" => false]);
             break;
@@ -73,7 +78,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
         if ($startMonth === $currentMonth && hasProcessedRecurring($currentMonth)) {
             $txDescription = substr("monthly: " . $description, 0, 64);
             try {
-                addTransaction($_SESSION["budget_auth"], $amount, $txDescription);
+                addTransaction($_SESSION["budget_auth"], $amount, $txDescription, $categoryId);
             } catch (Exception $e) {
                 error_log("Failed to create immediate recurring transaction: " . $e->getMessage());
             }
@@ -125,7 +130,12 @@ switch ($_SERVER['REQUEST_METHOD']) {
             $endMonth = null;
         }
 
-        $recurring = editRecurring($_SESSION["budget_auth"], $id, $amount, $description, $startMonth, $endMonth);
+        $categoryId = isset($data["category_id"]) && $data["category_id"] !== null ? intval($data["category_id"]) : null;
+        if ($categoryId !== null && !categoryExists($categoryId)) {
+            $categoryId = null;
+        }
+
+        $recurring = editRecurring($_SESSION["budget_auth"], $id, $amount, $description, $startMonth, $endMonth, $categoryId);
         if (!$recurring) {
             echo json_encode(["success" => false]);
         } else {
