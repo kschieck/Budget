@@ -259,7 +259,7 @@ function addTransaction($user, $amount, $description, $categoryId = null) {
 function editTransaction($user, $transactionId, $amount, $description, $categoryId = null) {
     // Load transaction, find amount delta to adjust amount table and update the amount
 
-    $loadResult = select("SELECT `amount`, `goal_id` FROM `transactions` WHERE `user` = ? AND `id` = ? AND `active` = 1", "si", [$user, $transactionId]);
+    $loadResult = select("SELECT `amount`, `goal_id` FROM `transactions` WHERE `id` = ? AND `active` = 1", "i", [$transactionId]);
     if (!($transaction = $loadResult->fetch_assoc())) {
         return false;
     }
@@ -365,7 +365,7 @@ function editTransaction($user, $transactionId, $amount, $description, $category
 function disableTransaction($user, $transactionId) {
     // Load transaction, get amount and reverse it while setting inactive
 
-    $loadResult = select("SELECT `amount`, `goal_id` FROM `transactions` WHERE `user` = ? AND `id` = ? AND `active` = 1", "si", [$user, $transactionId]);
+    $loadResult = select("SELECT `amount`, `goal_id` FROM `transactions` WHERE `id` = ? AND `active` = 1", "i", [$transactionId]);
     if (!($transaction = $loadResult->fetch_assoc())) {
         return false;
     }
