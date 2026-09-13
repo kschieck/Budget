@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { toDollars, useRowActions, useDialog } from "./Utils.js";
 import * as API from "./API.js";
+import { useAdvancedMode } from "./AdvancedModeContext.js";
+import { useCategories } from "./CategoriesContext.js";
+import { CategorySelect } from "./Categories.js";
 
 export function getNextMonthString() {
     const now = new Date();
@@ -20,6 +23,9 @@ function sortUpcoming(list) {
 function UpcomingTransactionRow({ upcoming, onEditClicked, onDeleteClicked }) {
     const { showActions, handleMouseEnter, handleMouseLeave, handleClick } =
         useRowActions();
+    const advanced = useAdvancedMode();
+    const { categoryById } = useCategories();
+    const category = advanced ? categoryById(upcoming.category_id) : null;
 
     function formatAmount(num) {
         return num > 0
@@ -28,7 +34,15 @@ function UpcomingTransactionRow({ upcoming, onEditClicked, onDeleteClicked }) {
     }
 
     return (
-        <tr onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+        <tr
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            style={
+                category
+                    ? { borderLeft: `4px solid ${category.color}` }
+                    : undefined
+            }
+        >
             <td>{upcoming.target_month}</td>
             <td>{formatAmount(upcoming.amount)}</td>
             <td className="small_cell">
@@ -61,6 +75,7 @@ export function AddEditUpcomingDialog({
     amount = "",
     description = "",
     targetMonth = getNextMonthString(),
+    categoryId = null,
     onSave,
     onConvert,
     onCancel,
@@ -68,25 +83,37 @@ export function AddEditUpcomingDialog({
     const [txAmount, setTxAmount] = useState(amount);
     const [txDesc, setTxDesc] = useState(description);
     const [txTargetMonth, setTxTargetMonth] = useState(targetMonth);
+    const [txCategoryId, setTxCategoryId] = useState(categoryId);
     const [saving, setSaving] = useState(false);
+    const advanced = useAdvancedMode();
     const dialogRef = useDialog(onCancel, () => !saving);
 
     function handleSave() {
         setSaving(true);
-        onSave(id, txAmount, txDesc, txTargetMonth)
-            .then((success) => { if (!success) setSaving(false); })
+        onSave(id, txAmount, txDesc, txTargetMonth, txCategoryId)
+            .then((success) => {
+                if (!success) setSaving(false);
+            })
             .catch(() => setSaving(false));
     }
 
     function handleConvert() {
         setSaving(true);
-        onConvert(id, txAmount, txDesc)
-            .then((success) => { if (!success) setSaving(false); })
+        onConvert(id, txAmount, txDesc, txCategoryId)
+            .then((success) => {
+                if (!success) setSaving(false);
+            })
             .catch(() => setSaving(false));
     }
 
     return (
-        <dialog ref={dialogRef} onCancel={(e) => { if (saving) e.preventDefault(); else onCancel(); }}>
+        <dialog
+            ref={dialogRef}
+            onCancel={(e) => {
+                if (saving) e.preventDefault();
+                else onCancel();
+            }}
+        >
             <h3 className="form_title">
                 {id === -1 ? "Add" : "Edit"} Upcoming Transaction
             </h3>
@@ -116,6 +143,17 @@ export function AddEditUpcomingDialog({
             />
             <br />
             <br />
+            {advanced && (
+                <>
+                    <CategorySelect
+                        value={txCategoryId}
+                        onChange={setTxCategoryId}
+                        disabled={saving}
+                    />
+                    <br />
+                    <br />
+                </>
+            )}
             <button
                 style={{ float: "left" }}
                 disabled={saving}
@@ -123,23 +161,34 @@ export function AddEditUpcomingDialog({
             >
                 Save
             </button>
-            <button style={{ float: "right" }} disabled={saving} onClick={onCancel}>
+            <button
+                style={{ float: "right" }}
+                disabled={saving}
+                onClick={onCancel}
+            >
                 Cancel
             </button>
 
             <br />
             <br />
             {id !== -1 ? (
-                <button style={{ float: "right" }} disabled={saving} onClick={handleConvert}>
+                <button
+                    style={{ float: "right" }}
+                    disabled={saving}
+                    onClick={handleConvert}
+                >
                     Convert to transaction
                 </button>
             ) : null}
-
         </dialog>
     );
 }
 
-export default function UpcomingTransactionsSection({ reloadKey, handleTransactionCreated, filterMonth = null }) {
+export default function UpcomingTransactionsSection({
+    reloadKey,
+    handleTransactionCreated,
+    filterMonth = null,
+}) {
     const [upcoming, setUpcoming] = useState([]);
     const [showAddDialog, setShowAddDialog] = useState(false);
     const [editingUpcoming, setEditingUpcoming] = useState(null);
@@ -158,24 +207,38 @@ export default function UpcomingTransactionsSection({ reloadKey, handleTransacti
 
     useEffect(loadUpcoming, [reloadKey]);
 
-    function handleSave(id, amount, description, targetMonth) {
-        return API.saveUpcomingTransaction(id, amount, description, targetMonth)
+    function handleSave(id, amount, description, targetMonth, categoryId) {
+        return API.saveUpcomingTransaction(
+            id,
+            amount,
+            description,
+            targetMonth,
+            categoryId,
+        )
             .then((result) => {
                 if (result.success) {
                     setShowAddDialog(false);
                     setEditingUpcoming(null);
                     if (id === -1) {
-                        setUpcoming((prev) => sortUpcoming([...prev, result.upcoming]));
+                        setUpcoming((prev) =>
+                            sortUpcoming([...prev, result.upcoming]),
+                        );
                     } else {
                         setUpcoming((prev) =>
-                            sortUpcoming(prev.map((u) =>
-                                u.id === result.upcoming.id ? result.upcoming : u,
-                            )),
+                            sortUpcoming(
+                                prev.map((u) =>
+                                    u.id === result.upcoming.id
+                                        ? result.upcoming
+                                        : u,
+                                ),
+                            ),
                         );
                     }
                     return true;
                 } else {
-                    alert(result.message || "Failed to save upcoming transaction");
+                    alert(
+                        result.message || "Failed to save upcoming transaction",
+                    );
                     return false;
                 }
             })
@@ -186,8 +249,8 @@ export default function UpcomingTransactionsSection({ reloadKey, handleTransacti
             });
     }
 
-    function handleConvert(id, amount, description) {
-        return API.paidUpcoming(id, amount, description)
+    function handleConvert(id, amount, description, categoryId) {
+        return API.paidUpcoming(id, amount, description, categoryId)
             .then((result) => {
                 if (result.success) {
                     setEditingUpcoming(null);
@@ -195,7 +258,10 @@ export default function UpcomingTransactionsSection({ reloadKey, handleTransacti
                     handleTransactionCreated();
                     return true;
                 } else {
-                    alert(result.message || "Failed to convert upcoming transaction");
+                    alert(
+                        result.message ||
+                            "Failed to convert upcoming transaction",
+                    );
                     return false;
                 }
             })
@@ -212,7 +278,10 @@ export default function UpcomingTransactionsSection({ reloadKey, handleTransacti
                 if (result.success) {
                     setUpcoming((prev) => prev.filter((u) => u.id !== id));
                 } else {
-                    alert(result.message || "Failed to delete upcoming transaction");
+                    alert(
+                        result.message ||
+                            "Failed to delete upcoming transaction",
+                    );
                 }
             })
             .catch((e) => {
@@ -245,6 +314,7 @@ export default function UpcomingTransactionsSection({ reloadKey, handleTransacti
                     amount={editingUpcoming.amount / 100}
                     description={editingUpcoming.description}
                     targetMonth={editingUpcoming.target_month}
+                    categoryId={editingUpcoming.category_id ?? null}
                     onCancel={() => setEditingUpcoming(null)}
                     onConvert={handleConvert}
                     onSave={handleSave}
@@ -254,7 +324,10 @@ export default function UpcomingTransactionsSection({ reloadKey, handleTransacti
             <h1 id="tx_title">
                 <span>
                     Upcoming Transactions&nbsp;
-                    <button className="btn-icon" onClick={() => setShowAddDialog(true)}>
+                    <button
+                        className="btn-icon"
+                        onClick={() => setShowAddDialog(true)}
+                    >
                         +
                     </button>
                 </span>
@@ -271,7 +344,10 @@ export default function UpcomingTransactionsSection({ reloadKey, handleTransacti
                     ))}
                     {displayed.length === 0 && (
                         <tr>
-                            <td colSpan="3" style={{ textAlign: "center", opacity: 0.5 }}>
+                            <td
+                                colSpan="3"
+                                style={{ textAlign: "center", opacity: 0.5 }}
+                            >
                                 No upcoming transactions
                             </td>
                         </tr>

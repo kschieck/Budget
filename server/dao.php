@@ -139,10 +139,43 @@ function loadAmount() {
 }
 
 function loadTransactionsStartEndDate($startDateString, $endDateString) {
-    $sql = "SELECT id, DATE_SUB(date_added, INTERVAL 4 HOUR) as date_added, amount, `description`, `active`, `user`, `goal_id`
-            FROM `transactions`
-            WHERE DATE_SUB(date_added, INTERVAL 4 HOUR) > ? AND DATE_SUB(date_added, INTERVAL 4 HOUR) < ? ORDER BY id DESC";
+    $sql = "SELECT t.id, DATE_SUB(t.date_added, INTERVAL 4 HOUR) as date_added, t.amount, t.`description`, t.`active`, t.`user`, t.`goal_id`, tc.category_id
+            FROM `transactions` t
+            LEFT JOIN `transaction_categories` tc ON tc.transaction_id = t.id
+            WHERE DATE_SUB(t.date_added, INTERVAL 4 HOUR) > ? AND DATE_SUB(t.date_added, INTERVAL 4 HOUR) < ? ORDER BY t.id DESC";
     return select($sql, "ss", [$startDateString, $endDateString]);
+}
+
+function loadCategories() {
+    $sql = "SELECT id, `name`, color FROM `categories` WHERE active = 1 ORDER BY `name` ASC";
+    return select($sql, "", []);
+}
+
+function addCategory($name, $color) {
+    $name = substr($name, 0, 64);
+    $id = insert("INSERT INTO `categories` (`name`, color) VALUES (?,?)", "ss", [$name, $color]);
+    if (!$id) {
+        return false;
+    }
+    return ['id' => $id, 'name' => $name, 'color' => $color];
+}
+
+function editCategory($id, $name, $color) {
+    $name = substr($name, 0, 64);
+    $result = query("UPDATE `categories` SET `name` = ?, color = ? WHERE id = ? AND active = 1", "ssi", [$name, $color, $id]);
+    if (!$result) {
+        return false;
+    }
+    return ['id' => $id, 'name' => $name, 'color' => $color];
+}
+
+function disableCategory($id) {
+    return query("UPDATE `categories` SET `active` = 0 WHERE id = ?", "i", [$id]);
+}
+
+function categoryExists($id) {
+    $result = select("SELECT id FROM `categories` WHERE id = ? AND active = 1 LIMIT 1", "i", [$id]);
+    return $result && $result->num_rows > 0;
 }
 
 function loadGoalById($id) {
@@ -159,7 +192,7 @@ function loadGoals($limit) {
     return select($sql, "", []);
 }
 
-function addTransaction($user, $amount, $description) {
+function addTransaction($user, $amount, $description, $categoryId = null) {
     $dateAdded = date('Y-m-d H:i:s', strtotime('-4 hours'));
     $user = substr($user, 0, 32);
     $description = substr($description, 0, 64);
@@ -190,6 +223,18 @@ function addTransaction($user, $amount, $description) {
             throw new mysqli_sql_exception("Update statement execution failed.");
         }
 
+        if ($categoryId !== null) {
+            $categoryStmt = prepStatement($conn,
+                "INSERT INTO `transaction_categories` (transaction_id, category_id) VALUES (?,?)",
+                "ii", [$transactionId, $categoryId]);
+
+            if (!$categoryStmt->execute()) {
+                error_log("Failed to execute category insert");
+                error_log("MySQL Execution Error: " . $categoryStmt->error);
+                throw new mysqli_sql_exception("Category insert execution failed.");
+            }
+        }
+
         $conn->commit();
     } catch (mysqli_sql_exception $exception) {
         error_log("Failed to add transaction: " . $exception->getMessage());
@@ -207,10 +252,11 @@ function addTransaction($user, $amount, $description) {
         'date_added' => $dateAdded,
         'goal_id' => null,
         'active' => 1,
+        'category_id' => $categoryId,
     ];
 }
 
-function editTransaction($user, $transactionId, $amount, $description) {
+function editTransaction($user, $transactionId, $amount, $description, $categoryId = null) {
     // Load transaction, find amount delta to adjust amount table and update the amount
 
     $loadResult = select("SELECT `amount`, `goal_id` FROM `transactions` WHERE `user` = ? AND `id` = ? AND `active` = 1", "si", [$user, $transactionId]);
@@ -221,6 +267,10 @@ function editTransaction($user, $transactionId, $amount, $description) {
     $oldAmount = $transaction["amount"];
     $deltaAmount = $amount - $oldAmount;
     $goalId = $transaction["goal_id"];
+    // Goal transactions never carry a category
+    if ($goalId !== null) {
+        $categoryId = null;
+    }
 
     if ($goalId !== null) {
         $goalResult = select("SELECT `name` FROM `goals` WHERE id = ? LIMIT 1", "i", [$goalId]);
@@ -272,6 +322,28 @@ function editTransaction($user, $transactionId, $amount, $description) {
             error_log("MySQL Execution Error: " . $updateTxStmt->error);
             throw new mysqli_sql_exception("Update statement execution failed.");
         }
+
+        $deleteCategoryStmt = prepStatement($conn,
+            "DELETE FROM `transaction_categories` WHERE transaction_id = ?", "i", [$transactionId]);
+
+        if (!$deleteCategoryStmt->execute()) {
+            error_log("Failed to clear existing categories");
+            error_log("MySQL Execution Error: " . $deleteCategoryStmt->error);
+            throw new mysqli_sql_exception("Category clear execution failed.");
+        }
+
+        if ($categoryId !== null) {
+            $categoryStmt = prepStatement($conn,
+                "INSERT INTO `transaction_categories` (transaction_id, category_id) VALUES (?,?)",
+                "ii", [$transactionId, $categoryId]);
+
+            if (!$categoryStmt->execute()) {
+                error_log("Failed to execute category insert");
+                error_log("MySQL Execution Error: " . $categoryStmt->error);
+                throw new mysqli_sql_exception("Category insert execution failed.");
+            }
+        }
+
         $conn->commit();
     } catch (mysqli_sql_exception $exception) {
         error_log("Failed to edit transaction: " . $exception->getMessage());
@@ -286,6 +358,7 @@ function editTransaction($user, $transactionId, $amount, $description) {
         'amount' => $amount,
         'description' => $description,
         'goal_id' => $goalId,
+        'category_id' => $categoryId,
     ];
 }
 
@@ -479,6 +552,24 @@ function getMonthlyTotals($startDate) {
     return select($sql, "s", [$startDate]);
 }
 
+function getMonthlyCategoryTotals($startDate) {
+
+    // Spend (positive amounts only) per category per month, for category analysis charts.
+    // Transactions without a category, and goal transactions, are excluded.
+    // Intentionally not filtering categories by `active`: a soft-deleted category should
+    // keep its name/color on historical spend it was already attached to.
+    $sql = "SELECT c.id as category_id, c.`name` as category_name, c.color as category_color,
+            EXTRACT(YEAR_MONTH FROM (DATE_SUB(t.date_added, INTERVAL 4 HOUR))) as `year_month`,
+            SUM(GREATEST(0, t.amount)) as spent
+            FROM `transactions` t
+            JOIN `transaction_categories` tc ON tc.transaction_id = t.id
+            JOIN `categories` c ON c.id = tc.category_id
+            WHERE DATE_SUB(t.date_added, INTERVAL 4 HOUR) > ? AND t.`active` = 1
+            GROUP BY c.id, `year_month`";
+
+    return select($sql, "s", [$startDate]);
+}
+
 function getDailyTotals($startDate) {
 
     $sql = "SELECT SUM(amount) as total,
@@ -492,23 +583,23 @@ function getDailyTotals($startDate) {
 }
 
 function loadRecurringTransactions() {
-    $sql = "SELECT id, amount, description, start_month, end_month FROM `recurring_transactions`
+    $sql = "SELECT id, amount, description, start_month, end_month, category_id FROM `recurring_transactions`
             WHERE active = 1 ORDER BY id DESC";
     return select($sql, "", []);
 }
 
-function addRecurring($user, $amount, $description, $startMonth, $endMonth) {
+function addRecurring($user, $amount, $description, $startMonth, $endMonth, $categoryId = null) {
     $user = substr($user, 0, 32);
     $description = substr($description, 0, 64);
     if ($endMonth === null) {
         $id = insert(
-            "INSERT INTO `recurring_transactions` (user, amount, description, start_month) VALUES (?,?,?,?)",
-            "siss", [$user, $amount, $description, $startMonth]
+            "INSERT INTO `recurring_transactions` (user, amount, description, start_month, category_id) VALUES (?,?,?,?,?)",
+            "sissi", [$user, $amount, $description, $startMonth, $categoryId]
         );
     } else {
         $id = insert(
-            "INSERT INTO `recurring_transactions` (user, amount, description, start_month, end_month) VALUES (?,?,?,?,?)",
-            "sisss", [$user, $amount, $description, $startMonth, $endMonth]
+            "INSERT INTO `recurring_transactions` (user, amount, description, start_month, end_month, category_id) VALUES (?,?,?,?,?,?)",
+            "sisssi", [$user, $amount, $description, $startMonth, $endMonth, $categoryId]
         );
     }
     if (!$id) {
@@ -520,20 +611,21 @@ function addRecurring($user, $amount, $description, $startMonth, $endMonth) {
         'description' => $description,
         'start_month' => $startMonth,
         'end_month' => $endMonth,
+        'category_id' => $categoryId,
     ];
 }
 
-function editRecurring($user, $id, $amount, $description, $startMonth, $endMonth) {
+function editRecurring($user, $id, $amount, $description, $startMonth, $endMonth, $categoryId = null) {
     $description = substr($description, 0, 64);
     if ($endMonth === null) {
         $result = query(
-            "UPDATE `recurring_transactions` SET amount = ?, description = ?, start_month = ?, end_month = NULL WHERE id = ? AND user = ? AND active = 1",
-            "issis", [$amount, $description, $startMonth, $id, $user]
+            "UPDATE `recurring_transactions` SET amount = ?, description = ?, start_month = ?, end_month = NULL, category_id = ? WHERE id = ? AND user = ? AND active = 1",
+            "ississ", [$amount, $description, $startMonth, $categoryId, $id, $user]
         );
     } else {
         $result = query(
-            "UPDATE `recurring_transactions` SET amount = ?, description = ?, start_month = ?, end_month = ? WHERE id = ? AND user = ? AND active = 1",
-            "isssis", [$amount, $description, $startMonth, $endMonth, $id, $user]
+            "UPDATE `recurring_transactions` SET amount = ?, description = ?, start_month = ?, end_month = ?, category_id = ? WHERE id = ? AND user = ? AND active = 1",
+            "isssiss", [$amount, $description, $startMonth, $endMonth, $categoryId, $id, $user]
         );
     }
     if (!$result) {
@@ -545,6 +637,7 @@ function editRecurring($user, $id, $amount, $description, $startMonth, $endMonth
         'description' => $description,
         'start_month' => $startMonth,
         'end_month' => $endMonth,
+        'category_id' => $categoryId,
     ];
 }
 
@@ -564,17 +657,17 @@ function hasProcessedRecurring($month) {
 }
 
 function loadUpcomingTransactions() {
-    $sql = "SELECT id, amount, description, target_month FROM `upcoming_transactions`
+    $sql = "SELECT id, amount, description, target_month, category_id FROM `upcoming_transactions`
             WHERE active = 1 AND processed = 0 ORDER BY target_month ASC, id DESC";
     return select($sql, "", []);
 }
 
-function addUpcoming($user, $amount, $description, $targetMonth) {
+function addUpcoming($user, $amount, $description, $targetMonth, $categoryId = null) {
     $user = substr($user, 0, 32);
     $description = substr($description, 0, 64);
     $id = insert(
-        "INSERT INTO `upcoming_transactions` (user, amount, description, target_month) VALUES (?,?,?,?)",
-        "siss", [$user, $amount, $description, $targetMonth]
+        "INSERT INTO `upcoming_transactions` (user, amount, description, target_month, category_id) VALUES (?,?,?,?,?)",
+        "sissi", [$user, $amount, $description, $targetMonth, $categoryId]
     );
     if (!$id) {
         return false;
@@ -584,15 +677,16 @@ function addUpcoming($user, $amount, $description, $targetMonth) {
         'amount' => $amount,
         'description' => $description,
         'target_month' => $targetMonth,
+        'category_id' => $categoryId,
     ];
 }
 
-function editUpcoming($user, $id, $amount, $description, $targetMonth) {
+function editUpcoming($user, $id, $amount, $description, $targetMonth, $categoryId = null) {
     $description = substr($description, 0, 64);
     $result = query(
-        "UPDATE `upcoming_transactions` SET amount = ?, description = ?, target_month = ?
+        "UPDATE `upcoming_transactions` SET amount = ?, description = ?, target_month = ?, category_id = ?
          WHERE id = ? AND user = ? AND active = 1 AND processed = 0",
-        "issis", [$amount, $description, $targetMonth, $id, $user]
+        "ississ", [$amount, $description, $targetMonth, $categoryId, $id, $user]
     );
     if (!$result) {
         return false;
@@ -602,6 +696,7 @@ function editUpcoming($user, $id, $amount, $description, $targetMonth) {
         'amount' => $amount,
         'description' => $description,
         'target_month' => $targetMonth,
+        'category_id' => $categoryId,
     ];
 }
 
@@ -613,7 +708,7 @@ function disableUpcoming($user, $id) {
     );
 }
 
-function paidUpcoming($user, $id, $amount, $description) {
+function paidUpcoming($user, $id, $amount, $description, $categoryId = null) {
 
     $user = substr($user, 0, 32);
     $description = substr($description, 0, 64);
@@ -632,6 +727,20 @@ function paidUpcoming($user, $id, $amount, $description) {
             error_log("Failed to execute transaction");
             error_log("MySQL Execution Error: " . $createTxStmt->error);
             throw new mysqli_sql_exception("Execution failed for transaction.");
+        }
+
+        $transactionId = $conn->insert_id;
+
+        if ($categoryId !== null) {
+            $categoryStmt = prepStatement($conn,
+                "INSERT INTO `transaction_categories` (transaction_id, category_id) VALUES (?,?)",
+                "ii", [$transactionId, $categoryId]);
+
+            if (!$categoryStmt->execute()) {
+                error_log("Failed to execute category insert");
+                error_log("MySQL Execution Error: " . $categoryStmt->error);
+                throw new mysqli_sql_exception("Category insert execution failed.");
+            }
         }
 
         // Update the amount for transaction change
@@ -674,7 +783,7 @@ function processUpcomingForMonth($month) {
         $conn->autocommit(false);
 
         $selectStmt = prepStatement($conn,
-            "SELECT id, user, amount, description FROM `upcoming_transactions`
+            "SELECT id, user, amount, description, category_id FROM `upcoming_transactions`
              WHERE active = 1 AND processed = 0 AND target_month <= ?",
             "s", [$month]);
 
@@ -716,6 +825,19 @@ function processUpcomingForMonth($month) {
                 error_log("Failed to create upcoming transaction id=" . $upcoming["id"]);
                 throw new mysqli_sql_exception("Failed to create upcoming transaction.");
             }
+
+            if ($upcoming["category_id"] !== null) {
+                $newTransactionId = $conn->insert_id;
+                $categoryStmt = prepStatement($conn,
+                    "INSERT INTO `transaction_categories` (transaction_id, category_id) VALUES (?,?)",
+                    "ii", [$newTransactionId, intval($upcoming["category_id"])]);
+
+                if (!$categoryStmt->execute()) {
+                    error_log("Failed to copy category for upcoming transaction id=" . $upcoming["id"]);
+                    throw new mysqli_sql_exception("Failed to copy category for upcoming transaction.");
+                }
+            }
+
             $amountSum += $upcoming["amount"];
         }
 
@@ -766,7 +888,7 @@ function processRecurringForMonth($month) {
         // Fetch ALL users' due recurring transactions inside the transaction to avoid TOCTOU issues
         // end_month is exclusive: a recurring with end_month = current month does not fire
         $selectStmt = prepStatement($conn,
-            "SELECT user, amount, description FROM `recurring_transactions`
+            "SELECT user, amount, description, category_id FROM `recurring_transactions`
              WHERE active = 1 AND start_month <= ? AND (end_month IS NULL OR end_month > ?)",
             "ss", [$month, $month]);
 
@@ -790,6 +912,20 @@ function processRecurringForMonth($month) {
                 error_log("MySQL Execution Error: " . $createStmt->error);
                 throw new mysqli_sql_exception("Failed to create recurring transaction.");
             }
+
+            if ($recurring["category_id"] !== null) {
+                $newTransactionId = $conn->insert_id;
+                $categoryStmt = prepStatement($conn,
+                    "INSERT INTO `transaction_categories` (transaction_id, category_id) VALUES (?,?)",
+                    "ii", [$newTransactionId, intval($recurring["category_id"])]);
+
+                if (!$categoryStmt->execute()) {
+                    error_log("Failed to copy category for recurring transaction in month $month");
+                    error_log("MySQL Execution Error: " . $categoryStmt->error);
+                    throw new mysqli_sql_exception("Failed to copy category for recurring transaction.");
+                }
+            }
+
             $amountSum += $recurring["amount"];
         }
 

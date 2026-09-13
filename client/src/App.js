@@ -11,9 +11,18 @@ import GoalsSection, {
 import * as API from "./API.js";
 import { DrawdownChart } from "./Charts.js";
 import RecurringTransactionsSection from "./RecurringTransactions.js";
-import UpcomingTransactionsSection, { getNextMonthString } from "./UpcomingTransactions.js";
+import UpcomingTransactionsSection, {
+    getNextMonthString,
+} from "./UpcomingTransactions.js";
 import MonthSelector from "./MonthSelector.js";
 import { LineChart } from "./LineChart.js";
+import {
+    AdvancedModeProvider,
+    useAdvancedMode,
+} from "./AdvancedModeContext.js";
+import { CategoriesProvider } from "./CategoriesContext.js";
+import CategoriesSection from "./Categories.js";
+import { CategoryPieChart, CategoryBarChart } from "./CategoryCharts.js";
 
 function LoginForm({ onTryLogin, disabled }) {
     const [username, setUsername] = useState("");
@@ -52,24 +61,33 @@ function BudgetApp() {
     const [transactions, setTransactions] = useState([]);
     const [amountTotal, setAmountTotal] = useState(0);
 
-    const { monthOffset, filters, previousMonth, nextMonth, changeFilterState } =
-        useBudgetNavigation(transactions, setTransactions);
+    const {
+        monthOffset,
+        filters,
+        previousMonth,
+        nextMonth,
+        changeFilterState,
+    } = useBudgetNavigation(transactions, setTransactions);
 
     const [showAddTransaction, setShowAddTransaction] = useState(false);
     const [editingTransactionId, setEditingTransactionId] = useState(null);
     const [showAddGoal, setShowAddGoal] = useState(false);
     const [editingGoalId, setEditingGoalId] = useState(null);
     const [contributingGoalId, setContributingGoalId] = useState(null);
-    const [chartToggle, setChartToggle] = useState(true);
+    const [chartIndex, setChartIndex] = useState(0);
     const [upcomingReloadKey, setUpcomingReloadKey] = useState(0);
+    const advanced = useAdvancedMode();
+    const chartOptions = advanced
+        ? ["drawdown", "line", "categoryPie", "categoryBar"]
+        : ["drawdown", "line"];
 
     const editingTransaction =
         editingTransactionId !== null
-            ? transactions.find((t) => t.id === editingTransactionId) ?? null
+            ? (transactions.find((t) => t.id === editingTransactionId) ?? null)
             : null;
     const editingGoal =
         editingGoalId !== null
-            ? goals.find((g) => g.id === editingGoalId) ?? null
+            ? (goals.find((g) => g.id === editingGoalId) ?? null)
             : null;
 
     const isCurrentMonth = monthOffset === 0;
@@ -173,7 +191,8 @@ function BudgetApp() {
         setEditingTransactionId(transactionId);
     }
     function startDeleteTransaction(transactionId) {
-        const transaction = transactions.find((t) => t.id === transactionId) || null;
+        const transaction =
+            transactions.find((t) => t.id === transactionId) || null;
         API.deleteTransaction(transactionId)
             .then((result) => {
                 if (result.success) {
@@ -186,7 +205,11 @@ function BudgetApp() {
                             setGoals((prev) =>
                                 prev.map((g) =>
                                     g.id === transaction.goal_id
-                                        ? { ...g, amount: g.amount - transaction.amount }
+                                        ? {
+                                              ...g,
+                                              amount:
+                                                  g.amount - transaction.amount,
+                                          }
                                         : g,
                                 ),
                             );
@@ -225,25 +248,46 @@ function BudgetApp() {
         setContributingGoalId(goalId);
     }
     function toggleChart() {
-        setChartToggle(!chartToggle);
+        setChartIndex((i) => (i + 1) % chartOptions.length);
     }
+    const activeChart = chartOptions[chartIndex % chartOptions.length];
     return (
         <BudgetContext.Provider
-            value={{ monthOffset, filters, previousMonth, nextMonth, changeFilterState }}
+            value={{
+                monthOffset,
+                filters,
+                previousMonth,
+                nextMonth,
+                changeFilterState,
+            }}
         >
             {showAddTransaction && (
                 <AddEditTransactionDialog
                     onCancel={() => setShowAddTransaction(false)}
-                    onSave={(id, amount, description) => {
-                        return API.saveTransaction(id, amount, description)
+                    onSave={(id, amount, description, categoryId) => {
+                        return API.saveTransaction(
+                            id,
+                            amount,
+                            description,
+                            categoryId,
+                        )
                             .then((result) => {
                                 if (result.success) {
                                     setShowAddTransaction(false);
-                                    setTransactions((prev) => [result.transaction, ...prev]);
-                                    setAmountTotal((prev) => prev - result.transaction.amount);
+                                    setTransactions((prev) => [
+                                        result.transaction,
+                                        ...prev,
+                                    ]);
+                                    setAmountTotal(
+                                        (prev) =>
+                                            prev - result.transaction.amount,
+                                    );
                                     return true;
                                 } else {
-                                    alert(result.message || "Failed to save transaction");
+                                    alert(
+                                        result.message ||
+                                            "Failed to save transaction",
+                                    );
                                     return false;
                                 }
                             })
@@ -260,33 +304,66 @@ function BudgetApp() {
                     id={editingTransaction.id}
                     amount={editingTransaction.amount / 100}
                     description={editingTransaction.description}
+                    categoryId={editingTransaction.category_id ?? null}
+                    isGoalTransaction={editingTransaction.goal_id != null}
                     onCancel={() => setEditingTransactionId(null)}
-                    onSave={(id, amount, description) => {
+                    onSave={(id, amount, description, categoryId) => {
                         const prevTransaction = editingTransaction;
-                        return API.saveTransaction(id, amount, description)
+                        return API.saveTransaction(
+                            id,
+                            amount,
+                            description,
+                            categoryId,
+                        )
                             .then((result) => {
                                 if (result.success) {
                                     setEditingTransactionId(null);
                                     setTransactions((prev) =>
                                         prev.map((t) =>
                                             t.id === result.transaction.id
-                                                ? { ...t, amount: result.transaction.amount, description: result.transaction.description }
+                                                ? {
+                                                      ...t,
+                                                      amount: result.transaction
+                                                          .amount,
+                                                      description:
+                                                          result.transaction
+                                                              .description,
+                                                      category_id:
+                                                          result.transaction
+                                                              .category_id,
+                                                  }
                                                 : t,
                                         ),
                                     );
-                                    setAmountTotal((prev) => prev + prevTransaction.amount - result.transaction.amount);
+                                    setAmountTotal(
+                                        (prev) =>
+                                            prev +
+                                            prevTransaction.amount -
+                                            result.transaction.amount,
+                                    );
                                     if (result.transaction.goal_id) {
                                         setGoals((prev) =>
                                             prev.map((g) =>
-                                                g.id === result.transaction.goal_id
-                                                    ? { ...g, amount: g.amount + result.transaction.amount - prevTransaction.amount }
+                                                g.id ===
+                                                result.transaction.goal_id
+                                                    ? {
+                                                          ...g,
+                                                          amount:
+                                                              g.amount +
+                                                              result.transaction
+                                                                  .amount -
+                                                              prevTransaction.amount,
+                                                      }
                                                     : g,
                                             ),
                                         );
                                     }
                                     return true;
                                 } else {
-                                    alert(result.message || "Failed to save transaction");
+                                    alert(
+                                        result.message ||
+                                            "Failed to save transaction",
+                                    );
                                     return false;
                                 }
                             })
@@ -309,7 +386,9 @@ function BudgetApp() {
                                     setGoals((prev) => [...prev, result.goal]);
                                     return true;
                                 } else {
-                                    alert(result.message || "Failed to save goal");
+                                    alert(
+                                        result.message || "Failed to save goal",
+                                    );
                                     return false;
                                 }
                             })
@@ -335,13 +414,18 @@ function BudgetApp() {
                                     setGoals((prev) =>
                                         prev.map((g) =>
                                             g.id === result.goal.id
-                                                ? { ...g, total: result.goal.total }
+                                                ? {
+                                                      ...g,
+                                                      total: result.goal.total,
+                                                  }
                                                 : g,
                                         ),
                                     );
                                     return true;
                                 } else {
-                                    alert(result.message || "Failed to save goal");
+                                    alert(
+                                        result.message || "Failed to save goal",
+                                    );
                                     return false;
                                 }
                             })
@@ -363,18 +447,30 @@ function BudgetApp() {
                             .then((result) => {
                                 if (result.success) {
                                     setContributingGoalId(null);
-                                    setTransactions((prev) => [result.transaction, ...prev]);
-                                    setAmountTotal((prev) => prev - result.transaction.amount);
+                                    setTransactions((prev) => [
+                                        result.transaction,
+                                        ...prev,
+                                    ]);
+                                    setAmountTotal(
+                                        (prev) =>
+                                            prev - result.transaction.amount,
+                                    );
                                     setGoals((prev) =>
                                         prev.map((g) =>
                                             g.id === goalId
-                                                ? { ...g, amount: result.goalAmount }
+                                                ? {
+                                                      ...g,
+                                                      amount: result.goalAmount,
+                                                  }
                                                 : g,
                                         ),
                                     );
                                     return true;
                                 } else {
-                                    alert(result.message || "Failed to save goal contribution");
+                                    alert(
+                                        result.message ||
+                                            "Failed to save goal contribution",
+                                    );
                                     return false;
                                 }
                             })
@@ -395,17 +491,19 @@ function BudgetApp() {
                     <br />
                     {!isNextMonth ? (
                         <div id="days_left">
-                            {isCurrentMonth ? getDaysLeftInTheMonth() + " days left" : null}
-                        </div>) : null}
+                            {isCurrentMonth
+                                ? getDaysLeftInTheMonth() + " days left"
+                                : null}
+                        </div>
+                    ) : null}
                 </span>
-
             </MonthSelector>
 
             <div className="main-grid">
                 <div className="col-primary">
                     {!isNextMonth && (
                         <div onClick={toggleChart}>
-                            {!isCurrentMonth || chartToggle ?
+                            {!isCurrentMonth || activeChart === "drawdown" ? (
                                 <h1 className="chart-wrapper">
                                     Drawdown
                                     <DrawdownChart
@@ -414,15 +512,39 @@ function BudgetApp() {
                                         height={166}
                                     />
                                     <br />
-                                </h1> :
+                                </h1>
+                            ) : null}
+                            {isCurrentMonth && activeChart === "line" && (
                                 <h1 className="chart-wrapper">
                                     Monthly Income/Expenses
                                     <LineChart width={400} height={200} />
                                     <br />
-                                </h1>}
+                                </h1>
+                            )}
+                            {isCurrentMonth &&
+                                activeChart === "categoryPie" && (
+                                    <h1 className="chart-wrapper">
+                                        Spend by Category
+                                        <CategoryPieChart
+                                            width={300}
+                                            height={260}
+                                        />
+                                        <br />
+                                    </h1>
+                                )}
+                            {isCurrentMonth &&
+                                activeChart === "categoryBar" && (
+                                    <h1 className="chart-wrapper">
+                                        Monthly Spend by Category
+                                        <CategoryBarChart
+                                            width={400}
+                                            height={240}
+                                        />
+                                        <br />
+                                    </h1>
+                                )}
                         </div>
                     )}
-
 
                     {isNextMonth && (
                         <UpcomingTransactionsSection
@@ -445,7 +567,12 @@ function BudgetApp() {
                 <div className="col-sidebar">
                     {isCurrentMonth && (
                         <>
-                            <UpcomingTransactionsSection reloadKey={upcomingReloadKey} handleTransactionCreated={handleTransactionCreated} />
+                            <UpcomingTransactionsSection
+                                reloadKey={upcomingReloadKey}
+                                handleTransactionCreated={
+                                    handleTransactionCreated
+                                }
+                            />
                             <GoalsSection
                                 goals={goals}
                                 startAddGoal={startAddGoal}
@@ -465,9 +592,9 @@ function BudgetApp() {
                             startDeleteTransaction={startDeleteTransaction}
                         />
                     )}
+                    {advanced && <CategoriesSection />}
                 </div>
             </div>
-
         </BudgetContext.Provider>
     );
 }
@@ -519,5 +646,11 @@ export default function App() {
         return <LoginForm onTryLogin={onTryLogin} disabled={loggingIn} />;
     }
 
-    return <BudgetApp />;
+    return (
+        <AdvancedModeProvider>
+            <CategoriesProvider>
+                <BudgetApp />
+            </CategoriesProvider>
+        </AdvancedModeProvider>
+    );
 }

@@ -45,8 +45,13 @@ switch($_SERVER['REQUEST_METHOD']) {
                 exit(1);
             }
 
+            $categoryId = isset($_POST["category_id"]) && $_POST["category_id"] !== null ? intval($_POST["category_id"]) : null;
+            if ($categoryId !== null && !categoryExists($categoryId)) {
+                $categoryId = null;
+            }
+
             try {
-                $tx = addTransaction($_SESSION["budget_auth"], $amount, $description);
+                $tx = addTransaction($_SESSION["budget_auth"], $amount, $description, $categoryId);
                 echo json_encode(["success" => true, "transaction" => $tx]);
             } catch (Error $e) {
                 echo json_encode(["success" => false]);
@@ -89,9 +94,14 @@ switch($_SERVER['REQUEST_METHOD']) {
             echo json_encode(["success" => false, "message" => "Description cannot be empty."]);
             exit(1);
         }
-    
+
+        $categoryId = isset($data["category_id"]) && $data["category_id"] !== null ? intval($data["category_id"]) : null;
+        if ($categoryId !== null && !categoryExists($categoryId)) {
+            $categoryId = null;
+        }
+
         try {
-            $tx = editTransaction($_SESSION["budget_auth"], $id, $amount, $description);
+            $tx = editTransaction($_SESSION["budget_auth"], $id, $amount, $description, $categoryId);
             if (!$tx) {
                 echo json_encode(["success" => false]);
             } else {

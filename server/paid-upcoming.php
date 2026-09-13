@@ -35,8 +35,13 @@ switch ($_SERVER['REQUEST_METHOD']) {
             exit(1);
         }
 
+        $categoryId = isset($data["category_id"]) && $data["category_id"] !== null ? intval($data["category_id"]) : null;
+        if ($categoryId !== null && !categoryExists($categoryId)) {
+            $categoryId = null;
+        }
+
         try {
-            $success = paidUpcoming($_SESSION["budget_auth"], $id, $amount, $description);
+            $success = paidUpcoming($_SESSION["budget_auth"], $id, $amount, $description, $categoryId);
             echo json_encode(["success" => (bool)$success]);
         } catch (\Exception $e) {
             error_log("paid-upcoming.php error: " . $e->getMessage());
