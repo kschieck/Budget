@@ -11,9 +11,6 @@ import GoalsSection, {
 import * as API from "./API.js";
 import { DrawdownChart } from "./Charts.js";
 import RecurringTransactionsSection from "./RecurringTransactions.js";
-import UpcomingTransactionsSection, {
-    getNextMonthString,
-} from "./UpcomingTransactions.js";
 import MonthSelector from "./MonthSelector.js";
 import { LineChart } from "./LineChart.js";
 import {
@@ -75,7 +72,6 @@ function BudgetApp() {
     const [editingGoalId, setEditingGoalId] = useState(null);
     const [contributingGoalId, setContributingGoalId] = useState(null);
     const [chartIndex, setChartIndex] = useState(0);
-    const [upcomingReloadKey, setUpcomingReloadKey] = useState(0);
     const advanced = useAdvancedMode();
     const chartOptions = advanced
         ? ["drawdown", "line", "categoryPie", "categoryBar"]
@@ -162,9 +158,6 @@ function BudgetApp() {
             .then((json) => {
                 if (json.success) {
                     setTransactions(json.transactions);
-                    if (monthOffset === 0) {
-                        setUpcomingReloadKey((k) => k + 1);
-                    }
                 } else {
                     alert("Failed to load data");
                 }
@@ -179,9 +172,6 @@ function BudgetApp() {
     function handleTransactionCreated() {
         loadAmountTotal();
         loadTransactions();
-        if (isNextMonth) {
-            setUpcomingReloadKey((k) => k + 1);
-        }
     }
 
     function startAddTransaction() {
@@ -546,13 +536,6 @@ function BudgetApp() {
                         </div>
                     )}
 
-                    {isNextMonth && (
-                        <UpcomingTransactionsSection
-                            filterMonth={getNextMonthString()}
-                            reloadKey={upcomingReloadKey}
-                            handleTransactionCreated={handleTransactionCreated}
-                        />
-                    )}
                     {isCurrentMonth && (
                         <TransactionsSection
                             transactions={filteredTransactions}
@@ -567,12 +550,7 @@ function BudgetApp() {
                 <div className="col-sidebar">
                     {isCurrentMonth && (
                         <>
-                            <UpcomingTransactionsSection
-                                reloadKey={upcomingReloadKey}
-                                handleTransactionCreated={
-                                    handleTransactionCreated
-                                }
-                            />
+                            {advanced && <CategoriesSection />}
                             <GoalsSection
                                 goals={goals}
                                 startAddGoal={startAddGoal}
@@ -592,7 +570,6 @@ function BudgetApp() {
                             startDeleteTransaction={startDeleteTransaction}
                         />
                     )}
-                    {advanced && <CategoriesSection />}
                 </div>
             </div>
         </BudgetContext.Provider>

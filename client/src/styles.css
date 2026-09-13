@@ -608,6 +608,11 @@ h3.sub_title+table input[type="checkbox"] {
   overflow: hidden;
 }
 
+#category_title + table tbody {
+  display: flex;
+  flex-direction: column;
+}
+
 #category_title + table tbody tr {
   display: flex;
   align-items: center;
