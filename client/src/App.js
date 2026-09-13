@@ -536,6 +536,8 @@ function BudgetApp() {
                         </div>
                     )}
 
+                    {!isCurrentMonth && advanced && <CategoriesSection />}
+
                     {isCurrentMonth && (
                         <TransactionsSection
                             transactions={filteredTransactions}
@@ -550,7 +552,6 @@ function BudgetApp() {
                 <div className="col-sidebar">
                     {isCurrentMonth && (
                         <>
-                            {advanced && <CategoriesSection />}
                             <GoalsSection
                                 goals={goals}
                                 startAddGoal={startAddGoal}
@@ -558,6 +559,7 @@ function BudgetApp() {
                                 startDeleteGoal={startDeleteGoal}
                                 startContributeGoal={startContributeGoal}
                             />
+                            {advanced && <CategoriesSection />}
                         </>
                     )}
                     {isNextMonth && <RecurringTransactionsSection />}
